@@ -1,0 +1,4 @@
+# Malware guard — chặn commit file config/source bị cấy mã độc (hard block).
+bash scripts/scan-malware.sh --staged || exit 1
+
+npx lint-staged

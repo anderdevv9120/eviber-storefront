@@ -1,0 +1,60 @@
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import axios from "axios";
+import { ACCESS_TOKEN, REFRESH_TOKEN, REMEMBER_ME } from "@/constants";
+
+// Refresh token là httpOnly cookie nên client không đọc được —
+// route này đọc cookie server-side, gọi BE refresh rồi set lại cặp cookie mới.
+export async function POST() {
+  const refreshToken = cookies().get(REFRESH_TOKEN)?.value;
+
+  if (!refreshToken) {
+    // code để client phân biệt "chưa có phiên" với "phiên hết hạn/không hợp lệ"
+    return NextResponse.json(
+      { message: "Refresh token not found", code: "NO_REFRESH_TOKEN" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+      { refreshToken }
+    );
+    const {
+      accessToken,
+      accessExpiresIn,
+      refreshToken: newRefreshToken,
+      refreshExpiresIn,
+    } = res.data.data;
+
+    // Giữ nguyên tính chất phiên user đã chọn lúc login ("Lưu đăng nhập"):
+    // phiên session (rememberMe=0) không được nâng cấp thành persistent khi refresh
+    const rememberMe = cookies().get(REMEMBER_ME)?.value !== "0";
+    const baseCookie = { secure: true, sameSite: "strict", path: "/" } as const;
+
+    cookies().set(ACCESS_TOKEN, accessToken, {
+      ...baseCookie,
+      ...(rememberMe ? { maxAge: accessExpiresIn / 1000 } : {}),
+    });
+
+    cookies().set(REFRESH_TOKEN, newRefreshToken, {
+      ...baseCookie,
+      httpOnly: true,
+      ...(rememberMe ? { maxAge: refreshExpiresIn / 1000 } : {}),
+    });
+
+    return NextResponse.json({ data: { accessToken } });
+  } catch (error) {
+    const status =
+      axios.isAxiosError(error) && error.response ? error.response.status : 500;
+
+    // Chỉ xóa phiên khi token thực sự bị BE từ chối — lỗi tạm thời (5xx, mạng)
+    // không được logout user, giữ cookie để lần gọi sau retry
+    if (status === 401 || status === 403) {
+      cookies().delete(ACCESS_TOKEN);
+      cookies().delete(REFRESH_TOKEN);
+    }
+    return NextResponse.json({ message: "Refresh token failed" }, { status });
+  }
+}

@@ -1,0 +1,71 @@
+name: X-Ecom FE CI/CD
+
+on:
+  push:
+    branches: develop
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Print repository name
+      run: echo "The repository is ${{ github.repository }}"
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: docker.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Set environment variables
+      run: |
+        echo "${{ vars.ENV_VAR }}" >> .env
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+      with:
+        images: ${{ secrets.DOCKER_HUB_USERNAME }}/x-ecom-fe
+  
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Executing remote SSH commands using SSH key
+        run: sudo apt-get update && sudo apt-get install -y openssh-client bash
+
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+      - name: Deploy to Server
+        run: |
+          ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "
+            cd ${{ secrets.PATH_PROCJECT }}
+            echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/x-ecom-fe:develop
+            docker stop x-ecom-fe || true
+            docker rm x-ecom-fe || true
+            docker run -d -p 3001:3001 --name x-ecom-fe ${{ secrets.DOCKER_HUB_USERNAME }}/x-ecom-fe:develop;
+          "
