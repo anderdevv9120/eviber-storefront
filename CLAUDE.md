@@ -1,4 +1,4 @@
-# CLAUDE.md — Ecommerce-FE
+# CLAUDE.md — frontend
 
 > Conventions chung toàn workspace (multi-repo, ngôn ngữ, skill routing) → `../CLAUDE.md` (root).
 > File này chỉ chứa những gì riêng của repo frontend.
@@ -112,3 +112,4 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 - **`middleware.ts` matcher chỉ cover `/login`, `/register`, `/user/*`** — `/cart` và `/checkout` KHÔNG qua middleware (guest cart/checkout là chủ đích, e2e guest checkout đã ghim hành vi này).
 - `services/` chỉ còn `todo.ts` gọi jsonplaceholder — boilerplate sót lại, KHÔNG theo pattern này; API layer thật là `apis/`.
 - Palette Tailwind bị override toàn bộ trong `tailwind.config.ts` (primary Pine `#0E7C66`) — màu mặc định Tailwind ngoài danh sách không tồn tại. Numbering đã chuẩn hóa: mọi nhóm số càng to càng đậm, nấc DEFAULT ghi comment cạnh từng nhóm (chi tiết + typography scale → rule `tailwind-v3`).
+- **Đổi `tailwind.config.ts` phải RESTART dev server** — Next dev KHÔNG hot-reload file này; thêm token mới (màu/shadow...) lúc server đang chạy sẽ không được generate (class ra `none`/rỗng, im lặng). Sửa xong `tailwind.config.ts` → kill + `npm run dev` lại.

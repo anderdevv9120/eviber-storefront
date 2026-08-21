@@ -3,7 +3,7 @@ import path from "path";
 
 const parsed =
   config({
-    path: path.resolve(__dirname, "../../../x-ecommerce-backend/.env"),
+    path: path.resolve(__dirname, "../../../backend/.env"),
     processEnv: {},
     quiet: true,
   }).parsed ?? {};

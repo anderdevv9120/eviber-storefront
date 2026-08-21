@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-// Fixture seed cố định (x-ecommerce-backend/src/seeds/fixtures/products.fixture.ts):
+// Fixture seed cố định (backend/src/seeds/fixtures/products.fixture.ts):
 // HOODIE _id 07…0003, mọi tổ hợp variant Đen/Xám × M/L đều còn hàng.
 export const HOODIE = {
   name: "Áo Khoác Hoodie Nỉ",

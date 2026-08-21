@@ -10,7 +10,7 @@ export function signVerificationToken(email: string): string {
   const secret = backendEnv("VERIFY_TOKEN_SECRET") || backendEnv("JWT_SECRET");
   if (!secret) {
     throw new Error(
-      "Không đọc được VERIFY_TOKEN_SECRET/JWT_SECRET từ x-ecommerce-backend/.env"
+      "Không đọc được VERIFY_TOKEN_SECRET/JWT_SECRET từ backend/.env"
     );
   }
 

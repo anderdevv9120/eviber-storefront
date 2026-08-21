@@ -1,4 +1,4 @@
-import axiosRequest from "@/config/axios";
+import axiosRequest, { REFRESH_LOCK_NAME } from "@/config/axios";
 import axios from "axios";
 
 // Các endpoint auth hiển thị lỗi inline trong form (hoặc tự toast message riêng)
@@ -50,13 +50,17 @@ export const setTokenServer = (data: object, rememberMe: boolean = true) => {
   return axios.post("/api/auth", { data, rememberMe });
 };
 
-export const deleteTokenServer = async () => {
-  try {
-    const res = await axios.delete("/api/auth");
-    return res;
-  } catch (error) {
-    console.log("errors", error);
+// Logout qua route handler: revoke đúng phiên hiện tại phía BE (refresh token là httpOnly)
+// rồi xóa cặp cookie phiên — luôn hoàn tất phía client kể cả khi BE từ chối.
+// Bọc trong CÙNG Web Lock với refresh: nếu interceptor đang refresh dở, logout chờ
+// rotate xong mới chạy — tránh revoke trượt phiên mới + cookie bị Set-Cookie của
+// refresh khôi phục lại sau khi đã xóa
+export const logoutServer = () => {
+  const doLogout = () => axios.post("/api/auth/logout");
+  if (typeof navigator === "undefined" || !navigator.locks) {
+    return doLogout();
   }
+  return navigator.locks.request(REFRESH_LOCK_NAME, doLogout);
 };
 
 export const forgotPassword = (email: string) => {
@@ -80,7 +84,7 @@ const authAPI = {
   resetPassword,
   forgotPassword,
   setTokenServer,
-  deleteTokenServer,
+  logoutServer,
   verifyEmail,
   resendVerifyEmail,
 };

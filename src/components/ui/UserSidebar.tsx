@@ -10,7 +10,7 @@ import {
   Exit,
 } from "@/components/icons";
 import { PATH } from "@/constants/paths";
-import { deleteTokenServer } from "@/apis/auth";
+import { logoutServer } from "@/apis/auth";
 import { useAppStore } from "@/store/useAppStore";
 import { usePathname, useRouter } from "next/navigation";
 import FadeWrapper from "@/components/ui/FadeWrapper";
@@ -45,8 +45,12 @@ const UserSidebar = ({
     [pathName]
   );
 
-  const handleLogout = () => {
-    deleteTokenServer();
+  const handleLogout = async () => {
+    try {
+      await logoutServer();
+    } catch {
+      // Route handler cùng origin hiếm khi fail — lỗi mạng thì vẫn dọn phiên cục bộ bên dưới
+    }
     clearProfile();
     closeMenu?.();
     router.push(PATH.LOGIN);
