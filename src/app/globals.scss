@@ -3,6 +3,7 @@
   --color-primary: #0e7c66;
   --color-primary-700: #0b6353;
   --color-primary-100: #d7f0e8; /* focus ring */
+  --color-primary-300: #79cbb6; /* dot logo trên nền Pine đậm */
   --color-text-disabled: #9ca3af; /* = gray-400 */
 }
 
@@ -32,24 +33,29 @@ body {
 @tailwind components;
 @tailwind utilities;
 
-.container-base {
-  @media (min-width: 1900px) {
-    width: 1530px;
-    margin: 0 auto;
-  }
+/* Nằm trong layer components để utilities Tailwind (pt-*, py-*...) trên cùng
+   element LUÔN thắng — trước đây khai báo sau @tailwind utilities nên
+   padding: 0 16px đè mất padding dọc ở <1280px, phải chữa cháy bằng !important */
+@layer components {
+  .container-base {
+    @media (min-width: 1900px) {
+      width: 1530px;
+      margin: 0 auto;
+    }
 
-  @media (min-width: 1500px) and (max-width: 1900px) {
-    width: 1384px;
-    margin: 0 auto;
-  }
+    @media (min-width: 1500px) and (max-width: 1900px) {
+      width: 1384px;
+      margin: 0 auto;
+    }
 
-  @media (min-width: 1280px) and (max-width: 1500px) {
-    width: 1100px;
-    margin: 0 auto;
-  }
+    @media (min-width: 1280px) and (max-width: 1500px) {
+      width: 1100px;
+      margin: 0 auto;
+    }
 
-  @media (max-width: 1279px) {
-    padding: 0 16px;
+    @media (max-width: 1279px) {
+      padding: 0 16px;
+    }
   }
 }
 

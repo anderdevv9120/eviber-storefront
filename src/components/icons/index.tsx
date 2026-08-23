@@ -18,7 +18,6 @@ import Guarantee from "./Guarantee";
 import Heart from "./Heart";
 import HeartInsurance from "./HeartInsurance";
 import Logo from "./Logo";
-import LogoFurniture from "./LogoFurniture";
 import Phone from "./Phone";
 import PointStar from "./PointStar";
 import Percent from "./Percent";
@@ -42,6 +41,11 @@ import Address from "./Address";
 import CartProfile from "./CartProfile";
 import MenuIcon from "./Menu";
 import Back from "./Back";
+import CheckOutline from "./CheckOutline";
+import HeartOutline from "./HeartOutline";
+import Repeat from "./Repeat";
+import Shield from "./Shield";
+import Truck from "./Truck";
 import Home from "./Home";
 import Exit from "./Exit";
 import Warning from "./Warning";
@@ -70,7 +74,6 @@ export {
   Heart,
   HeartInsurance,
   Logo,
-  LogoFurniture,
   Phone,
   PointStar,
   Percent,
@@ -100,4 +103,9 @@ export {
   Plus,
   Minus,
   RightArrow,
+  Truck,
+  Repeat,
+  Shield,
+  CheckOutline,
+  HeartOutline,
 };

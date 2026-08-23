@@ -45,8 +45,8 @@ export const OutOfStock: Story = {
 
 /**
  * P0: Click nút "yêu thích" KHÔNG được điều hướng (Link không kích hoạt).
- * Kiểm tra theo kết quả quan sát được (bền, không phụ thuộc thứ tự event của React):
- *  - handler chạy → trạng thái yêu thích đổi (class icon đổi)
+ * Query theo role + aria (bền với mọi thay đổi style):
+ *  - handler chạy → aria-pressed đổi trạng thái
  *  - không điều hướng → link vẫn còn & href không đổi.
  */
 export const FavoriteDoesNotNavigate: Story = {
@@ -54,26 +54,32 @@ export const FavoriteDoesNotNavigate: Story = {
     const canvas = within(canvasElement);
     const initialHref = canvas.getByRole("link").getAttribute("href");
 
-    // Nút tim là div bọc icon Heart, nằm góc trên phải của ảnh.
-    const heartWrapper = canvasElement.querySelector<HTMLDivElement>(
-      "div.absolute.top-3.right-3"
-    );
-    await expect(heartWrapper).toBeTruthy();
-    const iconClassBefore =
-      heartWrapper!.querySelector("svg")?.getAttribute("class") ?? "";
+    const heartButton = canvas.getByRole("button", {
+      name: "Yêu thích sản phẩm",
+    });
+    await expect(heartButton.getAttribute("aria-pressed")).toBe("false");
 
-    await userEvent.click(heartWrapper!);
+    await userEvent.click(heartButton);
 
-    // Handler yêu thích đã chạy: class icon đổi trạng thái.
+    // Handler yêu thích đã chạy: aria-pressed đổi trạng thái.
     await waitFor(async () => {
-      const iconClassAfter =
-        heartWrapper!.querySelector("svg")?.getAttribute("class") ?? "";
-      await expect(iconClassAfter).not.toBe(iconClassBefore);
+      await expect(heartButton.getAttribute("aria-pressed")).toBe("true");
     });
 
     // Không điều hướng: link vẫn hiển thị và href không đổi.
     await expect(canvas.getByRole("link").getAttribute("href")).toBe(
       initialHref
     );
+  },
+};
+
+/** Cover hàng meta mới: rating (stars) + soldCount ("Đã bán") dưới tên */
+export const WithRatingAndSold: Story = {
+  args: {
+    productItem: {
+      ...mockProductDetail,
+      rating: 4.8,
+      soldCount: 132,
+    },
   },
 };

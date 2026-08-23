@@ -3,32 +3,32 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Input from "@/components/ui/Input";
-import {
-  Envelope,
-  Search,
-  Favorite,
-  CartShopping,
-  DownAngle,
-  LogoFurniture,
-} from "@/components/icons";
+import { Search, Logo } from "@/components/icons";
 import HeaderNav from "./HeaderNav";
-import UserHeader from "./UserHeader";
 import UserAction from "./UserAction";
+import CategoryDropdown from "./CategoryDropdown";
 import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
+import { ICategoryItem } from "@/@types/Home.type";
 
-const menus = [
-  { name: "Trang chủ", link: "/" },
-  { name: "Sản phẩm", link: "/collection", icon: <DownAngle /> },
-  { name: "Tin tức", link: "#" },
-  { name: "Liên hệ", link: "#" },
+// "Liên hệ" chưa có trang riêng — neo xuống khối liên hệ ở Footer (id="lien-he")
+const CONTACT_ANCHOR = `${PATH.HOME}#lien-he`;
+
+const mobileMenus = [
+  { name: "Trang chủ", link: PATH.HOME },
+  { name: "Sản phẩm", link: PATH.COLLECTION },
+  { name: "Liên hệ", link: CONTACT_ANCHOR },
 ];
 
 const SHOW_DELTA = -6;
 const HIDE_DELTA = 6;
 const PIN_AT_TOP = 64;
 
-export default function Header() {
+interface HeaderProps {
+  categories: ICategoryItem[];
+}
+
+export default function Header({ categories }: HeaderProps) {
   const lastY = useRef(0);
   const ticking = useRef(false);
 
@@ -67,57 +67,56 @@ export default function Header() {
   }, []);
 
   return (
-    <>
-      <header
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-transform duration-300 will-change-transform shadow-[0_8px_20px_rgba(0,0,0,0.08)]",
-          visible ? "translate-y-0" : "-translate-y-full",
-          scrolled ? "bg-white/80" : "bg-white"
-        )}
-      >
-        <div className="hidden py-4 xl:block">
-          <div className="container-base flex justify-between items-center">
-            <div className="hidden gap-5 xl:flex">
-              {menus.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.link}
-                  className="flex gap-1 items-center hover:text-primary-500 transition-colors"
-                >
-                  {item.name}
-                  {item.icon}
-                </Link>
-              ))}
-            </div>
-
-            <Link href={PATH.HOME} aria-label="Logo">
-              <LogoFurniture />
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-transform duration-300 will-change-transform border-b border-white-500",
+        visible ? "translate-y-0" : "-translate-y-full",
+        scrolled ? "bg-white/80 backdrop-blur-sm" : "bg-white"
+      )}
+    >
+      <div className="hidden py-4 xl:block">
+        <div className="container-base grid grid-cols-[1fr_auto_1fr] items-center">
+          <nav className="flex gap-6 items-center">
+            <Link
+              href={PATH.HOME}
+              className="font-semibold hover:text-primary-700 transition-colors"
+            >
+              Trang chủ
             </Link>
+            <CategoryDropdown categories={categories} />
+            <Link
+              href={CONTACT_ANCHOR}
+              className="font-semibold hover:text-primary-700 transition-colors"
+            >
+              Liên hệ
+            </Link>
+          </nav>
 
-            <div className="flex gap-5 items-center">
-              <Input
-                variant="standard"
-                placeholder="Tìm kiếm sản phẩm"
-                error=""
-                icon={<Search className="text-primary-800" />}
-                className="xl:w-[230px] xxl:w-[320px] bg-white/0"
-              />
-              {/* <Link className="flex flex-col items-center" href="#">
-                <Favorite fill="none" className="text-white w-9 h-9" />
-              </Link> */}
-              <UserAction />
-            </div>
+          <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
+            <Logo className="text-dark-800" />
+          </Link>
+
+          <div className="flex gap-5 items-center justify-end">
+            {/* Ô search decorative — chức năng search thuộc Backlog (đã chốt) */}
+            <Input
+              variant="standard"
+              placeholder="Tìm kiếm sản phẩm"
+              error=""
+              icon={<Search className="text-dark-400" />}
+              className="xl:w-[230px] xxl:w-[320px] bg-white/0"
+            />
+            <UserAction />
           </div>
         </div>
+      </div>
 
-        <div className="flex py-5 px-4 justify-between items-center xl:hidden">
-          <HeaderNav menus={menus} />
-          <Link href={PATH.HOME} aria-label="Logo">
-            <LogoFurniture className="text-primary-500 ml-8" />
-          </Link>
-          <UserAction />
-        </div>
-      </header>
-    </>
+      <div className="flex py-5 px-4 justify-between items-center xl:hidden">
+        <HeaderNav menus={mobileMenus} />
+        <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
+          <Logo className="text-dark-800 ml-8" />
+        </Link>
+        <UserAction />
+      </div>
+    </header>
   );
 }

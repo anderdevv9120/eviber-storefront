@@ -2,15 +2,22 @@ import Footer from "@/layouts/Footer";
 import Header from "@/layouts/Header";
 import { ReactNode } from "react";
 import Authentication from "@/components/organisms/Authentication";
+import { fetchCategoriesCached } from "@/apis/home.server";
 
-export default function MainLayout({
+// Mức revalidate NỀN cho mọi route con chưa tự khai báo — thiếu là route static
+// (collection/cart/user...) cache categories nav VĨNH VIỄN tại thời điểm build
+export const revalidate = 300;
+
+export default async function MainLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const categories = await fetchCategoriesCached();
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header categories={categories} />
       <div className="flex flex-1 flex-col pt-12 xl:pt-[74px]">{children}</div>
       <Authentication />
       <Footer />

@@ -20,7 +20,7 @@ const Logo = ({ ...rest }: SVGProps<SVGSVGElement>) => (
       letterSpacing="2"
       fill="currentColor"
     >
-      CLOTHES<tspan fill="var(--color-primary)">.</tspan>
+      CLOTHES<tspan fill="var(--logo-dot, var(--color-primary))">.</tspan>
     </text>
   </svg>
 );

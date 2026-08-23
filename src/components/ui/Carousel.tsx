@@ -74,7 +74,7 @@ const Carousel = ({
 
   return (
     <div {...handleSwipe} className={cn("relative", className)}>
-      <div className="relative flex items-center sm:h-80 md:h-[26rem] xl:h-[34rem] 2xl:h-[41rem] overflow-hidden group">
+      <div className="relative flex items-center sm:h-80 md:h-[26rem] xl:h-[34rem] 2xl:h-[41rem] overflow-hidden group/rail">
         <div
           className="flex transition-transform duration-500 h-full"
           style={{

@@ -6,7 +6,7 @@ import EmptyCollection from "./_component/EmptyCollection";
 
 const Collection = () => {
   return (
-    <div className="container-base py-7 !pt-10">
+    <div className="container-base pt-10 pb-7">
       {/* <h1 className="text-center text-2xl font-medium xl:text-primary my-10 cursor-pointer hover:underline">
         Collection
       </h1> */}

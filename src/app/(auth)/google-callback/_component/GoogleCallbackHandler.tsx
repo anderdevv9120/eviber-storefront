@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/config/utils";
 import Button from "@/components/ui/Button";
 import { getParams } from "@/utils/getParams";
 import { googleCallback, setTokenServer } from "@/apis/auth";
@@ -10,7 +9,6 @@ import { successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { PATH } from "@/constants/paths";
 import AuthNotice from "../../_component/AuthNotice";
-import { AUTH_CTA_COLOR } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
 
 const GoogleCallbackHandler = () => {
@@ -57,7 +55,7 @@ const GoogleCallbackHandler = () => {
       >
         <Button
           size="lg"
-          className={cn("w-full", AUTH_CTA_COLOR)}
+          className="w-full"
           onClick={() => router.push(PATH.LOGIN)}
         >
           Quay lại trang đăng nhập

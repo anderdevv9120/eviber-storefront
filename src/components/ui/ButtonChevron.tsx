@@ -15,11 +15,11 @@ const ButtonChevron = ({
   return (
     <button
       className={cn(
-        "absolute z-10 top-1/2 transform -translate-y-1/2 md:p-4 p-3 bg-white rounded-full border transition-all duration-300 opacity-0 pointer-events-none",
+        "absolute z-10 top-1/2 transform -translate-y-1/2 md:p-3 p-2.5 bg-white rounded-full border transition-all duration-300 opacity-0 pointer-events-none",
         isRightButton
-          ? "translate-x-4 group-hover:translate-x-0 right-2"
-          : "-translate-x-4 group-hover:translate-x-0 left-2",
-        "group-hover:opacity-100 group-hover:pointer-events-auto",
+          ? "translate-x-4 group-hover/rail:translate-x-0 right-2"
+          : "-translate-x-4 group-hover/rail:translate-x-0 left-2",
+        "group-hover/rail:opacity-100 group-hover/rail:pointer-events-auto",
         "focus:outline-none focus-visible:opacity-100 focus-visible:pointer-events-auto focus-visible:translate-x-0 focus-visible:ring-2 focus-visible:ring-primary-100",
         "hover:border-primary-500 hover:shadow-lg",
         className
@@ -29,7 +29,7 @@ const ButtonChevron = ({
     >
       <ChevronLeft
         className={cn(
-          "w-5 h-5 xl:w-6 xl:h-6 transition-all duration-200 group-hover:text-primary-500",
+          "w-4 h-4 xl:w-5 xl:h-5 transition-all duration-200 group-hover/rail:text-primary-500",
           isRightButton && "rotate-180"
         )}
       />

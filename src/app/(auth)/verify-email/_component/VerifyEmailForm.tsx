@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { cn } from "@/config/utils";
 import Button from "@/components/ui/Button";
 import { verifyEmail, resendVerifyEmail } from "@/apis/auth";
 import { getParams } from "@/utils/getParams";
@@ -12,7 +11,6 @@ import { successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { PATH } from "@/constants/paths";
 import AuthNotice from "../../_component/AuthNotice";
-import { AUTH_CTA_COLOR } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
 
 const REDIRECT_AFTER_SUCCESS_MS = 2500;
@@ -128,7 +126,7 @@ const VerifyEmailForm = () => {
         <>
           <Button
             size="lg"
-            className={cn("w-full", AUTH_CTA_COLOR)}
+            className="w-full"
             loading={isResending}
             onClick={handleResend}
           >
@@ -144,7 +142,7 @@ const VerifyEmailForm = () => {
       ) : (
         <Button
           size="lg"
-          className={cn("w-full", AUTH_CTA_COLOR)}
+          className="w-full"
           onClick={() => router.push(PATH.LOGIN)}
         >
           Quay lại trang đăng nhập

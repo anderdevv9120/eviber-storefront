@@ -22,6 +22,9 @@ export interface IProductListItem {
   price?: number;
   originalPrice?: number;
   discountPercentage?: number;
+  soldCount?: number;
+  /** Rating trung bình từ review APPROVED — undefined khi chưa có review, card tự ẩn stars */
+  rating?: number;
 }
 
 /** AttributeValue đã populate trong variant — BE populate('attributeValues', 'value meta attributeId') */

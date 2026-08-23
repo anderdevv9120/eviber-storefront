@@ -3,9 +3,12 @@ import axiosRequest from "@/config/axios";
 export interface IGetProductsParams {
   page?: number;
   pageSize?: number;
+  /** Field của product (name/created_at/updated_at/soldCount) hoặc "price" (sort theo preview price) */
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   search?: string;
+  /** true → chỉ sản phẩm có variant ACTIVE đang giảm giá (rail Đang khuyến mãi) */
+  onSale?: boolean;
 }
 
 export const getProducts = (

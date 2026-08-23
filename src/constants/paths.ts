@@ -1,6 +1,7 @@
 export const PATH = {
   DEFAULT: "#",
   HOME: "/",
+  COLLECTION: "/collection",
   PAYMENT: "/payment",
   DASHBOARD: "/dashboard",
   CART: "/cart",

@@ -13,7 +13,7 @@ Chi tiết root chưa ghi:
 
 - **Form**: react-hook-form + `@hookform/resolvers` + yup (schema trong `constants/validate.ts`)
 - **UI phụ trợ**: `class-variance-authority` (variants), `react-toastify` (qua `utils/toast.ts`), `react-swipeable` + `useCustomSwipeable`, `sass` (SCSS modules song song Tailwind)
-- **State**: Zustand store dùng middleware `immer` (`useAppStore`, `useAuthStore`)
+- **State**: Zustand store dùng middleware `immer` (`useAppStore`)
 - **Auth phía client**: token trong cookie (`js-cookie`), axios tự gắn Bearer + tự refresh
 - **SEO**: `next-sitemap` chạy ở `postbuild` (config `next-sitemap.config.js`)
 - **Storybook**: config tại `storybook/` (main.ts, preview, decorators, mocks — KHÔNG phải `.storybook/` mặc định); stories gom tập trung, không co-located
@@ -40,7 +40,7 @@ src/
 │   ├── organisms/          # khối lớn (Authentication, PageNotFound)
 │   └── icons/              # icon components — check ở đây trước khi thêm icon mới
 ├── layouts/                # Header/, Footer
-├── store/                  # Zustand v4: useAppStore, useAuthStore, useCountStore, useFilterCollectionStore
+├── store/                  # Zustand v4: useAppStore, useFilterCollectionStore
 ├── hooks/                  # useDebounce, useClickOutside, useMediaQuery, useWindowSize, usePrevious, useIgnoreFirstEffect...
 ├── constants/              # paths.ts (PATH.*), orderStatus, validate (yup schemas), misc
 ├── @types/                 # Product.type, Address.type, index.d.ts
@@ -108,6 +108,8 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 
 ## Gotchas
 
+- **Interceptor axios đã unwrap 1 lớp (`return response.data`)** — trong code, `response` CHÍNH LÀ body BE; `response.data` = field `data` của TransformInterceptor. Endpoint trả mảng trần (banners): `response.data`; trả IResponseList (products/categories): `response.data.data`. Viết thừa `.data` là data rỗng ÂM THẦM (catch nuốt) — đối chiếu curl body trước khi viết accessor.
+- **Route static không khai `revalidate` = Full Route Cache VĨNH VIỄN ở production build** — data fetch server-side đóng băng tại thời điểm build; dev/e2e KHÔNG BAO GIỜ thấy lớp bug này (dev render mỗi request). Segment fetch data dùng chung nhiều route → khai `revalidate` ở layout làm mức nền.
 - **Tailwind content chỉ scan `src/app`, `src/components`, `src/layouts`** — class viết trong `hooks/`, `utils/`, `constants/` sẽ KHÔNG được generate (im lặng mất style).
 - **`middleware.ts` matcher chỉ cover `/login`, `/register`, `/user/*`** — `/cart` và `/checkout` KHÔNG qua middleware (guest cart/checkout là chủ đích, e2e guest checkout đã ghim hành vi này).
 - `services/` chỉ còn `todo.ts` gọi jsonplaceholder — boilerplate sót lại, KHÔNG theo pattern này; API layer thật là `apis/`.

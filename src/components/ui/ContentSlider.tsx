@@ -1,39 +1,44 @@
 import { ReactNode, memo } from "react";
 import Link from "next/link";
-import { ChevronLeft } from "../icons";
+import { RightArrow } from "../icons";
 
 interface IContentSliderProps {
   title: string;
+  subtitle?: string;
   href?: string;
   children?: ReactNode;
 }
 
-const ContentSlider = ({ title, href, children }: IContentSliderProps) => {
+const ContentSlider = ({
+  title,
+  subtitle,
+  href,
+  children,
+}: IContentSliderProps) => {
   return (
-    <div className="overflow-hidden my-24 md:my-24">
-      {/* <div className="mb-4"> */}
-      <h2 className="text-2xl text-primary-800 text-center uppercase font-medium mb-4">
+    <section className="overflow-hidden my-16 md:my-24">
+      <h2 className="text-2xl md:text-3xl text-primary-800 text-center uppercase font-bold tracking-wide">
         {title}
       </h2>
-      <div className="flex justify-end mb-5">
-        <Link
-          href={href || "#"}
-          className=" hover-underline"
-          style={
-            { "--hover-color": "var(--color-primary)" } as React.CSSProperties
-          }
-        >
-          <div className="flex items-center text-dark-900 cursor-pointer transition-colors duration-200 group hover:text-primary-500">
-            <span className="font-medium">Xem tất cả</span>
-            <ChevronLeft className="w-3 h-3 ml-1 rotate-180 transform transition-all duration-300 ease-out group-hover:translate-x-[2px] group-hover:text-primary-500" />
-          </div>
-        </Link>
-      </div>
+      {subtitle && (
+        <p className="text-center text-sm text-dark-400 mt-1">{subtitle}</p>
+      )}
 
-      {/* </div> */}
+      {href && (
+        <div className="flex justify-end mb-4 mt-1">
+          <Link
+            href={href}
+            className="group/link flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors"
+          >
+            Xem tất cả
+            <RightArrow className="w-4 h-4 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
+          </Link>
+        </div>
+      )}
+      {!href && <div className="mb-5" />}
 
       {children}
-    </div>
+    </section>
   );
 };
 
