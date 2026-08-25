@@ -9,6 +9,12 @@ export interface IGetProductsParams {
   search?: string;
   /** true → chỉ sản phẩm có variant ACTIVE đang giảm giá (rail Đang khuyến mãi) */
   onSale?: boolean;
+  /** CSV slug danh mục (vd "quan-nam,giay-dep") — slug lạ → kết quả rỗng */
+  category?: string;
+  /** Giá tối thiểu (ĐỒNG, integer ≥ 0) — lọc theo giá hiển thị (variant ACTIVE rẻ nhất) */
+  priceMin?: number;
+  /** Giá tối đa (ĐỒNG, integer ≥ 0) — cùng ngữ nghĩa priceMin */
+  priceMax?: number;
 }
 
 export const getProducts = (

@@ -15,7 +15,7 @@ Chi tiết root chưa ghi:
 - **UI phụ trợ**: `class-variance-authority` (variants), `react-toastify` (qua `utils/toast.ts`), `react-swipeable` + `useCustomSwipeable`, `sass` (SCSS modules song song Tailwind)
 - **State**: Zustand store dùng middleware `immer` (`useAppStore`)
 - **Auth phía client**: token trong cookie (`js-cookie`), axios tự gắn Bearer + tự refresh
-- **SEO**: `next-sitemap` chạy ở `postbuild` (config `next-sitemap.config.js`)
+- **SEO**: `next-sitemap` chạy ở `postbuild` (config `next-sitemap.config.js`); checklist SEO per màn → rule `seo-nextjs` (`.claude/rules/` ở workspace root, auto-load khi chạm `src/app/`)
 - **Storybook**: config tại `storybook/` (main.ts, preview, decorators, mocks — KHÔNG phải `.storybook/` mặc định); stories gom tập trung, không co-located
 
 ## Architecture
@@ -114,4 +114,5 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 - **`middleware.ts` matcher chỉ cover `/login`, `/register`, `/user/*`** — `/cart` và `/checkout` KHÔNG qua middleware (guest cart/checkout là chủ đích, e2e guest checkout đã ghim hành vi này).
 - `services/` chỉ còn `todo.ts` gọi jsonplaceholder — boilerplate sót lại, KHÔNG theo pattern này; API layer thật là `apis/`.
 - Palette Tailwind bị override toàn bộ trong `tailwind.config.ts` (primary Pine `#0E7C66`) — màu mặc định Tailwind ngoài danh sách không tồn tại. Numbering đã chuẩn hóa: mọi nhóm số càng to càng đậm, nấc DEFAULT ghi comment cạnh từng nhóm (chi tiết + typography scale → rule `tailwind-v3`).
+- **Đổi symbol trong `public/sprites.svg` phải bump `?v=` trong `SvgIcon.tsx`** — sprite load qua URL có query version, không bump là browser giữ bản icon CŨ im lặng (đã cắn khi đổi icon-filter).
 - **Đổi `tailwind.config.ts` phải RESTART dev server** — Next dev KHÔNG hot-reload file này; thêm token mới (màu/shadow...) lúc server đang chạy sẽ không được generate (class ra `none`/rỗng, im lặng). Sửa xong `tailwind.config.ts` → kill + `npm run dev` lại.

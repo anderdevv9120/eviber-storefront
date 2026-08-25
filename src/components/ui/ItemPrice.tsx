@@ -36,24 +36,21 @@ const ItemPrice = ({
     <div
       className={cn(
         "flex",
-        isVertical ? "flex-col justify-between" : "justify-start"
+        isVertical
+          ? "flex-col justify-between"
+          : "flex-wrap items-baseline gap-x-1.5"
       )}
     >
       <span
         className={cn(
-          "text-primary-600 text-base mr-2 font-semibold",
+          "text-primary-600 text-base font-semibold",
           currentPriceClass
         )}
       >
         {formatPrice(price)}
       </span>
       {hasDiscount && (
-        <span
-          className={cn(
-            "h-5 text-dark-200 text-sm w-20 mr-3 line-through",
-            priceClass
-          )}
-        >
+        <span className={cn("text-dark-200 text-sm line-through", priceClass)}>
           {formatPrice(originalPrice)}
         </span>
       )}

@@ -65,6 +65,8 @@ const config: Config = {
         800: "#854D0E",
         900: "#713F12",
       },
+      // Terracotta — accent sale (badge % + giá đang giảm), chốt tại mockup card-look vòng 4
+      terracotta: "#C4472B",
       // DEFAULT = 600
       red: {
         DEFAULT: "#FC2B2B",
@@ -127,6 +129,10 @@ const config: Config = {
         // Shadow card cụm auth — neutral tỏa rộng theo bản tham khảo user chốt
         "auth-card":
           "0 24px 60px -12px rgba(36, 36, 36, 0.14), 0 4px 14px rgba(36, 36, 36, 0.05)",
+        // Elevation card sản phẩm (thay border) — chốt tại mockup card-look V2
+        card: "0 1px 2px rgba(36, 36, 36, 0.04), 0 10px 28px -14px rgba(36, 36, 36, 0.12)",
+        "card-hover":
+          "0 2px 4px rgba(36, 36, 36, 0.06), 0 18px 44px -16px rgba(36, 36, 36, 0.18)",
       },
       fill: {
         hover: {

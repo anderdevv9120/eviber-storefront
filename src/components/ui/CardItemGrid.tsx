@@ -16,7 +16,7 @@ const CardItemGrid = ({ dataProduct }: CardItemGridProps) => {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:gap-x-4 md:gap-y-5 gap-2.5 pb-2">
       {dataProduct.slice(0, 10).map((item, index) => (
         <div key={item._id} className={cn(index >= 6 && "hidden lg:block")}>
-          <CardItem productItem={item} isVertical />
+          <CardItem productItem={item} />
         </div>
       ))}
     </div>

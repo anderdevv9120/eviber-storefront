@@ -1,22 +1,55 @@
-import { cardItems } from "@/mocks/fetchData";
-import CollectionSort from "./_component/CollectionSort";
-import CollectionSidebar from "./_component/CollectionSidebar";
-import CollectionProducts from "./_component/CollectionProducts";
-import EmptyCollection from "./_component/EmptyCollection";
+import { Metadata } from "next";
+import { getProducts } from "@/apis/product";
+import { fetchCategoriesCached } from "@/apis/home.server";
+import { PATH } from "@/constants/paths";
+import CollectionContent from "./_component/CollectionContent";
+import {
+  ICollectionQuery,
+  ICollectionResult,
+  parseCollectionQuery,
+  toProductApiParams,
+} from "./_component/collection.query";
 
-const Collection = () => {
+interface CollectionPageProps {
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+// SSR lần đầu theo URL; lỗi BE → null để CLIENT tự fetch lại khi mount
+// (trả rỗng là user thấy "không có sản phẩm" sai bản chất, không có đường retry)
+async function fetchInitialProducts(
+  query: ICollectionQuery
+): Promise<ICollectionResult | null> {
+  try {
+    const response = await getProducts(toProductApiParams(query));
+    const list = response?.data;
+    return {
+      items: list?.data ?? [],
+      total: list?.total ?? 0,
+      totalPage: list?.totalPage ?? 1,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Trang đọc searchParams → Next tự render dynamic mỗi request, không khai revalidate
+const Collection = async ({ searchParams }: CollectionPageProps) => {
+  const query = parseCollectionQuery(searchParams);
+  const [initialResult, categories] = await Promise.all([
+    fetchInitialProducts(query),
+    fetchCategoriesCached(),
+  ]);
+
   return (
-    <div className="container-base pt-10 pb-7">
-      {/* <h1 className="text-center text-2xl font-medium xl:text-primary my-10 cursor-pointer hover:underline">
-        Collection
-      </h1> */}
+    <div className="container-base">
+      <div className="pt-8 pb-10">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6">Tất cả sản phẩm</h1>
 
-      <CollectionSort />
-
-      <div className="flex gap-14">
-        <CollectionSidebar />
-
-        {cardItems.length ? <CollectionProducts /> : <EmptyCollection />}
+        <CollectionContent
+          categories={categories}
+          initialQuery={query}
+          initialResult={initialResult}
+        />
       </div>
     </div>
   );
@@ -24,7 +57,24 @@ const Collection = () => {
 
 export default Collection;
 
-export const metadata = {
-  title: "Bộ sưu tập",
-  description: "Khám phá và tìm sản phẩm phù hợp với phong cách của bạn.",
+const TITLE = "Tất cả sản phẩm";
+const DESCRIPTION = "Khám phá và tìm sản phẩm phù hợp với phong cách của bạn.";
+
+// Canonical trỏ URL sạch — mỗi tổ hợp filter/sort/page là 1 biến thể trùng nội dung,
+// không để index; title/description không sinh theo filter
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: PATH.COLLECTION },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH.COLLECTION,
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };

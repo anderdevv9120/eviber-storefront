@@ -5,6 +5,7 @@ import {
   useState,
   forwardRef,
   InputHTMLAttributes,
+  ReactNode,
   useId,
   ChangeEvent,
 } from "react";
@@ -13,8 +14,9 @@ interface CheckboxProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   "onChange" | "type"
 > {
-  label?: string;
+  label?: ReactNode;
   className?: string;
+  labelClassName?: string;
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
   checked?: boolean;
@@ -27,6 +29,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       label,
       onChange,
       className,
+      labelClassName,
       disabled = false,
       checked,
       defaultChecked,
@@ -83,7 +86,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           <span
             className={cn(
               "ml-2",
-              disabled ? "text-gray-400" : "text-gray-700 text-lg font-medium"
+              disabled ? "text-gray-400" : "text-gray-700 text-lg font-medium",
+              labelClassName
             )}
           >
             {label}

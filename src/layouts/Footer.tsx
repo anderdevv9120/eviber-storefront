@@ -45,7 +45,7 @@ const FooterColumn = ({
 
 const Footer = () => {
   return (
-    <footer className="bg-primary-800 text-white mt-16 md:mt-24">
+    <footer className="bg-primary-800 text-white mt-16 md:mt-20">
       {/* Mobile: brand + newsletter full-width, 2 cột link đứng cạnh nhau (footer ngắn lại ~nửa) */}
       <div className="container-base pt-12 pb-8 grid grid-cols-2 gap-x-6 gap-y-10 lg:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div className="flex flex-col gap-4 items-start col-span-2 lg:col-span-1">

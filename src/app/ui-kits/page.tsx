@@ -583,7 +583,11 @@ export default function UIKits() {
             <h2 className="text-2xl font-semibold">Filters</h2>
             <div className="max-w-64 space-y-4">
               <Filter data={dataFilter} onChange={console.log} />
-              <FilterPrice maxPrice={1000} onChange={handleChangePrice} />
+              <FilterPrice
+                maxPrice={1_000_000}
+                step={50_000}
+                onChange={handleChangePrice}
+              />
             </div>
           </section>
 

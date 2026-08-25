@@ -19,6 +19,11 @@ type Story = StoryObj<typeof meta>;
 /** Mặc định mở (isCollapse=true → FadeWrapper isVisible=true). */
 export const Default: Story = {};
 
+/** Header gọn cho sidebar filter (collection) — override style mặc định */
+export const CompactHeader: Story = {
+  args: { headerClassName: "text-base font-bold" },
+};
+
 /**
  * Nội dung luôn nằm trong DOM (FadeWrapper dùng grid-rows để ẩn/hiện).
  * Ta quan sát trạng thái đóng/mở qua class trên wrapper FadeWrapper:

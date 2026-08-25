@@ -36,6 +36,11 @@ export const DisabledChecked: Story = {
   args: { disabled: true, checked: true, label: "Khoá + đã chọn" },
 };
 
+/** Label gọn cho hàng filter sidebar (collection) — override style mặc định */
+export const CompactLabel: Story = {
+  args: { labelClassName: "text-sm font-normal text-dark-500" },
+};
+
 /**
  * Toggle: uncontrolled → click bật, click lại tắt; onChange nhận boolean.
  */

@@ -77,21 +77,26 @@ const CardItemSlider = ({
   }
 
   return (
-    // Padding 4 phía tạo chỗ thở cho shadow hover của card bên trong overflow-hidden
-    // (margin âm bù nhịp layout); ref đo width đặt ở div TRONG để không lệch itemWidth vì padding
-    <div className="relative overflow-hidden group/rail px-2 -mx-2 pt-2 -mt-2 pb-6 -mb-4">
-      <div ref={containerRef}>{renderTrack()}</div>
+    // Wrapper ngoài CHỈ lo clip + đệm thở cho shadow (margin âm bù nhịp layout).
+    // Calibrate theo shadow-card-hover: dưới ~46px → pb-12; ngang PHẢI < CARD_GAP (16px) —
+    // đệm rộng hơn gap là lộ mép card kế tiếp của track → px-3.5 (14px, vừa khít shadow ngang tĩnh).
+    <div className="overflow-hidden group/rail px-3.5 -mx-3.5 pt-3 -mt-3 pb-12 -mb-10">
+      {/* Lớp relative ôm SÁT content để chevron top-1/2 căn đúng giữa hàng card
+          (đặt absolute theo wrapper padding lệch trên/dưới là chevron tụt tâm) */}
+      <div className="relative">
+        <div ref={containerRef}>{renderTrack()}</div>
 
-      {!isMobile && productLength > visibleItems && (
-        <>
-          <ButtonChevron className="left-3" onClick={handlePrev} />
-          <ButtonChevron
-            isRightButton
-            className="right-3"
-            onClick={handleNext}
-          />
-        </>
-      )}
+        {!isMobile && productLength > visibleItems && (
+          <>
+            <ButtonChevron className="left-1" onClick={handlePrev} />
+            <ButtonChevron
+              isRightButton
+              className="right-1"
+              onClick={handleNext}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 
@@ -106,7 +111,7 @@ const CardItemSlider = ({
         >
           {/* Mobile cap 6 (3 hàng) — đồng quy ước rail KM: phần còn lại qua "Xem tất cả" */}
           {dataProduct.slice(0, MOBILE_GRID_LIMIT).map((item) => (
-            <CardItem key={item._id} productItem={item} isVertical />
+            <CardItem key={item._id} productItem={item} />
           ))}
         </div>
       );
@@ -128,7 +133,7 @@ const CardItemSlider = ({
               flex: `0 0 ${itemWidth}px`,
             }}
           >
-            <CardItem productItem={item} isVertical />
+            <CardItem productItem={item} />
           </div>
         ))}
       </div>

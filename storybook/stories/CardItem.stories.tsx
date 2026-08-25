@@ -28,8 +28,11 @@ export const NoDiscountFavorite: Story = {
   args: { productItem: mockProductDetailNoDiscount },
 };
 
-export const ShowSavings: Story = {
-  args: { isShowDiscountPrice: true },
+/** Số bán lớn — hàng meta hiển thị dạng rút gọn "1,1k" */
+export const SoldCountCompact: Story = {
+  args: {
+    productItem: { ...mockProductDetail, rating: 4.8, soldCount: 1132 },
+  },
 };
 
 export const OutOfStock: Story = {

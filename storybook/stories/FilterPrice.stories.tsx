@@ -7,7 +7,9 @@ const meta = {
   component: FilterPrice,
   tags: ["autodocs"],
   args: {
-    maxPrice: 1000,
+    // Đơn vị đồng (giá trị thật) — hiển thị trực tiếp qua formatPrice
+    maxPrice: 1_000_000,
+    step: 50_000,
     onChange: fn(),
   },
   parameters: { a11y: { test: "todo" } },
@@ -16,12 +18,39 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: { maxPrice: 1000 },
-};
+export const Default: Story = {};
 
 export const SmallRange: Story = {
-  args: { maxPrice: 200 },
+  args: { maxPrice: 200_000, step: 10_000 },
+};
+
+/** Header tùy biến cho sidebar gọn (collection): title + headerClassName */
+export const CompactHeader: Story = {
+  args: { title: "Khoảng giá", headerClassName: "text-base font-bold" },
+};
+
+/** Sidebar gọn: chỉ slider + nhãn giá, ẩn cặp input nhập tay */
+export const SliderOnly: Story = {
+  args: {
+    title: "Khoảng giá",
+    headerClassName: "text-base font-bold",
+    showInputs: false,
+  },
+};
+
+/** Khởi tạo theo giá trị ngoài (URL) — collection GĐ2; nhãn phải hiện đúng khoảng truyền vào */
+export const InitialRange: Story = {
+  args: {
+    title: "Khoảng giá",
+    showInputs: false,
+    initialMin: 150_000,
+    initialMax: 650_000,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("150.000đ")).toBeInTheDocument();
+    await expect(canvas.getByText("650.000đ")).toBeInTheDocument();
+  },
 };
 
 /**
