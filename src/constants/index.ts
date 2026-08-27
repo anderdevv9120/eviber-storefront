@@ -8,3 +8,4 @@ export const REFRESH_TOKEN = "refreshToken";
 // Ghi nhớ lựa chọn "Lưu đăng nhập": "1" = cookie persistent, "0" = session cookie
 export const REMEMBER_ME = "rememberMe";
 export const TOKEN = "token";
+export const REVIEW_PAGE_SIZE = 10;

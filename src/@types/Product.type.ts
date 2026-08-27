@@ -65,6 +65,7 @@ export interface IProductVariant {
 export interface IProductCategory {
   _id: string;
   name: string;
+  slug: string;
   description?: string;
   imageUrl?: string;
 }
@@ -93,6 +94,7 @@ export interface IProductDetailResponse {
   status: ProductApiStatus;
   description?: string;
   images: string[];
+  soldCount?: number;
   categoryIds: IProductCategory[];
   options: IProductOption[];
   seo?: {

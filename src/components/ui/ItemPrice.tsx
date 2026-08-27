@@ -23,7 +23,7 @@ const ItemPrice = ({
 }: ItemPriceProps) => {
   if (price == null) {
     return (
-      <span className={cn("text-sm text-gray-500", currentPriceClass)}>
+      <span className={cn("text-sm text-dark-400", currentPriceClass)}>
         Đang cập nhật
       </span>
     );
@@ -50,13 +50,13 @@ const ItemPrice = ({
         {formatPrice(price)}
       </span>
       {hasDiscount && (
-        <span className={cn("text-dark-200 text-sm line-through", priceClass)}>
+        <span className={cn("text-dark-400 text-sm line-through", priceClass)}>
           {formatPrice(originalPrice)}
         </span>
       )}
 
       {isShowDiscountPrice && hasDiscount && (
-        <p className={cn("text-red text-sm italic", priceClass)}>
+        <p className={cn("text-terracotta text-sm italic", priceClass)}>
           (Tiết kiệm {formatPrice(savings)})
         </p>
       )}

@@ -37,14 +37,14 @@ const PromoSplitBanner = () => {
         <Link
           key={tile.title}
           href={tile.href}
-          className="relative block overflow-hidden rounded-3xl group aspect-[2.5/1] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+          className="relative block overflow-hidden rounded-3xl group/tile aspect-[2.5/1] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
         >
           <Image
             src={tile.image}
             alt={tile.title}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover/tile:scale-105"
           />
           <div className={cn("absolute inset-0", tile.overlayClass)} />
 
@@ -69,8 +69,8 @@ const PromoSplitBanner = () => {
               className={cn(
                 "inline-flex items-center w-max h-9 md:h-10 px-5 rounded-full text-sm font-bold transition-colors",
                 tile.isDark
-                  ? "bg-white text-dark-800 group-hover:bg-white-100"
-                  : "bg-primary text-white group-hover:bg-primary-700"
+                  ? "bg-white text-dark-800 group-hover/tile:bg-white-100"
+                  : "bg-primary text-white group-hover/tile:bg-primary-700"
               )}
             >
               {tile.ctaLabel}

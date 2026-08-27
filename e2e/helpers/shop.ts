@@ -2,10 +2,10 @@ import { expect, Page } from "@playwright/test";
 
 // Fixture seed cố định (backend/src/seeds/fixtures/products.fixture.ts):
 // HOODIE _id 07…0003, mọi tổ hợp variant Đen/Xám × M/L đều còn hàng.
+// URL slug thuần (chốt phase2) — seed sinh slug không gắn timestamp nên ổn định.
 export const HOODIE = {
   name: "Áo Khoác Hoodie Nỉ",
-  url: "/product/ao-khoac-hoodie-ni-070000000000000000000003",
-  sku: "DEMO-HD01-DEN-M",
+  url: "/product/ao-khoac-hoodie-ni",
   price: "399.000đ",
 };
 
@@ -17,8 +17,12 @@ export const SEED_CUSTOMER = {
 export async function selectHoodieVariantAndAddToCart(page: Page) {
   await page.getByRole("button", { name: "Đen", exact: true }).click();
   await page.getByRole("button", { name: "M", exact: true }).click();
-  await expect(page.getByText(HOODIE.sku)).toBeVisible();
-  await page.getByRole("button", { name: "THÊM VÀO GIỎ HÀNG" }).click();
+  // Label nhóm variant hiển thị value đang chọn — neo stateless chứng minh đúng
+  // tổ hợp được chọn (UI redesign không show SKU; tồn kho là số STATEFUL, spec
+  // trước trong cùng run mua hàng làm nó giảm — đừng neo vào "Còn N sản phẩm")
+  await expect(page.getByText("Màu sắc: Đen")).toBeVisible();
+  await expect(page.getByText("Kích thước: M")).toBeVisible();
+  await page.getByRole("button", { name: "Thêm vào giỏ hàng" }).click();
   await expect(page.getByText("Thêm vào giỏ hàng thành công")).toBeVisible();
 }
 

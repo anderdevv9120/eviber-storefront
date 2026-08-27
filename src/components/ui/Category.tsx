@@ -36,19 +36,19 @@ export default async function Category() {
 
 const CategoryItem = ({ name, imageUrl }: ICategoryItem) => {
   return (
-    <Link href={PATH.COLLECTION} className="group block">
+    <Link href={PATH.COLLECTION} className="group/cat block">
       <div className="flex flex-col items-center text-center">
-        <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white ring-2 ring-primary-200 ring-offset-4 shadow-sm group-hover:ring-primary group-hover:shadow-md transition-all duration-300">
+        <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white ring-2 ring-primary-200 ring-offset-4 shadow-sm group-hover/cat:ring-primary group-hover/cat:shadow-md transition-all duration-300">
           <Image
             src={imageUrl || ""}
             alt={name}
             width={128}
             height={128}
-            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover transform group-hover/cat:scale-110 transition-transform duration-500"
           />
         </div>
 
-        <p className="mt-4 text-base font-semibold text-dark-800 group-hover:text-primary-700 transition-colors duration-300">
+        <p className="mt-4 text-base font-semibold text-dark-800 group-hover/cat:text-primary-700 transition-colors duration-300">
           {name}
         </p>
       </div>

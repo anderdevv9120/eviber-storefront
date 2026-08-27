@@ -27,3 +27,8 @@ export const getProducts = (
 export const getDetailProduct = (id: string) => {
   return axiosRequest.get(`/products/${id}`);
 };
+
+/** PDP theo URL slug thuần — 404 khi slug không tồn tại hoặc product không PUBLISH */
+export const getDetailProductBySlug = (slug: string) => {
+  return axiosRequest.get(`/products/by-slug/${slug}`);
+};

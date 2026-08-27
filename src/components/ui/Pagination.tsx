@@ -17,7 +17,7 @@ export interface PaginationProps {
 const PAGINATION_SIZE = 5;
 
 const classArrow =
-  "w-[36px] h-[36px] flex justify-center items-center rounded-lg border border-white-600 text-dark-500 transition duration-200 hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100";
+  "relative after:absolute after:-inset-0.5 after:content-[''] w-[36px] h-[36px] flex justify-center items-center rounded-lg border border-white-600 text-dark-500 transition duration-200 hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100";
 
 const Pagination = ({
   total,
@@ -60,7 +60,7 @@ const Pagination = ({
                 onClick={() => onPageChange(number)}
                 aria-current={number === currentPage ? "page" : undefined}
                 className={cn(
-                  "w-[36px] h-[36px] rounded-lg flex items-center justify-center text-sm font-medium transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100",
+                  "relative after:absolute after:-inset-0.5 after:content-[''] w-[36px] h-[36px] rounded-lg flex items-center justify-center text-sm font-medium transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100",
                   number === currentPage
                     ? "bg-primary text-white"
                     : "bg-white text-dark-500 border border-white-600 hover:border-primary-300 hover:text-primary-700"

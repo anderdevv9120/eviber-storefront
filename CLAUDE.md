@@ -11,7 +11,7 @@ Storefront e-commerce cho khách hàng cuối (thị trường Việt Nam — c�
 
 Chi tiết root chưa ghi:
 
-- **Form**: react-hook-form + `@hookform/resolvers` + yup (schema trong `constants/validate.ts`)
+- **Form**: react-hook-form + `@hookform/resolvers` + yup (schema viết INLINE trong form component; `constants/validate.ts` chỉ chứa message constants + regex)
 - **UI phụ trợ**: `class-variance-authority` (variants), `react-toastify` (qua `utils/toast.ts`), `react-swipeable` + `useCustomSwipeable`, `sass` (SCSS modules song song Tailwind)
 - **State**: Zustand store dùng middleware `immer` (`useAppStore`)
 - **Auth phía client**: token trong cookie (`js-cookie`), axios tự gắn Bearer + tự refresh
@@ -61,6 +61,7 @@ src/
 - Gọi API: LUÔN qua `apis/` — không import axios trực tiếp trong component.
 - Lỗi API: interceptor (`config/axios.ts`) tự toast global qua `notifyError`. Endpoint hiển thị lỗi **inline trong form** (hoặc component tự toast message riêng) → PHẢI set `{ toastError: false }` trong `apis/` (quên là bị double display); `{ toastError: "..." }` để override message tĩnh. Component không cần catch-toast nữa — chỉ catch khi cần logic riêng (setMessage, fallback state).
 - Component nhiều variant → `cva` theo pattern `components/ui/Button.tsx`.
+- Component async: luôn render đủ 3 trạng thái **loading** (`<Spin>`/skeleton hợp layout) / **error** / **empty** — không để vùng trắng khi thiếu data.
 - Commit: pre-commit đã có husky + lint-staged (eslint --max-warnings=0 + tsc strict).
 - **`src/middleware.ts` là vùng nhạy cảm** (route guard toàn app) — HỎI user trước khi sửa (làm từ workspace root thì `permissions.ask` đã enforce sẵn).
 

@@ -6,6 +6,7 @@ import { cn } from "@/config/utils";
 import { HeartOutline, Plus, Star } from "@/components/icons";
 import ItemPrice from "@/components/ui/ItemPrice";
 import { IProductListItem } from "@/@types/Product.type";
+import { PATH } from "@/constants/paths";
 import Link from "next/link";
 
 interface CardItemProps {
@@ -40,7 +41,7 @@ const CardItem = ({
 
   return (
     <Link
-      href={`/product/${productItem.slug}-${productItem._id}`}
+      href={`${PATH.PRODUCT}/${productItem.slug}`}
       className="group/card block bg-white rounded-xl border border-white-200 shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden cursor-pointer"
     >
       <div className="relative overflow-hidden bg-white-100">

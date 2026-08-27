@@ -24,6 +24,24 @@ interface RetriableRequestConfig extends InternalAxiosRequestConfig {
 }
 
 const NETWORK_ERROR_MESSAGE = "Không thể kết nối đến máy chủ, vui lòng thử lại";
+
+/**
+ * Lỗi API chuẩn hóa mà interceptor reject ra caller: `.message` giữ nguyên chuỗi
+ * hiển thị (getErrorMessage đọc qua nhánh instanceof Error), `.status` cho caller
+ * server-side phân biệt 404 thật vs lỗi transient (ISR không được cache 404 nhầm).
+ */
+export class ApiError extends Error {
+  status?: number;
+  /** Message gốc từ BE — là string[] khi lỗi class-validator trả nhiều dòng */
+  messages: string | string[];
+
+  constructor(messages: string | string[], status?: number) {
+    super(Array.isArray(messages) ? String(messages[0] ?? "") : messages);
+    this.name = "ApiError";
+    this.messages = messages;
+    this.status = status;
+  }
+}
 const SESSION_EXPIRED_MESSAGE = "Phiên đăng nhập đã hết hạn";
 const LOGIN_REQUIRED_MESSAGE = "Vui lòng đăng nhập để tiếp tục";
 
@@ -228,11 +246,16 @@ axiosRequest.interceptors.response.use(
 
     if (axios.isAxiosError(error)) {
       if (error.code === AxiosError.ERR_NETWORK) {
-        return Promise.reject(NETWORK_ERROR_MESSAGE);
+        return Promise.reject(new ApiError(NETWORK_ERROR_MESSAGE));
       }
     }
 
-    return Promise.reject(error.response?.data?.message ?? error.message);
+    return Promise.reject(
+      new ApiError(
+        error.response?.data?.message ?? error.message,
+        error.response?.status
+      )
+    );
   }
 );
 

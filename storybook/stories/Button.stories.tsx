@@ -17,7 +17,7 @@ const meta = {
     },
     size: {
       control: "inline-radio",
-      options: ["md", "lg"],
+      options: ["sm", "md", "lg"],
     },
     disabled: { control: "boolean" },
   },
@@ -69,7 +69,7 @@ export const Disabled: Story = {
 export const AllVariants: Story = {
   render: (args) => (
     <div className="flex flex-col gap-4">
-      {(["md", "lg"] as const).map((size) => (
+      {(["sm", "md", "lg"] as const).map((size) => (
         <div key={size} className="flex flex-wrap items-center gap-4">
           <Button {...args} size={size} variant="primary">
             Primary {size}

@@ -2,8 +2,9 @@ import axios from "axios";
 
 const FALLBACK_MESSAGE = "Có lỗi xảy ra, vui lòng thử lại";
 
-// Interceptor trong config/axios.ts reject bằng message đã unwrap (string | string[]),
-// riêng nhánh refresh-fail reject nguyên AxiosError — helper này chuẩn hóa mọi trường hợp.
+// Interceptor trong config/axios.ts reject bằng ApiError (message hiển thị nằm ở
+// .message), riêng nhánh refresh-fail reject nguyên AxiosError — helper này chuẩn
+// hóa mọi trường hợp (giữ cả nhánh string/array cho caller cũ ngoài interceptor).
 export function getErrorMessage(err: unknown): string {
   if (typeof err === "string") return err;
   if (Array.isArray(err)) return String(err[0] ?? FALLBACK_MESSAGE);

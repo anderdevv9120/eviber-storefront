@@ -58,6 +58,15 @@ body {
       padding: 0 16px;
     }
   }
+
+  /* Biến thể HẸP cho màn nội dung đọc-nhiều — dùng KÈM container-base
+     (class="container-base container-narrow"): chỉ cap 2 nấc màn lớn về 1260,
+     các nấc dưới thừa hưởng nguyên container-base. Khai báo SAU để thắng cascade. */
+  .container-narrow {
+    @media (min-width: 1500px) {
+      width: 1260px;
+    }
+  }
 }
 
 @keyframes fadeUp {
