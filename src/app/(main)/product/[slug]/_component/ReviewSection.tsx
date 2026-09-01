@@ -94,7 +94,7 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
         // V2 (chốt section-rhythm): MỘT panel nền white-50 ôm trọn tổng quan + list
         // + pagination — khối review "đóng gói" thành một vùng, mô tả phía trên trần
         <div className="bg-white-50 border border-white-300 rounded-lg p-5 md:p-6">
-          {/* Panel 3 khối S1++ đã chốt: điểm | histogram (bar Pine) | chips lọc */}
+          {/* Panel 3 khối S1++: điểm | histogram (bar Pine) | chips lọc */}
           <div className="grid gap-6 lg:gap-8 lg:grid-cols-[190px_1fr_1fr] items-center pb-5 md:pb-6 border-b border-white-300">
             <div className="text-center lg:border-r lg:border-white-300 lg:pr-6">
               <p className="text-4xl font-extrabold leading-none">

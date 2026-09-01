@@ -12,7 +12,7 @@ const shoppingLinks = [
   { name: "Voucher", link: PATH.VOUCHER },
 ];
 
-// Trang chính sách chưa tồn tại — giữ chỗ UI, bổ sung link khi có trang (đã chốt)
+// Trang chính sách chưa tồn tại — giữ chỗ UI, bổ sung link khi có trang
 const supportLinks = [
   { name: "Điều khoản – Điều kiện", link: PATH.DEFAULT },
   { name: "Chính sách đổi trả", link: PATH.DEFAULT },

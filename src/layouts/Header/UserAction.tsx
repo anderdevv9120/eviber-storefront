@@ -38,7 +38,7 @@ export default function UserAction() {
           href={PATH.CART}
           aria-label="Giỏ hàng"
         >
-          {/* Badge số lượng cart: để phase 3 (đã chốt kickoff) */}
+          {/* Badge số lượng cart: để phase 3 */}
           <CartShopping />
         </Link>
         <RoundedUser

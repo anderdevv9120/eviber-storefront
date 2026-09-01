@@ -21,7 +21,7 @@ export interface IFeaturedReview {
   rating: number;
   title?: string;
   content?: string;
-  /** Ảnh do khách upload kèm review — home chưa dùng (cover lấy productImage, đã chốt) */
+  /** Ảnh do khách upload kèm review — home chưa dùng (cover lấy productImage) */
   images: string[];
   productName: string | null;
   /** Ảnh đại diện của SẢN PHẨM được review — cover card polaroid */

@@ -97,7 +97,7 @@ export default function Header({ categories }: HeaderProps) {
           </Link>
 
           <div className="flex gap-5 items-center justify-end">
-            {/* Ô search decorative — chức năng search thuộc Backlog (đã chốt) */}
+            {/* Ô search decorative — chức năng search thuộc Backlog */}
             <Input
               variant="standard"
               placeholder="Tìm kiếm sản phẩm"

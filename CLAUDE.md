@@ -40,12 +40,12 @@ src/
 │   ├── organisms/          # khối lớn (Authentication, PageNotFound)
 │   └── icons/              # icon components — check ở đây trước khi thêm icon mới
 ├── layouts/                # Header/, Footer
-├── store/                  # Zustand v4: useAppStore, useFilterCollectionStore
+├── store/                  # Zustand v4: useAppStore, useFilterCollectionStore, useProductGalleryStore
 ├── hooks/                  # useDebounce, useClickOutside, useMediaQuery, useWindowSize, usePrevious, useIgnoreFirstEffect...
-├── constants/              # paths.ts (PATH.*), orderStatus, validate (yup schemas), misc
+├── constants/              # paths.ts (PATH.*), orderStatus, validate (message constants + regex), payment, service
 ├── @types/                 # Product.type, Address.type, index.d.ts
 ├── utils/                  # cookies, formatPrice, formatTime, toast, localStorage, getParams
-├── mocks/                  # mock data (fetchData.ts) — vài trang thật còn dùng làm placeholder chờ BE
+├── mocks/                  # mock data (fetchData.ts) — CHỈ còn app/ui-kits/ dùng; không import vào route thật
 └── middleware.ts           # route guard: không có phiên (accessToken HOẶC refreshToken) → chặn /user/*;
                             #   có phiên → chặn /login, /register. /cart và /checkout KHÔNG guard (guest cart chủ đích)
 ```
@@ -72,7 +72,7 @@ npm run dev          # dev server → http://localhost:3030
 npm run build        # build + postbuild sitemap
 npm run lint         # next lint (lint:write để auto-fix)
 npx tsc --noEmit     # type check nhanh
-npm test             # vitest: logic thuần (src/utils/*.test.ts), ~0.2s
+npm test             # vitest: logic thuần, co-located (src/utils/, src/constants/, app/**/_component/), ~0.2s
 npm run test:e2e     # Playwright e2e (xem mục Testing)
 npm run storybook    # Storybook dev → http://localhost:6006
 ```

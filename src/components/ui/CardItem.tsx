@@ -89,7 +89,7 @@ const CardItem = ({
           {productItem.name}
         </h3>
 
-        {/* Giá + giá gạch CÙNG 1 hàng làm anchor đáy card (layout M2 đã chốt) */}
+        {/* Giá + giá gạch CÙNG 1 hàng làm anchor đáy card */}
         <ItemPrice
           price={productItem.price}
           originalPrice={productItem.originalPrice}
@@ -121,7 +121,7 @@ const CardItem = ({
               `Đã bán ${formatSoldCount(productItem.soldCount)}`}
           </span>
 
-          {/* Shortcut điều hướng (đã chốt) — KHÔNG add-to-cart vì cart thao tác theo variant */}
+          {/* Shortcut điều hướng — KHÔNG add-to-cart vì cart thao tác theo variant */}
           {!isOutOfStock && (
             <span
               aria-hidden

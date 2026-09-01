@@ -61,7 +61,7 @@ const FilterPrice = ({
     setCurrentMaxPrice(maxPrice);
   }, [maxPrice]);
 
-  // Giá chỉ commit khi THẢ TAY (spec đã chốt): slider gọi commit ở pointerup/keyup,
+  // Giá chỉ commit khi THẢ TAY: slider gọi commit ở pointerup/keyup,
   // không debounce theo từng nấc kéo — không có commit giữa chừng làm caller
   // remount slider ngay dưới con trỏ
   const commit = () => {

@@ -13,7 +13,7 @@ import { getProducts } from "@/apis/product";
 import { IBanner, IFeaturedReview } from "@/@types/Home.type";
 import { IProductListItem } from "@/@types/Product.type";
 
-// ISR: home render tĩnh, tự làm mới nền mỗi 5 phút (đã chốt GĐ2) —
+// ISR: home render tĩnh, tự làm mới nền mỗi 5 phút —
 // khách không chờ BE mỗi request, data trễ tối đa 5 phút.
 export const revalidate = 300;
 
@@ -22,7 +22,7 @@ const RAIL_PAGE_SIZE = 10;
 
 /**
  * Mỗi section fetch độc lập, lỗi/rỗng → trả [] để section tự ẩn —
- * một nguồn chết không được kéo sập cả trang (đã chốt todo).
+ * một nguồn chết không được kéo sập cả trang.
  * LƯU Ý shape: interceptor axios đã unwrap 1 lớp (trả body BE) →
  * `response.data` = field data của TransformInterceptor.
  */
@@ -103,7 +103,7 @@ export default async function Home() {
         )}
       </div>
 
-      {/* Band màu CHỈ bọc Review (đã chốt) — py-px chặn margin-collapse
+      {/* Band màu CHỈ bọc Review — py-px chặn margin-collapse
           để margin của ContentSlider tự làm đệm trong band */}
       {reviews.length > 0 && (
         <section className="bg-primary-50 mt-16 md:mt-24 py-px">

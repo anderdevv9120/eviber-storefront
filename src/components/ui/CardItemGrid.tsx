@@ -6,7 +6,7 @@ interface CardItemGridProps {
   dataProduct: IProductListItem[];
 }
 
-// Grid tĩnh thay slider (đã chốt cho rail Khuyến mãi): desktop (lg) tối đa 10 (2 hàng × 5),
+// Grid tĩnh thay slider cho rail Khuyến mãi: desktop (lg) tối đa 10 (2 hàng × 5),
 // mobile/tablet chỉ hiện 6 để section không quá dài — phần còn lại qua "Xem tất cả".
 // 5 cột chỉ từ lg — ở md card ~130px là quá chật cho tên + meta + nút
 const CardItemGrid = ({ dataProduct }: CardItemGridProps) => {
