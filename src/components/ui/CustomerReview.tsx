@@ -69,7 +69,7 @@ const CustomerReview = ({ reviews }: CustomerReviewProps) => {
 
   return (
     <div
-      className="relative lg:overflow-hidden lg:w-auto pb-4 -mb-3 pl-1 scrollbarStyle group/rail"
+      className="relative lg:overflow-hidden lg:w-auto pt-2 -mt-2 pb-4 -mb-3 pl-1 -ml-1 pr-1 -mr-1 scrollbarStyle group/rail"
       ref={customerRef}
     >
       <div
@@ -83,7 +83,7 @@ const CustomerReview = ({ reviews }: CustomerReviewProps) => {
           <div
             key={review._id}
             className={cn(
-              "bg-white snap-center rounded-[20px] border border-white-300 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden",
+              "bg-white snap-center rounded-xl border border-white-300 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden",
               index !== reviews.length - 1 && "mr-4"
             )}
             style={{

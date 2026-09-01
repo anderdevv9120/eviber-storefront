@@ -30,12 +30,12 @@ const USP_ITEMS: {
 
 const UspStrip = () => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {USP_ITEMS.map(({ Icon, title, description }) => (
         <div
           key={title}
           // Mobile: icon trên - text dưới căn giữa (card ~170px); md trở lên: icon trái text phải
-          className="flex flex-col items-center text-center gap-2 md:flex-row md:text-left md:gap-3.5 rounded-2xl bg-white border border-primary-100 p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md"
+          className="flex flex-col items-center text-center gap-2 md:flex-row md:text-left md:gap-4 rounded-xl bg-white border border-primary-100 p-4 shadow-sm"
         >
           <span className="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-primary-50 to-primary-100 text-primary-700">
             <Icon className="w-6 h-6" />

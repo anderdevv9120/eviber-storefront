@@ -63,7 +63,8 @@ const HeroBanner = ({ banners }: HeroBannerProps) => {
               sizes="100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/50 to-transparent" />
+            {/* Mobile scrim đậm hơn — caption phủ gần hết bề ngang ảnh, scrim desktop không đủ tương phản */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-white/20 md:from-white/90 md:via-white/50 md:to-transparent" />
 
             {/* Caption lồng container-base để thẳng hàng với nội dung trang.
                 container-base phải đứng MỘT MÌNH không kèm utility kích thước —
@@ -75,8 +76,9 @@ const HeroBanner = ({ banners }: HeroBannerProps) => {
                     <h2 className="text-2xl md:text-4xl font-extrabold leading-tight text-dark-800">
                       {banner.title}
                     </h2>
+                    {/* Subtitle dark-700 đậm hơn chuẩn dark-500 vì nằm trên ảnh qua scrim */}
                     {banner.subtitle && (
-                      <p className="mt-2 text-sm md:text-base text-dark-500">
+                      <p className="mt-2 text-sm md:text-base text-dark-700">
                         {banner.subtitle}
                       </p>
                     )}
@@ -98,10 +100,14 @@ const HeroBanner = ({ banners }: HeroBannerProps) => {
 
         {banners.length > 1 && (
           <>
-            <ButtonChevron className="left-3" onClick={handlePrev} />
+            {/* Mobile hero điều hướng bằng swipe + dots — chevron hiện sẵn sẽ đè caption */}
+            <ButtonChevron
+              className="left-3 hidden md:block"
+              onClick={handlePrev}
+            />
             <ButtonChevron
               isRightButton
-              className="right-3"
+              className="right-3 hidden md:block"
               onClick={handleNext}
             />
 
@@ -114,10 +120,11 @@ const HeroBanner = ({ banners }: HeroBannerProps) => {
                   aria-current={index === current}
                   onClick={() => setCurrent(index)}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100",
+                    // Hit-area dọc 40px; ngang chỉ nới nửa gap để các dot không đè vùng bấm của nhau
+                    "relative h-2 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 after:absolute after:-inset-x-1 after:-inset-y-4 after:content-['']",
                     index === current
                       ? "w-5 bg-primary"
-                      : "w-2 bg-white/80 hover:bg-white"
+                      : "w-2 bg-white/80 ring-1 ring-dark-800/30 hover:bg-white"
                   )}
                 />
               ))}

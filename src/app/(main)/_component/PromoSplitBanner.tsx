@@ -37,7 +37,7 @@ const PromoSplitBanner = () => {
         <Link
           key={tile.title}
           href={tile.href}
-          className="relative block overflow-hidden rounded-3xl group/tile aspect-[2.5/1] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+          className="relative block overflow-hidden rounded-xl group/tile aspect-[2.5/1] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
         >
           <Image
             src={tile.image}
@@ -67,7 +67,7 @@ const PromoSplitBanner = () => {
             </p>
             <span
               className={cn(
-                "inline-flex items-center w-max h-9 md:h-10 px-5 rounded-full text-sm font-bold transition-colors",
+                "inline-flex items-center w-max h-9 md:h-10 px-5 rounded-xl text-sm font-bold transition-colors",
                 tile.isDark
                   ? "bg-white text-dark-800 group-hover/tile:bg-white-100"
                   : "bg-primary text-white group-hover/tile:bg-primary-700"

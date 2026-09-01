@@ -44,41 +44,44 @@ const CardItem = ({
       href={`${PATH.PRODUCT}/${productItem.slug}`}
       className="group/card block bg-white rounded-xl border border-white-200 shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden cursor-pointer"
     >
-      <div className="relative overflow-hidden bg-white-100">
+      {/* aspect nằm ở wrapper để card không sập khung khi image null */}
+      <div className="relative overflow-hidden bg-white-100 aspect-[3/4]">
         {productItem.image && (
           <Image
             src={productItem.image}
             alt={productItem.name}
             width={400}
             height={533}
-            className="w-full aspect-[3/4] object-cover mix-blend-multiply transition-transform duration-500 group-hover/card:scale-105"
+            className="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover/card:scale-105"
           />
         )}
-        {discountPercentage > 0 && (
-          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 text-xs font-semibold text-white bg-terracotta rounded-md">
-            -{discountPercentage}%
-          </div>
-        )}
-        {isOutOfStock && (
-          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 text-xs font-semibold text-white bg-dark-300 rounded-md">
-            Hết hàng
-          </div>
-        )}
+        <div className="absolute inset-x-2.5 top-2.5 flex items-center pointer-events-none">
+          {discountPercentage > 0 && (
+            <div className="px-2 py-0.5 text-xs font-semibold text-white bg-terracotta rounded-md">
+              -{discountPercentage}%
+            </div>
+          )}
+          {isOutOfStock && (
+            <div className="px-2 py-0.5 text-xs font-semibold text-white bg-dark-300 rounded-md">
+              Hết hàng
+            </div>
+          )}
 
-        <button
-          type="button"
-          className="absolute top-2.5 right-2.5 flex items-center justify-center w-9 h-9 bg-white rounded-full shadow-md cursor-pointer transition-colors hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 after:absolute after:-inset-1.5 after:content-['']"
-          aria-label="Yêu thích sản phẩm"
-          aria-pressed={favorite}
-          onClick={toggleFavorite}
-        >
-          <HeartOutline
-            className={cn(
-              "w-[18px] h-[18px]",
-              favorite ? "text-red" : "text-dark-500"
-            )}
-          />
-        </button>
+          <button
+            type="button"
+            className="relative ml-auto pointer-events-auto flex items-center justify-center w-9 h-9 bg-white rounded-full shadow-md cursor-pointer transition-colors hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 after:absolute after:-inset-1.5 after:content-['']"
+            aria-label="Yêu thích sản phẩm"
+            aria-pressed={favorite}
+            onClick={toggleFavorite}
+          >
+            <HeartOutline
+              className={cn(
+                "w-[18px] h-[18px]",
+                favorite ? "text-red" : "text-dark-500"
+              )}
+            />
+          </button>
+        </div>
       </div>
 
       <div className="px-2.5 md:px-3.5 pt-3 pb-3.5">
@@ -108,14 +111,16 @@ const CardItem = ({
 
         {/* Hàng cuối 2 cực: social proof trái / nút điều hướng phải — lấp trục ngang */}
         <div className="flex items-center justify-between gap-2 mt-2">
-          <span className="text-xs text-dark-400 whitespace-nowrap truncate">
+          <span className="text-xs text-dark-500 whitespace-nowrap truncate">
             {/* Rating chỉ từ md — card mobile 2 cột không đủ chỗ cả rating lẫn số bán */}
             {productItem.rating != null && (
-              <span className="font-semibold">
-                <Star className="inline w-3 h-3 text-yellow-500 align-[-2px]" />{" "}
-                {productItem.rating}
+              <>
+                <span className="font-semibold">
+                  <Star className="inline w-3 h-3 text-yellow-500 align-[-2px]" />{" "}
+                  {productItem.rating}
+                </span>
                 {productItem.soldCount != null && " · "}
-              </span>
+              </>
             )}
             {productItem.soldCount != null &&
               `Đã bán ${formatSoldCount(productItem.soldCount)}`}

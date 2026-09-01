@@ -15,7 +15,7 @@ export default async function Category() {
       <h2 className="text-2xl md:text-3xl text-primary-800 text-center uppercase font-bold tracking-wide">
         Danh mục nổi bật
       </h2>
-      <p className="text-center text-sm text-dark-400 mt-1 mb-8">
+      <p className="text-center text-sm text-dark-500 mt-1 mb-6">
         Xem những sản phẩm đang thịnh hành ngay bây giờ
       </p>
 
@@ -27,6 +27,7 @@ export default async function Category() {
             _id={item._id}
             name={item.name}
             imageUrl={item.imageUrl}
+            slug={item.slug}
           />
         ))}
       </div>
@@ -34,9 +35,17 @@ export default async function Category() {
   );
 }
 
-const CategoryItem = ({ name, imageUrl }: ICategoryItem) => {
+const CategoryItem = ({ name, imageUrl, slug }: ICategoryItem) => {
   return (
-    <Link href={PATH.COLLECTION} className="group/cat block">
+    // Thiếu slug → về collection trần (cùng quy ước sidebar collection: item không slug không filter được)
+    <Link
+      href={
+        slug
+          ? `${PATH.COLLECTION}?category=${encodeURIComponent(slug)}`
+          : PATH.COLLECTION
+      }
+      className="group/cat block"
+    >
       <div className="flex flex-col items-center text-center">
         <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white ring-2 ring-primary-200 ring-offset-4 shadow-sm group-hover/cat:ring-primary group-hover/cat:shadow-md transition-all duration-300">
           <Image

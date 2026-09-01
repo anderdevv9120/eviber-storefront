@@ -97,7 +97,10 @@ export default async function Home() {
         <PromoSplitBanner />
 
         {bestSellers.length > 0 && (
-          <ContentSlider title="Bán chạy" href={PATH.COLLECTION}>
+          <ContentSlider
+            title="Bán chạy"
+            href={`${PATH.COLLECTION}?sort=bestseller`}
+          >
             <CardItemSlider dataProduct={bestSellers} />
           </ContentSlider>
         )}

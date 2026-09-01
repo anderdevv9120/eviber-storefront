@@ -23,21 +23,21 @@ const ContentSlider = ({
         {title}
       </h2>
       {subtitle && (
-        <p className="text-center text-sm text-dark-400 mt-1">{subtitle}</p>
+        <p className="text-center text-sm text-dark-500 mt-1">{subtitle}</p>
       )}
 
       {href && (
-        <div className="flex justify-end mb-4 mt-1">
+        <div className="flex justify-end mb-6 mt-1">
           <Link
             href={href}
-            className="group/link flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors"
+            className="group/link relative flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-['']"
           >
             Xem tất cả
             <RightArrow className="w-4 h-4 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
           </Link>
         </div>
       )}
-      {!href && <div className="mb-5" />}
+      {!href && <div className="mb-6" />}
 
       {children}
     </section>

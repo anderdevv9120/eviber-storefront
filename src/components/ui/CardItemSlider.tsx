@@ -104,7 +104,7 @@ const CardItemSlider = ({
     if (isMobile) {
       return (
         <div
-          className="grid gap-3"
+          className="grid gap-2"
           style={{
             gridTemplateColumns: "repeat(2, 1fr)",
           }}
