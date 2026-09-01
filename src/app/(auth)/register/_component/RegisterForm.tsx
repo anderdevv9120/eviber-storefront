@@ -5,7 +5,6 @@ import Link from "next/link";
 import * as yup from "yup";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { cn } from "@/config/utils";
 import Input from "@/components/ui/Input";
 import InputPassword from "@/components/ui/InputPassword";
 import Button from "@/components/ui/Button";
@@ -16,11 +15,7 @@ import { successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import AuthHeading from "../../_component/AuthHeading";
 import AuthNotice from "../../_component/AuthNotice";
-import {
-  AUTH_CTA_COLOR,
-  AUTH_FIELD_LABEL,
-  AUTH_INPUT,
-} from "../../_component/authStyles";
+import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 
 import {
   EMAIL_REQUIRED_MESSAGE,
@@ -212,7 +207,7 @@ const RegisterForm = () => {
           <Button
             type="submit"
             size="lg"
-            className={cn("mt-5 w-full", AUTH_CTA_COLOR)}
+            className="mt-5 w-full"
             loading={isSubmitting}
           >
             Đăng ký

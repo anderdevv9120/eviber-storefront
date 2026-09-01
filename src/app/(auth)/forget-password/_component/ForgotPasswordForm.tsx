@@ -5,7 +5,6 @@ import Link from "next/link";
 import * as yup from "yup";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { cn } from "@/config/utils";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { PATH } from "@/constants/paths";
@@ -19,11 +18,7 @@ import {
 } from "@/constants/validate";
 import AuthHeading from "../../_component/AuthHeading";
 import AuthNotice from "../../_component/AuthNotice";
-import {
-  AUTH_CTA_COLOR,
-  AUTH_FIELD_LABEL,
-  AUTH_INPUT,
-} from "../../_component/authStyles";
+import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
 
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -141,7 +136,7 @@ const ForgotPasswordForm = () => {
           <Button
             type="submit"
             size="lg"
-            className={cn("mt-5 w-full", AUTH_CTA_COLOR)}
+            className="mt-5 w-full"
             loading={isSubmitting}
           >
             Gửi link đặt lại mật khẩu

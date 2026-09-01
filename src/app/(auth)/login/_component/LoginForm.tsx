@@ -6,7 +6,6 @@ import * as yup from "yup";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { cn } from "@/config/utils";
 import Input from "@/components/ui/Input";
 import { Google } from "@/components/icons";
 import ToggleButton from "@/components/ui/ToggleButton";
@@ -24,11 +23,7 @@ import {
 import { successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import InputPassword from "@/components/ui/InputPassword";
-import {
-  AUTH_CTA_COLOR,
-  AUTH_FIELD_LABEL,
-  AUTH_INPUT,
-} from "../../_component/authStyles";
+import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
 
 const schema = yup
@@ -160,7 +155,7 @@ const LoginForm = () => {
         <Button
           type="submit"
           size="lg"
-          className={cn("w-full", AUTH_CTA_COLOR)}
+          className="w-full"
           loading={isSubmitting}
         >
           Đăng nhập

@@ -20,6 +20,8 @@ const buttonVariants = cva(
           "bg-white border border-primary text-primary-700 hover:bg-primary-50 disabled:border-white-600 disabled:bg-white-100 disabled:text-dark-400",
       },
       size: {
+        // sm: hành động phụ nhẹ trong khối nội dung (vd Xem thêm mô tả)
+        sm: "h-10 rounded-md text-sm",
         md: "h-12 rounded-md",
         lg: "h-14 rounded-xl text-base",
       },

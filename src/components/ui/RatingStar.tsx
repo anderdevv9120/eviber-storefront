@@ -10,29 +10,18 @@ type RatingStarProps = {
 const RatingStar = ({ rating, classStar }: RatingStarProps) => {
   const widthPercentage = rating ? `${(rating / 5) * 100}%` : "0";
 
+  // Thuần hiển thị — không hiệu ứng hover (control giả trên element đọc, /ui-audit)
   return (
-    <div className="relative w-fit group">
+    <div className="relative w-fit">
       <span
         className="flex gap-1 absolute flex-shrink-0 top-0 left-0 z-10 whitespace-nowrap overflow-hidden"
         style={{ width: widthPercentage }}
       >
-        <StarList
-          colorClass="text-yellow-300 group-hover:text-yellow-400"
-          className={cn(
-            classStar,
-            "transition-transform duration-300 group-hover:scale-110"
-          )}
-        />
+        <StarList colorClass="text-yellow-500" className={classStar} />
       </span>
 
       <span className="flex gap-1">
-        <StarList
-          colorClass="text-dark-100 group-hover:text-yellow-700"
-          className={cn(
-            classStar,
-            "transition-transform duration-300 group-hover:scale-110"
-          )}
-        />
+        <StarList colorClass="text-dark-100" className={classStar} />
       </span>
     </div>
   );
@@ -53,11 +42,7 @@ const StarList = ({ colorClass, className }: StarListProps) => {
       {LIST.map((i) => (
         <Star
           key={i}
-          className={cn(
-            "flex-shrink-0 cursor-default transition-all duration-300 ease-out",
-            colorClass,
-            className
-          )}
+          className={cn("flex-shrink-0 cursor-default", colorClass, className)}
         />
       ))}
     </>

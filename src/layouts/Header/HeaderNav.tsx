@@ -41,6 +41,8 @@ const HeaderNav = ({ menus }: HeaderNavProps) => {
           <Link
             key={index}
             href={item.link}
+            // Đóng menu khi chọn item — điều hướng cùng route (anchor #lien-he) không unmount
+            onClick={() => setIsOpenNavMenu(false)}
             className="flex justify-between items-center py-3 px-4 border-b border-dark-50 hover:bg-primary-50"
           >
             {item.name}

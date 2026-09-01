@@ -1,6 +1,6 @@
 import { PASSWORD_POLICY_MESSAGE } from "@/constants/validate";
 
-// Map message lỗi tiếng Anh của BE → tiếng Việt (đã chốt: map theo message string,
+// Map message lỗi tiếng Anh của BE → tiếng Việt (map theo message string,
 // message ngoài bảng hiển thị nguyên văn). BE đổi text là mất map — có fallback.
 const AUTH_ERROR_VI: Record<string, string> = {
   "Email or password is incorrect": "Email hoặc mật khẩu không đúng",

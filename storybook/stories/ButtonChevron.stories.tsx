@@ -4,7 +4,8 @@ import ButtonChevron from "@/components/ui/ButtonChevron";
 
 /**
  * ButtonChevron mặc định ẩn (opacity-0 pointer-events-none), chỉ hiện khi
- * cha có group-hover. Trong story bọc trong 1 container relative để định vị;
+ * hover ancestor mang named group `group/rail` (contract của mọi rail/carousel).
+ * Trong story bọc trong 1 container relative để định vị;
  * click dùng pointerEventsCheck:0 vì nút ẩn pointer-events.
  */
 const meta = {
@@ -16,7 +17,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="relative group h-40 w-80 border">
+      <div className="relative group/rail h-40 w-80 border">
         <Story />
       </div>
     ),

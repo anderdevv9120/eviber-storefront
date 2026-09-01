@@ -1,4 +1,4 @@
-# CLAUDE.md — Ecommerce-FE
+# CLAUDE.md — frontend
 
 > Conventions chung toàn workspace (multi-repo, ngôn ngữ, skill routing) → `../CLAUDE.md` (root).
 > File này chỉ chứa những gì riêng của repo frontend.
@@ -11,11 +11,11 @@ Storefront e-commerce cho khách hàng cuối (thị trường Việt Nam — c�
 
 Chi tiết root chưa ghi:
 
-- **Form**: react-hook-form + `@hookform/resolvers` + yup (schema trong `constants/validate.ts`)
+- **Form**: react-hook-form + `@hookform/resolvers` + yup (schema viết INLINE trong form component; `constants/validate.ts` chỉ chứa message constants + regex)
 - **UI phụ trợ**: `class-variance-authority` (variants), `react-toastify` (qua `utils/toast.ts`), `react-swipeable` + `useCustomSwipeable`, `sass` (SCSS modules song song Tailwind)
-- **State**: Zustand store dùng middleware `immer` (`useAppStore`, `useAuthStore`)
+- **State**: Zustand store dùng middleware `immer` (`useAppStore`)
 - **Auth phía client**: token trong cookie (`js-cookie`), axios tự gắn Bearer + tự refresh
-- **SEO**: `next-sitemap` chạy ở `postbuild` (config `next-sitemap.config.js`)
+- **SEO**: `next-sitemap` chạy ở `postbuild` (config `next-sitemap.config.js`); checklist SEO per màn → rule `seo-nextjs` (`.claude/rules/` ở workspace root, auto-load khi chạm `src/app/`)
 - **Storybook**: config tại `storybook/` (main.ts, preview, decorators, mocks — KHÔNG phải `.storybook/` mặc định); stories gom tập trung, không co-located
 
 ## Architecture
@@ -40,12 +40,12 @@ src/
 │   ├── organisms/          # khối lớn (Authentication, PageNotFound)
 │   └── icons/              # icon components — check ở đây trước khi thêm icon mới
 ├── layouts/                # Header/, Footer
-├── store/                  # Zustand v4: useAppStore, useAuthStore, useCountStore, useFilterCollectionStore
+├── store/                  # Zustand v4: useAppStore, useFilterCollectionStore, useProductGalleryStore
 ├── hooks/                  # useDebounce, useClickOutside, useMediaQuery, useWindowSize, usePrevious, useIgnoreFirstEffect...
-├── constants/              # paths.ts (PATH.*), orderStatus, validate (yup schemas), misc
+├── constants/              # paths.ts (PATH.*), orderStatus, validate (message constants + regex), payment, service
 ├── @types/                 # Product.type, Address.type, index.d.ts
 ├── utils/                  # cookies, formatPrice, formatTime, toast, localStorage, getParams
-├── mocks/                  # mock data (fetchData.ts) — vài trang thật còn dùng làm placeholder chờ BE
+├── mocks/                  # mock data (fetchData.ts) — CHỈ còn app/ui-kits/ dùng; không import vào route thật
 └── middleware.ts           # route guard: không có phiên (accessToken HOẶC refreshToken) → chặn /user/*;
                             #   có phiên → chặn /login, /register. /cart và /checkout KHÔNG guard (guest cart chủ đích)
 ```
@@ -61,6 +61,7 @@ src/
 - Gọi API: LUÔN qua `apis/` — không import axios trực tiếp trong component.
 - Lỗi API: interceptor (`config/axios.ts`) tự toast global qua `notifyError`. Endpoint hiển thị lỗi **inline trong form** (hoặc component tự toast message riêng) → PHẢI set `{ toastError: false }` trong `apis/` (quên là bị double display); `{ toastError: "..." }` để override message tĩnh. Component không cần catch-toast nữa — chỉ catch khi cần logic riêng (setMessage, fallback state).
 - Component nhiều variant → `cva` theo pattern `components/ui/Button.tsx`.
+- Component async: luôn render đủ 3 trạng thái **loading** (`<Spin>`/skeleton hợp layout) / **error** / **empty** — không để vùng trắng khi thiếu data.
 - Commit: pre-commit đã có husky + lint-staged (eslint --max-warnings=0 + tsc strict).
 - **`src/middleware.ts` là vùng nhạy cảm** (route guard toàn app) — HỎI user trước khi sửa (làm từ workspace root thì `permissions.ask` đã enforce sẵn).
 
@@ -71,7 +72,7 @@ npm run dev          # dev server → http://localhost:3030
 npm run build        # build + postbuild sitemap
 npm run lint         # next lint (lint:write để auto-fix)
 npx tsc --noEmit     # type check nhanh
-npm test             # vitest: logic thuần (src/utils/*.test.ts), ~0.2s
+npm test             # vitest: logic thuần, co-located (src/utils/, src/constants/, app/**/_component/), ~0.2s
 npm run test:e2e     # Playwright e2e (xem mục Testing)
 npm run storybook    # Storybook dev → http://localhost:6006
 ```
@@ -108,7 +109,11 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 
 ## Gotchas
 
+- **Interceptor axios đã unwrap 1 lớp (`return response.data`)** — trong code, `response` CHÍNH LÀ body BE; `response.data` = field `data` của TransformInterceptor. Endpoint trả mảng trần (banners): `response.data`; trả IResponseList (products/categories): `response.data.data`. Viết thừa `.data` là data rỗng ÂM THẦM (catch nuốt) — đối chiếu curl body trước khi viết accessor.
+- **Route static không khai `revalidate` = Full Route Cache VĨNH VIỄN ở production build** — data fetch server-side đóng băng tại thời điểm build; dev/e2e KHÔNG BAO GIỜ thấy lớp bug này (dev render mỗi request). Segment fetch data dùng chung nhiều route → khai `revalidate` ở layout làm mức nền.
 - **Tailwind content chỉ scan `src/app`, `src/components`, `src/layouts`** — class viết trong `hooks/`, `utils/`, `constants/` sẽ KHÔNG được generate (im lặng mất style).
 - **`middleware.ts` matcher chỉ cover `/login`, `/register`, `/user/*`** — `/cart` và `/checkout` KHÔNG qua middleware (guest cart/checkout là chủ đích, e2e guest checkout đã ghim hành vi này).
 - `services/` chỉ còn `todo.ts` gọi jsonplaceholder — boilerplate sót lại, KHÔNG theo pattern này; API layer thật là `apis/`.
 - Palette Tailwind bị override toàn bộ trong `tailwind.config.ts` (primary Pine `#0E7C66`) — màu mặc định Tailwind ngoài danh sách không tồn tại. Numbering đã chuẩn hóa: mọi nhóm số càng to càng đậm, nấc DEFAULT ghi comment cạnh từng nhóm (chi tiết + typography scale → rule `tailwind-v3`).
+- **Đổi symbol trong `public/sprites.svg` phải bump `?v=` trong `SvgIcon.tsx`** — sprite load qua URL có query version, không bump là browser giữ bản icon CŨ im lặng (đã cắn khi đổi icon-filter).
+- **Đổi `tailwind.config.ts` phải RESTART dev server** — Next dev KHÔNG hot-reload file này; thêm token mới (màu/shadow...) lúc server đang chạy sẽ không được generate (class ra `none`/rỗng, im lặng). Sửa xong `tailwind.config.ts` → kill + `npm run dev` lại.

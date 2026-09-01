@@ -28,6 +28,13 @@ export const Disabled: Story = {
 };
 
 /**
+ * Pill: 1 khung bo lg, nút ghost bên trong — dùng ở hàng mua product detail.
+ */
+export const Pill: Story = {
+  args: { defaultValue: 1, min: 1, max: 12, variant: "pill" },
+};
+
+/**
  * Khởi tạo phải tôn trọng min: defaultValue=0 nhưng min=1 → hiển thị 1.
  */
 export const InitRespectsMin: Story = {

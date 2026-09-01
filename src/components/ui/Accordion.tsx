@@ -9,9 +9,15 @@ interface AccordionProps {
   headerTitle: string;
   children: ReactNode;
   className?: string;
+  headerClassName?: string;
 }
 
-const Accordion = ({ headerTitle, children, className }: AccordionProps) => {
+const Accordion = ({
+  headerTitle,
+  children,
+  className,
+  headerClassName,
+}: AccordionProps) => {
   const [isCollapse, setIsCollapse] = useState(true);
 
   return (
@@ -22,7 +28,9 @@ const Accordion = ({ headerTitle, children, className }: AccordionProps) => {
         aria-expanded={isCollapse}
         onClick={() => setIsCollapse(!isCollapse)}
       >
-        <span className="font-medium text-xl">{headerTitle}</span>
+        <span className={cn("font-medium text-xl", headerClassName)}>
+          {headerTitle}
+        </span>
         <ChevronDown
           width="10"
           height="8"

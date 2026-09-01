@@ -132,10 +132,11 @@ const Dropdown = <T extends BaseValueType>({
     <div className={cn("relative w-fit h-fit", className)} ref={dropdownRef}>
       <div
         className={cn(
-          "flex items-center justify-between select-none border border-dark-200 transition-colors h-full focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100",
+          "flex items-center justify-between select-none border transition-colors h-full focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100",
           {
-            "px-2 py-0.5 rounded": size === "sm",
-            "px-3.5 py-3 rounded-xl": size === "lg",
+            // sm: viền hairline + bo lớn (form checkout dùng lg — giữ nguyên border đậm)
+            "px-3 py-2 rounded-lg border-white-600": size === "sm",
+            "px-3.5 py-3 rounded-xl border-dark-200": size === "lg",
             "cursor-pointer hover:border-primary": !disabled,
             "text-dark-300": (!currentValue && !searchTerm) || disabled,
             "opacity-75 cursor-not-allowed": disabled,
@@ -209,7 +210,8 @@ const Dropdown = <T extends BaseValueType>({
           ) : (
             <span
               className={cn(
-                "block truncate text-lg",
+                "block truncate",
+                size === "sm" ? "text-sm" : "text-lg",
                 !currentValue ? "text-dark-300" : "text-dark"
               )}
             >
@@ -220,7 +222,8 @@ const Dropdown = <T extends BaseValueType>({
 
         <ChevronDown
           className={cn(
-            "ml-2 w-4 h-4 transition-transform flex-shrink-0",
+            "ml-2 transition-transform flex-shrink-0",
+            size === "sm" ? "w-3 h-3 text-dark-400" : "w-4 h-4",
             isOpen && "rotate-180"
           )}
         />
@@ -232,7 +235,7 @@ const Dropdown = <T extends BaseValueType>({
           id={listboxId}
           role="listbox"
           className={cn(
-            "absolute w-full py-1 z-50 rounded-md bg-white shadow-lg border border-dark-200 max-h-64 overflow-auto scrollbarStyle",
+            "absolute w-full py-1 z-50 rounded-lg bg-white shadow-lg border border-white-500 max-h-64 overflow-auto scrollbarStyle",
             isDropdownTop
               ? "bottom-full mb-1 animate-[fadeInUp_0.15s]"
               : "top-full mt-1 animate-[fadeInDown_0.15s]"
@@ -251,15 +254,15 @@ const Dropdown = <T extends BaseValueType>({
                 className={cn(
                   "cursor-pointer transition-colors",
                   {
-                    "px-3 py-1": size === "sm",
+                    "px-3 py-2.5 text-sm": size === "sm",
                     "px-4 py-3": size === "lg",
                   },
                   item.value === currentValue
-                    ? "bg-white-300 font-medium text-primary"
-                    : "text-dark hover:bg-gray-100",
+                    ? "bg-primary-50 font-medium text-primary-700"
+                    : "text-dark hover:bg-white-100",
                   activeIndex === index &&
                     item.value !== currentValue &&
-                    "bg-gray-100"
+                    "bg-white-100"
                 )}
               >
                 {item.label}

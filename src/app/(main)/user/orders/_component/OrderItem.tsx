@@ -7,7 +7,8 @@ import { cn } from "@/config/utils";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { IOrderResponse, IOrderProduct } from "@/@types/Order.type";
-import { statusStyles } from "@/constants/orderStatus";
+import { statusStyles, OrderStatus } from "@/constants/orderStatus";
+import { PATH } from "@/constants/paths";
 import { cancelOrder } from "@/apis/order";
 import { successToast } from "@/utils/toast";
 import { useRouter } from "next/navigation";
@@ -20,17 +21,25 @@ interface OrderProps {
   onCancelled?: () => void;
 }
 
-const renderStatus = (status: string) => {
-  const statusData =
-    status in statusStyles
-      ? statusStyles[status as keyof typeof statusStyles]
-      : { color: "text-gray-500", label: "Trạng thái không xác định" };
+// Map màu đặt tại đây (vùng Tailwind content scan) — để trong constants/ là class
+// không được generate, mất màu im lặng (đã cắn với text-yellow/text-red-500).
+const STATUS_COLOR: Record<OrderStatus, string> = {
+  pending: "text-blue-400",
+  confirmed: "text-primary-600",
+  shipped: "text-yellow",
+  delivered: "text-green",
+  cancelled: "text-red-500",
+  returned: "text-red-400",
+};
 
-  return (
-    <span className={cn("font-medium", statusData.color)}>
-      {statusData.label}
-    </span>
-  );
+const renderStatus = (status: string) => {
+  const isKnown = status in statusStyles;
+  const label = isKnown
+    ? statusStyles[status as OrderStatus].label
+    : "Trạng thái không xác định";
+  const color = isKnown ? STATUS_COLOR[status as OrderStatus] : "text-gray";
+
+  return <span className={cn("font-medium", color)}>{label}</span>;
 };
 
 const attributeLabel = (product: IOrderProduct) =>
@@ -92,7 +101,11 @@ const OrderItem = ({ order, isLastItem, onCancelled }: OrderProps) => {
               <div className="flex-1 mb-1 text-gray-400">
                 <h3
                   className="text-base lg:text-lg text-dark-500 line-clamp-2 text-ellipsis cursor-pointer hover:underline"
-                  onClick={() => router.push(`/product/p-${product.productId}`)}
+                  // Snapshot đơn không lưu slug — PDP nhận segment là ObjectId,
+                  // resolve rồi redirect về URL slug canonical
+                  onClick={() =>
+                    router.push(`${PATH.PRODUCT}/${product.productId}`)
+                  }
                 >
                   {product.productNameAtOrder ?? "Sản phẩm"}
                 </h3>

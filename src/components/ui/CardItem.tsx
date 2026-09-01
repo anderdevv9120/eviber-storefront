@@ -3,23 +3,26 @@
 import Image from "next/image";
 import { useState, memo, MouseEvent } from "react";
 import { cn } from "@/config/utils";
-import { Cart, Heart } from "@/components/icons";
+import { HeartOutline, Plus, Star } from "@/components/icons";
 import ItemPrice from "@/components/ui/ItemPrice";
 import { IProductListItem } from "@/@types/Product.type";
+import { PATH } from "@/constants/paths";
 import Link from "next/link";
 
 interface CardItemProps {
   productItem: IProductListItem;
-  isShowDiscountPrice?: boolean;
-  isVertical?: boolean;
   currentPriceClass?: string;
   priceClass?: string;
 }
 
+// Rút gọn số bán cho hàng meta hẹp: 1132 → "1,1k"; phần thập phân 0 bỏ luôn (1000 → "1k")
+const formatSoldCount = (count: number) =>
+  count >= 1000
+    ? `${(count / 1000).toFixed(1).replace(".", ",").replace(",0", "")}k`
+    : count;
+
 const CardItem = ({
   productItem,
-  isShowDiscountPrice = false,
-  isVertical = false,
   currentPriceClass,
   priceClass,
 }: CardItemProps) => {
@@ -38,63 +41,101 @@ const CardItem = ({
 
   return (
     <Link
-      href={`/product/${productItem.slug}-${productItem._id}`}
-      className="hover:shadow-md duration-300 cursor-pointer"
+      href={`${PATH.PRODUCT}/${productItem.slug}`}
+      className="group/card block bg-white rounded-xl border border-white-200 shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden cursor-pointer"
     >
-      <div className="relative overflow-hidden rounded-t-xl">
+      {/* aspect nằm ở wrapper để card không sập khung khi image null */}
+      <div className="relative overflow-hidden bg-white-100 aspect-[3/4]">
         {productItem.image && (
           <Image
             src={productItem.image}
             alt={productItem.name}
-            priority
-            width={300}
-            height={300}
-            className="w-[300px] h-[200px] object-cover rounded-t-xl transition-transform duration-300 hover:scale-105"
+            width={400}
+            height={533}
+            className="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover/card:scale-105"
           />
         )}
-        {discountPercentage > 0 && (
-          <div className="absolute top-0 left-0 px-4 py-1 font-normal text-white bg-red rounded-tl-xl rounded-br-xl">
-            -{discountPercentage}%
-          </div>
-        )}
-        {isOutOfStock && (
-          <div className="absolute top-0 left-0 px-4 py-1 font-normal text-white bg-dark-300 rounded-tl-xl rounded-br-xl">
-            Hết hàng
-          </div>
-        )}
+        <div className="absolute inset-x-2.5 top-2.5 flex items-center pointer-events-none">
+          {discountPercentage > 0 && (
+            <div className="px-2 py-0.5 text-xs font-semibold text-white bg-terracotta rounded-md">
+              -{discountPercentage}%
+            </div>
+          )}
+          {isOutOfStock && (
+            <div className="px-2 py-0.5 text-xs font-semibold text-white bg-dark-300 rounded-md">
+              Hết hàng
+            </div>
+          )}
 
-        <button
-          type="button"
-          className="absolute top-3 right-3 bg-dark-50 p-1 rounded-full hover:bg-dark-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
-          aria-label="Yêu thích sản phẩm"
-          aria-pressed={favorite}
-          onClick={toggleFavorite}
-        >
-          <Heart
-            className={cn(favorite ? "text-primary-800" : "text-dark-50")}
-          />
-        </button>
+          <button
+            type="button"
+            className="relative ml-auto pointer-events-auto flex items-center justify-center w-9 h-9 bg-white rounded-full shadow-md cursor-pointer transition-colors hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 after:absolute after:-inset-1.5 after:content-['']"
+            aria-label="Yêu thích sản phẩm"
+            aria-pressed={favorite}
+            onClick={toggleFavorite}
+          >
+            <HeartOutline
+              className={cn(
+                "w-[18px] h-[18px]",
+                favorite ? "text-red" : "text-dark-500"
+              )}
+            />
+          </button>
+        </div>
       </div>
 
-      <div className="px-3 py-2 bg-white-100">
-        <div className="flex items-center mb-2">
-          <h2
-            title={productItem.name}
-            className="flex-1 min-h-12 text-base text-gray-700 line-clamp-2 text-ellipsis"
-          >
-            {productItem.name}
-          </h2>
-          <Cart className="min-w-5 ml-8 fill-none cursor-pointer stroke-[1.5px] hover:opacity-80" />
-        </div>
+      <div className="px-2.5 md:px-3.5 pt-3 pb-3.5">
+        <h3
+          title={productItem.name}
+          className="text-sm font-semibold text-dark-800 line-clamp-1 mb-2 group-hover/card:text-primary-700 transition-colors"
+        >
+          {productItem.name}
+        </h3>
 
+        {/* Giá + giá gạch CÙNG 1 hàng làm anchor đáy card */}
         <ItemPrice
           price={productItem.price}
           originalPrice={productItem.originalPrice}
-          currentPriceClass={currentPriceClass}
-          priceClass={priceClass}
-          isShowDiscountPrice={isShowDiscountPrice}
-          isVertical={isVertical}
+          currentPriceClass={cn(
+            // Hết hàng: ItemPrice hiện "Đang cập nhật" — không tô như giá thật.
+            // Giá near-black; chỉ chuyển terracotta khi đang giảm (accent sale)
+            !isOutOfStock &&
+              cn(
+                "text-base md:text-lg font-bold",
+                discountPercentage > 0 ? "text-terracotta" : "text-dark-800"
+              ),
+            currentPriceClass
+          )}
+          priceClass={cn("text-xs", priceClass)}
         />
+
+        {/* Hàng cuối 2 cực: social proof trái / nút điều hướng phải — lấp trục ngang */}
+        <div className="flex items-center justify-between gap-2 mt-2">
+          <span className="text-xs text-dark-500 whitespace-nowrap truncate">
+            {/* Rating chỉ từ md — card mobile 2 cột không đủ chỗ cả rating lẫn số bán */}
+            {productItem.rating != null && (
+              <>
+                <span className="font-semibold">
+                  <Star className="inline w-3 h-3 text-yellow-500 align-[-2px]" />{" "}
+                  {productItem.rating}
+                </span>
+                {productItem.soldCount != null && " · "}
+              </>
+            )}
+            {productItem.soldCount != null &&
+              `Đã bán ${formatSoldCount(productItem.soldCount)}`}
+          </span>
+
+          {/* Shortcut điều hướng — KHÔNG add-to-cart vì cart thao tác theo variant */}
+          {!isOutOfStock && (
+            <span
+              aria-hidden
+              className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-primary text-white hover:bg-primary-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

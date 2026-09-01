@@ -6,7 +6,6 @@ import * as yup from "yup";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { cn } from "@/config/utils";
 import Button from "@/components/ui/Button";
 import { PATH } from "@/constants/paths";
 import { getErrorMessage } from "@/utils/getErrorMessage";
@@ -24,11 +23,7 @@ import { getParams } from "@/utils/getParams";
 import InputPassword from "@/components/ui/InputPassword";
 import AuthHeading from "../../_component/AuthHeading";
 import AuthNotice from "../../_component/AuthNotice";
-import {
-  AUTH_CTA_COLOR,
-  AUTH_FIELD_LABEL,
-  AUTH_INPUT,
-} from "../../_component/authStyles";
+import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
 
 const schema = yup
@@ -93,7 +88,7 @@ const ResetPasswordForm = () => {
       >
         <Button
           size="lg"
-          className={cn("w-full", AUTH_CTA_COLOR)}
+          className="w-full"
           onClick={() => router.push(PATH.LOGIN)}
         >
           Đăng nhập
@@ -142,7 +137,7 @@ const ResetPasswordForm = () => {
           <Button
             type="submit"
             size="lg"
-            className={cn("mt-5 w-full", AUTH_CTA_COLOR)}
+            className="mt-5 w-full"
             loading={isSubmitting}
           >
             Đặt lại mật khẩu

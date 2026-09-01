@@ -1,8 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { signVerificationToken } from "./helpers/verification-token";
 
-// Email unique mỗi run — DB dev tích lũy account test (chính sách đã chốt trong
-// tasks/phase2/todo/e2e-qa-v2.md: user tự chạy lại seed khi thấy vấn đề).
+// Email unique mỗi run — DB dev tích lũy account test; user tự chạy lại seed khi thấy vấn đề.
 const email = `e2e.reg.${Date.now()}@demo.local`;
 const password = "Demo@123";
 

@@ -54,6 +54,7 @@ export async function POST() {
     if (status === 401 || status === 403) {
       cookies().delete(ACCESS_TOKEN);
       cookies().delete(REFRESH_TOKEN);
+      cookies().delete(REMEMBER_ME);
     }
     return NextResponse.json({ message: "Refresh token failed" }, { status });
   }

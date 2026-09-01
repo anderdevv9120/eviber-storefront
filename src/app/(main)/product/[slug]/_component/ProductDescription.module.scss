@@ -1,0 +1,40 @@
+/* Rich text mô tả (chuỗi HTML từ BE: p / ul li / strong) — chốt D1 mockup description.
+   SCSS module vì markup đến từ dangerouslySetInnerHTML, không gắn class Tailwind được. */
+.prose {
+  p {
+    margin-bottom: 12px;
+  }
+
+  ul {
+    margin-bottom: 12px;
+    list-style: none;
+    padding-left: 2px;
+  }
+
+  li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+
+    /* top theo em để dot tự khớp tâm dòng đầu ở mọi cỡ chữ (body 14/16 theo breakpoint) */
+    &::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: calc(0.75em - 3px);
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-primary);
+    }
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  /* phần tử cuối không cộng margin vào padding đáy panel */
+  > :last-child {
+    margin-bottom: 0;
+  }
+}

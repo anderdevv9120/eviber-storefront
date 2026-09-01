@@ -43,18 +43,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-export async function DELETE() {
-  try {
-    cookies().delete(ACCESS_TOKEN);
-    cookies().delete(REFRESH_TOKEN);
-    cookies().delete(REMEMBER_ME);
-
-    return NextResponse.json({ message: "Cookies deleted successfully!" });
-  } catch (error) {
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}

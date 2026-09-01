@@ -4,23 +4,28 @@ import { cn } from "@/config/utils";
 import { useCallback, useEffect, useRef } from "react";
 import "./FilterPrice.scss";
 
-const classButton = "absolute top-1 w-full h-0 shadow-md pointer-events-none";
-const classThumb = "absolute z-10 w-full rounded-sm h-1";
+const classButton = "absolute top-1 w-full h-0 pointer-events-none";
+const classThumb = "absolute z-10 w-full rounded-full h-1.5";
 
 interface FilterPriceSliderProps {
   maxPrice: number;
+  step?: number;
   currentMinPrice: number;
   currentMaxPrice: number;
   setCurrentMinPrice: (price: number) => void;
   setCurrentMaxPrice: (price: number) => void;
+  /** Gọi khi user KẾT THÚC thao tác (thả chuột/chạm, nhả phím) — điểm commit giá trị */
+  onCommit?: () => void;
 }
 
 const FilterPriceSlider = ({
   maxPrice,
+  step = 1,
   currentMinPrice,
   currentMaxPrice,
   setCurrentMinPrice,
   setCurrentMaxPrice,
+  onCommit,
 }: FilterPriceSliderProps) => {
   const minValRef = useRef<HTMLInputElement>(null);
   const maxValRef = useRef<HTMLInputElement>(null);
@@ -61,35 +66,41 @@ const FilterPriceSlider = ({
         type="range"
         min={0}
         max={maxPrice}
+        step={step}
         value={currentMinPrice}
         ref={minValRef}
         onChange={(event) => {
-          const value = Math.min(+event.target.value, currentMaxPrice - 10);
+          const value = Math.min(+event.target.value, currentMaxPrice - step);
           setCurrentMinPrice(value);
           event.target.value = value.toString();
         }}
+        onPointerUp={onCommit}
+        onKeyUp={onCommit}
         className={cn(
           classButton,
-          currentMinPrice <= maxPrice - 1 ? "z-30" : "z-50"
+          currentMinPrice <= maxPrice - step ? "z-30" : "z-50"
         )}
       />
       <input
         type="range"
         min={0}
         max={maxPrice}
+        step={step}
         value={currentMaxPrice}
         ref={maxValRef}
         onChange={(event) => {
-          const value = Math.max(+event.target.value, currentMinPrice + 10);
+          const value = Math.max(+event.target.value, currentMinPrice + step);
           setCurrentMaxPrice(value);
           event.target.value = value.toString();
         }}
+        onPointerUp={onCommit}
+        onKeyUp={onCommit}
         className={cn(classButton, "z-20")}
       />
 
       <div className="relative w-full">
-        <div className={cn(classThumb, "bg-dark-100")} />
-        <div ref={range} className={cn(classThumb, "bg-primary-700")} />
+        <div className={cn(classThumb, "bg-white-500")} />
+        <div ref={range} className={cn(classThumb, "bg-primary")} />
       </div>
     </div>
   );

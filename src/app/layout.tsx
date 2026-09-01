@@ -12,11 +12,31 @@ const manrope = Manrope({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3030";
+
+// JSON-LD Organization + WebSite (SEO GĐ2) — chỉ field có giá trị thật;
+// sameAs (social) chủ đích bỏ trống vì link social còn placeholder;
+// SearchAction chủ đích bỏ vì chức năng search chưa tồn tại (khai báo láo phản tác dụng)
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "CLOTHES",
+      url: SITE_URL,
+      logo: `${SITE_URL}/og.png`,
+    },
+    {
+      "@type": "WebSite",
+      name: "CLOTHES",
+      url: SITE_URL,
+    },
+  ],
+};
+
 export const metadata: Metadata = {
   // Brand placeholder đồng bộ logo CLOTHES (components/icons/Logo.tsx) — đổi brand thì sửa cả hai
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3030"
-  ),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "CLOTHES",
     template: "%s | CLOTHES",
@@ -36,6 +56,12 @@ export default function RootLayout({
         {children}
         <ToastContainer hideProgressBar />
         <div id="portal" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(siteJsonLd),
+          }}
+        />
       </body>
     </html>
   );

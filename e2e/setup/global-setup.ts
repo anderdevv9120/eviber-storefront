@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { createConnection } from "net";
 import path from "path";
 
-const BACKEND_DIR = path.resolve(__dirname, "../../../x-ecommerce-backend");
+const BACKEND_DIR = path.resolve(__dirname, "../../../backend");
 
 function assertMongoRunning(): Promise<void> {
   return new Promise((resolve, reject) => {

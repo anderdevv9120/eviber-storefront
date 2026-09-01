@@ -17,7 +17,7 @@ export default defineConfig({
   webServer: [
     {
       command: "npm run start:dev",
-      cwd: "../x-ecommerce-backend",
+      cwd: "../backend",
       url: "http://localhost:3009/api/v1/products",
       reuseExistingServer: true,
       timeout: 120_000,

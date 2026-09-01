@@ -1,76 +1,63 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getCategory } from "@/apis/home";
-
-interface ICategoryItem {
-  _id: string;
-  name: string;
-  description?: string;
-  imageUrl: string;
-}
+import { fetchCategoriesCached } from "@/apis/home.server";
+import { ICategoryItem } from "@/@types/Home.type";
+import { PATH } from "@/constants/paths";
 
 export default async function Category() {
-  let categories: ICategoryItem[] = [];
-  try {
-    const response = await getCategory();
-    categories = response?.data?.data || [];
-  } catch {
-    categories = [];
-  }
+  const categories = await fetchCategoriesCached();
+
+  // Rỗng/lỗi → ẩn hẳn section (chốt GĐ2, đồng nhất các section khác của home)
+  if (categories.length === 0) return null;
 
   return (
-    <div className="my-24">
-      <h2 className="text-2xl md:text-4xl text-primary-800 text-center uppercase font-semibold tracking-wide">
-        Sản phẩm nổi bật
+    <div className="my-16 md:my-24">
+      <h2 className="text-2xl md:text-3xl text-primary-800 text-center uppercase font-bold tracking-wide">
+        Danh mục nổi bật
       </h2>
-      {categories.length > 0 ? (
-        <>
-          <p className="text-center mt-2 font-thin mb-8">
-            Xem những sản phẩm đang thịnh hành ngay bây giờ
-          </p>
+      <p className="text-center text-sm text-dark-500 mt-1 mb-6">
+        Xem những sản phẩm đang thịnh hành ngay bây giờ
+      </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 justify-center">
-            {categories.map((item: ICategoryItem) => (
-              <CategoryItem
-                key={item._id}
-                _id={item._id}
-                name={item.name}
-                imageUrl={item.imageUrl}
-              />
-            ))}
-          </div>
-        </>
-      ) : (
-        <Image
-          width={200}
-          height={200}
-          src="/images/empty-box.png"
-          alt="No categories found"
-          className="mx-auto mt-8"
-        />
-      )}
+      {/* 6 cột chỉ từ lg — ở md 6 vòng 112px + gap tràn khỏi 768px */}
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 justify-center">
+        {categories.map((item: ICategoryItem) => (
+          <CategoryItem
+            key={item._id}
+            _id={item._id}
+            name={item.name}
+            imageUrl={item.imageUrl}
+            slug={item.slug}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
-const CategoryItem = ({ name, imageUrl }: ICategoryItem) => {
+const CategoryItem = ({ name, imageUrl, slug }: ICategoryItem) => {
   return (
-    <Link href="#" className="group block">
+    // Thiếu slug → về collection trần (cùng quy ước sidebar collection: item không slug không filter được)
+    <Link
+      href={
+        slug
+          ? `${PATH.COLLECTION}?category=${encodeURIComponent(slug)}`
+          : PATH.COLLECTION
+      }
+      className="group/cat block"
+    >
       <div className="flex flex-col items-center text-center">
-        <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-transparent bg-gradient-to-tr from-primary-400 to-primary-700 p-1 shadow-md group-hover:shadow-lg transition-all duration-300">
-          <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-            <Image
-              src={imageUrl || ""}
-              alt={name}
-              width={128}
-              height={128}
-              priority
-              className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-            />
-          </div>
+        <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white ring-2 ring-primary-200 ring-offset-4 shadow-sm group-hover/cat:ring-primary group-hover/cat:shadow-md transition-all duration-300">
+          <Image
+            src={imageUrl || ""}
+            alt={name}
+            width={128}
+            height={128}
+            className="w-full h-full object-cover transform group-hover/cat:scale-110 transition-transform duration-500"
+          />
         </div>
 
-        <p className="mt-4 text-sm md:text-lg font-medium text-gray-800 group-hover:text-primary-500 transition-colors duration-300">
+        <p className="mt-4 text-base font-semibold text-dark-800 group-hover/cat:text-primary-700 transition-colors duration-300">
           {name}
         </p>
       </div>

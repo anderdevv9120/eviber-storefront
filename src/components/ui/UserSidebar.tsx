@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Address,
   Bell,
@@ -10,11 +10,12 @@ import {
   Exit,
 } from "@/components/icons";
 import { PATH } from "@/constants/paths";
-import { deleteTokenServer } from "@/apis/auth";
+import { logoutServer } from "@/apis/auth";
 import { useAppStore } from "@/store/useAppStore";
 import { usePathname, useRouter } from "next/navigation";
 import FadeWrapper from "@/components/ui/FadeWrapper";
 import Link from "next/link";
+import { cn } from "@/config/utils";
 
 const categories = [
   { id: 1, name: "Tài khoản của tôi", icon: <User />, path: PATH.MY_ACCOUNT },
@@ -35,9 +36,10 @@ const UserSidebar = ({
   isMenuOpen,
   closeMenu,
 }: IUserSidebarProps) => {
-  const { clearProfile } = useAppStore();
+  const clearProfile = useAppStore((s) => s.clearProfile);
   const router = useRouter();
   const pathName = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const activeCategory = useMemo(
     () =>
@@ -45,11 +47,18 @@ const UserSidebar = ({
     [pathName]
   );
 
-  const handleLogout = () => {
-    deleteTokenServer();
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logoutServer();
+    } catch {
+      // Route handler cùng origin hiếm khi fail — lỗi mạng thì vẫn dọn phiên cục bộ bên dưới
+    }
     clearProfile();
     closeMenu?.();
     router.push(PATH.LOGIN);
+    setIsLoggingOut(false);
   };
 
   const SidebarContent = (
@@ -74,10 +83,17 @@ const UserSidebar = ({
       <button
         type="button"
         onClick={handleLogout}
-        className="py-3 cursor-pointer flex items-center gap-2 border-none lg:text-lg md:text-base text-sm pr-20 pl-5 w-full hover:bg-gray-200 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-100"
+        disabled={isLoggingOut}
+        aria-busy={isLoggingOut}
+        className={cn(
+          "py-3 cursor-pointer flex items-center gap-2 border-none lg:text-lg md:text-base text-sm pr-20 pl-5 w-full hover:bg-gray-200 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-100",
+          isLoggingOut && "opacity-60 cursor-not-allowed hover:bg-white"
+        )}
       >
         <Exit className="text-red-300" />
-        <span className="font-medium">Đăng xuất</span>
+        <span className="font-medium">
+          {isLoggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
+        </span>
       </button>
     </div>
   );

@@ -33,15 +33,17 @@ export default function UserAction() {
   return (
     <div ref={dropdownRef} className="relative">
       <div className="flex gap-5 items-center">
-        <Link className="relative flex flex-col items-center" href={PATH.CART}>
-          <CartShopping className="text-primary-100" />
-          {/* <span className="absolute -top-3 -right-3 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-            5
-          </span> */}
+        <Link
+          className="relative flex flex-col items-center text-dark-600 hover:text-primary-700 transition-colors"
+          href={PATH.CART}
+          aria-label="Giỏ hàng"
+        >
+          {/* Badge số lượng cart: để phase 3 */}
+          <CartShopping />
         </Link>
         <RoundedUser
           onClick={isLogin ? toggleMenu : navigateToLogin}
-          className="text-white-100 w-6 h-6 ml-2 mt-0 cursor-pointer"
+          className="text-dark-600 hover:text-primary-700 transition-colors w-6 h-6 ml-2 mt-0 cursor-pointer"
         />
       </div>
       <UserSidebar

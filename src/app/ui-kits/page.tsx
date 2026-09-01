@@ -183,6 +183,15 @@ export default function UIKits() {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">Buttons</h2>
             <h3 className="text-sm font-medium text-dark-500">
+              Size sm — hành động phụ trong khối nội dung
+            </h3>
+            <div className="space-x-2 flex flex-wrap gap-2">
+              <Button size="sm" variant="outline">
+                Xem thêm
+              </Button>
+              <Button size="sm">Primary sm</Button>
+            </div>
+            <h3 className="text-sm font-medium text-dark-500">
               Size md (mặc định)
             </h3>
             <div className="space-x-2 flex flex-wrap gap-2">
@@ -508,6 +517,7 @@ export default function UIKits() {
               }}
             />
             <Counter disabled defaultValue={5} min={0} max={10} />
+            <Counter variant="pill" defaultValue={1} min={1} max={10} />
           </section>
 
           {/* Selector Section */}
@@ -583,7 +593,11 @@ export default function UIKits() {
             <h2 className="text-2xl font-semibold">Filters</h2>
             <div className="max-w-64 space-y-4">
               <Filter data={dataFilter} onChange={console.log} />
-              <FilterPrice maxPrice={1000} onChange={handleChangePrice} />
+              <FilterPrice
+                maxPrice={1_000_000}
+                step={50_000}
+                onChange={handleChangePrice}
+              />
             </div>
           </section>
 

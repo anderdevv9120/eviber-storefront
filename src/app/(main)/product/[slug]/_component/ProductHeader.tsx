@@ -1,60 +1,54 @@
-import RatingStar from "@/components/ui/RatingStar";
+import { Star } from "@/components/icons";
 
-type ProductHeaderProps = {
+interface ProductHeaderProps {
   title: string;
-  rating: number;
-  numberReview: number;
-  totalSold: number;
-  status: string;
-};
+  /** Điểm trung bình từ review APPROVED — undefined khi chưa có review, ẩn cụm rating */
+  rating?: number;
+  reviewCount: number;
+  soldCount?: number;
+  isInStock: boolean;
+}
 
+// Meta 1 dòng chữ ngăn cách " · " (chốt C2 vòng refine) — pill trạng thái chỉ còn
+// cho HẾT HÀNG (còn hàng là mặc định, không cần chiếm chỗ)
 const ProductHeader = ({
   title,
   rating,
-  numberReview,
-  totalSold,
-  status,
+  reviewCount,
+  soldCount,
+  isInStock,
 }: ProductHeaderProps) => {
+  const hasRating = rating != null && reviewCount > 0;
+
   return (
     <>
-      <h1 className="text-xl mb-2">{title}</h1>
-      <div className="flex items-center mb-2 md:mb-6">
-        <div className="flex items-center">
-          <p className="mr-2">{rating}</p>
-          <div className="flex items-center">
-            <RatingStar rating={rating} classStar="mx-0.5" />
-          </div>
-        </div>
+      <h1 className="text-2xl md:text-3xl font-bold leading-snug">{title}</h1>
 
-        <InfoSection label="Đánh giá" value={numberReview} />
-        <InfoSection label="Đã bán" value={totalSold} />
-        <InfoSection label="Tình trạng" value={status} isStatus={true} />
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 mt-2 text-sm text-dark-500">
+        {hasRating && (
+          <a
+            href="#danh-gia"
+            className="flex items-center gap-1.5 hover:text-primary-700 transition-colors"
+          >
+            <Star className="w-3.5 h-3.5 text-yellow-500" />
+            <span className="font-semibold text-dark-600">{rating}</span>
+            <span>· {reviewCount} đánh giá</span>
+          </a>
+        )}
+
+        {soldCount != null && (
+          <span>
+            {hasRating && "· "}Đã bán {soldCount}
+          </span>
+        )}
+
+        {!isInStock && (
+          <span className="px-2.5 py-0.5 text-xs font-bold rounded-full border text-dark-500 bg-white-100 border-white-600">
+            Hết hàng
+          </span>
+        )}
       </div>
     </>
-  );
-};
-
-type InfoSectionProps = {
-  label: string;
-  value: string | number;
-  isStatus?: boolean;
-};
-
-const InfoSection = ({ label, value, isStatus = false }: InfoSectionProps) => {
-  return (
-    <div className="flex ml-2 pl-2 text-xs border-l border-dark-50 lg:ml-4 lg:pl-4 sm:text-base">
-      {isStatus ? (
-        <>
-          <p className="text-dark-300">{label}:</p>
-          <span className="text-primary-800 ml-2">{value}</span>
-        </>
-      ) : (
-        <>
-          <span className="mr-2">{value}</span>
-          <p className="text-dark-300">{label}</p>
-        </>
-      )}
-    </div>
   );
 };
 

@@ -13,7 +13,10 @@ const ActionCell = <T,>({ actions = [], item }: ActionCellProps<T>) => {
         const { onClick, tooltip, icon, isDisableAction } = action;
 
         return (
-          <div key={index} className="relative flex justify-center group">
+          <div
+            key={index}
+            className="relative flex justify-center group/action"
+          >
             <span
               onClick={() => onClick?.(item)}
               className={cn(
@@ -26,7 +29,7 @@ const ActionCell = <T,>({ actions = [], item }: ActionCellProps<T>) => {
 
             {tooltip && !isDisableAction && (
               <div
-                className={`absolute hidden group-hover:block px-4 py-3 bg-white text-xs rounded-lg shadow-md z-10 
+                className={`absolute hidden group-hover/action:block px-4 py-3 bg-white text-xs rounded-lg shadow-md z-10
                                 whitespace-nowrap -top-[55px] left-1/2 transform -translate-x-1/2`}
               >
                 {tooltip}
