@@ -6,6 +6,8 @@ export const PATH = {
   PAYMENT: "/payment",
   DASHBOARD: "/dashboard",
   CART: "/cart",
+  CHECKOUT: "/checkout",
+  PAYMENT_SUCCESS: "/payment-success",
   LOGIN: "/login",
   FORGET_PASSWORD: "/forget-password",
   RESET_PASSWORD: "/reset-password",

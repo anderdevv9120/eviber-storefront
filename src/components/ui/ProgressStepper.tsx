@@ -16,12 +16,13 @@ type ProgressStepperProps = {
 
 const ProgressStepper = ({ currentStep, stepItems }: ProgressStepperProps) => {
   return (
-    <div className="flex justify-between w-full max-w-3xl mx-auto">
+    <div className="flex w-full max-w-2xl mx-auto">
       {stepItems.map((step, index) => (
         <ProgressStepperItem
           key={step.stepNumber}
           currentStep={currentStep}
           step={step}
+          isFirstStep={index === 0}
           isLastStep={index === stepItems.length - 1}
         />
       ))}
@@ -32,60 +33,70 @@ const ProgressStepper = ({ currentStep, stepItems }: ProgressStepperProps) => {
 type ProgressStepperItemProps = {
   currentStep: number;
   step: StepItemType;
+  isFirstStep: boolean;
   isLastStep: boolean;
 };
-
-const getBackgroundColorClass = (isActive: boolean) =>
-  isActive ? "bg-primary-500" : "bg-gray-300";
 
 const ProgressStepperItem = ({
   currentStep,
   step,
+  isFirstStep,
   isLastStep,
 }: ProgressStepperItemProps) => {
   const isActive = currentStep >= step.stepNumber;
+  const isCurrent = currentStep === step.stepNumber;
   const isCompleted = currentStep > step.stepNumber;
 
   return (
-    <div className="flex flex-1 flex-col items-center">
-      <div className="mb-2">
-        <span
-          className={cn(
-            "block text-center text-xs sm:text-sm md:text-base font-medium transition-colors duration-300",
-            isActive ? "text-primary-600" : "text-gray-400"
-          )}
-        >
-          {step.title}
-        </span>
-      </div>
+    <div className="flex flex-1 flex-col items-center gap-2">
+      <span
+        className={cn(
+          "text-xs sm:text-sm transition-colors duration-300",
+          isCurrent
+            ? "text-primary-700 font-semibold"
+            : isActive
+              ? "text-dark-800 font-semibold"
+              : "text-dark-500 font-medium"
+        )}
+      >
+        {step.title}
+      </span>
 
       <div className="flex w-full items-center">
         <div
           className={cn(
-            "h-[2px] w-1/2 transition-colors duration-500",
-            getBackgroundColorClass(currentStep >= step.stepNumber)
+            "h-[1.5px] w-1/2 transition-colors duration-300",
+            isFirstStep
+              ? "bg-transparent"
+              : isActive
+                ? "bg-primary-300"
+                : "bg-white-500"
           )}
-        ></div>
+        />
 
         <div
           className={cn(
-            "flex items-center justify-center text-white text-sm w-9 h-9 shrink-0 rounded-full transition-all duration-500",
+            "flex items-center justify-center w-8 h-8 shrink-0 rounded-full text-xs font-bold transition-all duration-300",
             isActive
-              ? "bg-primary-500 scale-110 ring-2 ring-primary-100 shadow-md"
-              : "bg-gray-300 hover:bg-gray-400 cursor-pointer"
+              ? "bg-primary text-white"
+              : "bg-white border-[1.5px] border-white-600 text-dark-500",
+            isCurrent && "ring-[3px] ring-primary-100"
           )}
+          aria-current={isCurrent ? "step" : undefined}
         >
-          {isActive ? <Check className="w-4 h-4" /> : `0${step.stepNumber}`}
+          {isCompleted ? <Check className="w-3.5 h-3.5" /> : step.stepNumber}
         </div>
 
         <div
           className={cn(
-            "h-[2px] w-1/2 transition-all duration-500",
-            getBackgroundColorClass(
-              currentStep > step.stepNumber || isLastStep ? isActive : false
-            )
+            "h-[1.5px] w-1/2 transition-colors duration-300",
+            isLastStep
+              ? "bg-transparent"
+              : isCompleted
+                ? "bg-primary-300"
+                : "bg-white-500"
           )}
-        ></div>
+        />
       </div>
     </div>
   );

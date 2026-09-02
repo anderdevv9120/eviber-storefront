@@ -35,6 +35,13 @@ export const Pill: Story = {
 };
 
 /**
+ * Size sm (32px) — chỗ chật như row cart mobile; mặc định md (40px).
+ */
+export const PillSmall: Story = {
+  args: { defaultValue: 1, min: 1, max: 12, variant: "pill", size: "sm" },
+};
+
+/**
  * Khởi tạo phải tôn trọng min: defaultValue=0 nhưng min=1 → hiển thị 1.
  */
 export const InitRespectsMin: Story = {

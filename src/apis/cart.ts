@@ -2,7 +2,9 @@ import { ICartProductPayload, ICartRemovePayload } from "@/@types/Cart.type";
 import axiosRequest from "@/config/axios";
 
 export const getCart = () => {
-  return axiosRequest.get("/carts");
+  // Fetch nền từ Header trên MỌI trang — toast lỗi global ở đây thành toast đỏ
+  // vô nghĩa ngoài màn cart; CartView có error UI + nút Thử lại riêng
+  return axiosRequest.get("/carts", { toastError: false });
 };
 
 export const addToCart = (data: ICartProductPayload) => {

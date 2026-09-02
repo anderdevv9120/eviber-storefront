@@ -1,17 +1,28 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CartShopping, RoundedUser } from "@/components/icons";
 import { PATH } from "@/constants/paths";
 import { useAppStore } from "@/store/useAppStore";
+import { useCartStore } from "@/store/useCartStore";
 import UserSidebar from "@/components/ui/UserSidebar";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function UserAction() {
-  const { profile } = useAppStore();
-  const isLogin = !!profile._id;
+  const profileId = useAppStore((s) => s.profile._id);
+  const isLogin = !!profileId;
+  const totalQuantity = useCartStore((s) => s.cart?.totalQuantity ?? 0);
+  const fetchCart = useCartStore((s) => s.fetchCart);
+
+  // Refetch theo danh tính: chạy khi mount và mỗi khi profile._id đổi (login,
+  // logout, kể cả interceptor clearProfile khi refresh fail) — một điểm duy nhất
+  // thay cho các hook rải ở LoginForm/UserSidebar. force: identity đổi cần data
+  // MỚI HƠN request nền đang bay (Bearer mới), không được join dedupe
+  useEffect(() => {
+    fetchCart(true);
+  }, [profileId, fetchCart]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -38,8 +49,15 @@ export default function UserAction() {
           href={PATH.CART}
           aria-label="Giỏ hàng"
         >
-          {/* Badge số lượng cart: để phase 3 */}
           <CartShopping />
+          {totalQuantity > 0 && (
+            <span
+              data-testid="cart-badge"
+              className="absolute -top-1 -right-1.5 flex items-center justify-center min-w-3.5 h-3.5 px-[3px] rounded-full bg-primary text-white text-[9px] font-bold leading-none"
+            >
+              {totalQuantity > 9 ? "9+" : totalQuantity}
+            </span>
+          )}
         </Link>
         <RoundedUser
           onClick={isLogin ? toggleMenu : navigateToLogin}

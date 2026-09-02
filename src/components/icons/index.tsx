@@ -33,6 +33,7 @@ import Twitter from "./Twitter";
 import Thunder from "./Thunder";
 import Spin from "./Spin";
 import Trash from "./Trash";
+import TrashOutline from "./TrashOutline";
 import Pen from "./Pen";
 import FilterIcon from "./FilterIcon";
 import Bell from "./Bell";
@@ -96,6 +97,7 @@ export {
   Thunder,
   Spin,
   Trash,
+  TrashOutline,
   Pen,
   FilterIcon,
   Bell,
