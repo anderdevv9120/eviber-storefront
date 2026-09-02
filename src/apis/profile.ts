@@ -11,16 +11,21 @@ export interface IAddressProps {
   primary: boolean;
 }
 
-export interface IUserData {
+export type TGender = "MALE" | "FEMALE" | "OTHER";
+
+// Email cố tình KHÔNG nằm trong payload update — email là định danh đăng nhập,
+// đổi email cần flow verify riêng (Backlog); FE hiển thị read-only.
+export interface IUpdateProfilePayload {
   firstName: string;
   lastName: string;
-  email: string;
   phone: string;
+  imgUrl?: string;
+  gender?: TGender;
 }
 
 // AccountForm hiển thị lỗi inline → toastError: false cho các endpoint nó dùng
 
-export const updateUserInfo = (data: IUserData) => {
+export const updateUserInfo = (data: IUpdateProfilePayload) => {
   return axiosRequest.put(`users/profile`, data, { toastError: false });
 };
 

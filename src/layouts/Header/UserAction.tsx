@@ -46,11 +46,13 @@ export default function UserAction() {
           className="text-dark-600 hover:text-primary-700 transition-colors w-6 h-6 ml-2 mt-0 cursor-pointer"
         />
       </div>
-      <UserSidebar
-        isMenuOpen={isMenuOpen}
-        closeMenu={closeMenu}
-        isDropdown={true}
-      />
+      {isLogin && (
+        <UserSidebar
+          isMenuOpen={isMenuOpen}
+          closeMenu={closeMenu}
+          isDropdown={true}
+        />
+      )}
     </div>
   );
 }

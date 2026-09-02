@@ -13,6 +13,7 @@ const ROUTES = [
   "/register",
   "/cart",
   "/product/ao-khoac-hoodie-ni",
+  "/user/my-account",
 ];
 
 const VIEWPORTS = [
@@ -27,6 +28,18 @@ for (const vp of VIEWPORTS) {
       page,
     }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
+      // /user/* qua middleware bằng cookie phiên giả — middleware chỉ check cookie
+      // tồn tại; sweep đo overflow nên không cần phiên thật (API 401 vẫn render form)
+      if (route.startsWith("/user")) {
+        await page.context().addCookies([
+          {
+            name: "accessToken",
+            value: "e2e-sweep",
+            domain: "localhost",
+            path: "/",
+          },
+        ]);
+      }
       await page.goto(route);
       await page.waitForLoadState("networkidle");
 
