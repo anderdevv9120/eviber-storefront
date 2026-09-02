@@ -6,6 +6,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { changePassword } from "@/apis/profile";
 import { successToast } from "@/utils/toast";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 import Button from "@/components/ui/Button";
 import InputPassword from "@/components/ui/InputPassword";
 import FormRow from "./FormRow";
@@ -44,6 +45,7 @@ const schema = yup.object({
 
 const PassWordForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const methods = useForm<IPassWordForm>({
     resolver: yupResolver(schema),
@@ -53,6 +55,7 @@ const PassWordForm = () => {
 
   const onSubmit = async (data: IPassWordForm) => {
     setIsLoading(true);
+    setMessage("");
     try {
       const { currentPassword, newPassword } = data;
       await changePassword({
@@ -61,8 +64,8 @@ const PassWordForm = () => {
       });
       successToast("Đổi mật khẩu thành công");
       reset();
-    } catch {
-      // interceptor đã toast lỗi
+    } catch (error: unknown) {
+      setMessage(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +109,7 @@ const PassWordForm = () => {
               />
             </FormRow>
           </div>
+          {message && <p className="mt-3 text-sm text-red">{message}</p>}
           <div className="mt-6 flex justify-end">
             <Button
               type="submit"

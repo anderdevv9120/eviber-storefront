@@ -73,5 +73,7 @@ export const changePassword = (data: {
   newPassword: string;
   oldPassword: string;
 }) => {
-  return axiosRequest.post("users/change-password", data);
+  return axiosRequest.post("users/change-password", data, {
+    toastError: false,
+  });
 };
