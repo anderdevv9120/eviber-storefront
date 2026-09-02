@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 const ProfileLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
-    <div className="flex flex-col min-h-screen container-base py-10">
-      <div className="md:flex gap-0">
+    <div className="container-base min-h-screen py-8 md:py-10">
+      <div className="flex flex-col gap-6 xl:flex-row xl:gap-8">
         <UserSidebar />
-        <div className="flex-1 md:mt-0 mt-50">{children}</div>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
   );

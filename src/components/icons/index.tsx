@@ -53,6 +53,13 @@ import Warning from "./Warning";
 import Plus from "./Plus";
 import Minus from "./Minus";
 import RightArrow from "./RightArrow";
+import UserOutline from "./UserOutline";
+import MapPin from "./MapPin";
+import BellOutline from "./BellOutline";
+import PackageBox from "./PackageBox";
+import GiftBox from "./GiftBox";
+import LogoutOutline from "./LogoutOutline";
+import Lock from "./Lock";
 
 export {
   Cart,
@@ -105,6 +112,13 @@ export {
   Plus,
   Minus,
   RightArrow,
+  UserOutline,
+  MapPin,
+  BellOutline,
+  PackageBox,
+  GiftBox,
+  LogoutOutline,
+  Lock,
   Truck,
   Repeat,
   Shield,

@@ -30,3 +30,12 @@ export const PASSWORD_POLICY_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
 export const PASSWORD_POLICY_MESSAGE =
   "Mật khẩu cần có chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&)";
+
+export const MAX_AVATAR_SIZE_MB = 5;
+export const ACCEPTED_IMAGE_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+] as const;
+export const IMAGE_TYPE_MESSAGE = "Chỉ nhận ảnh PNG, JPG hoặc WEBP";
+export const IMAGE_SIZE_MESSAGE = `Ảnh tối đa ${MAX_AVATAR_SIZE_MB}MB`;

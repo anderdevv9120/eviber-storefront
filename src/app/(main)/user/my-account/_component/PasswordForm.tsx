@@ -6,8 +6,10 @@ import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { changePassword } from "@/apis/profile";
 import { successToast } from "@/utils/toast";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 import Button from "@/components/ui/Button";
 import InputPassword from "@/components/ui/InputPassword";
+import FormRow from "./FormRow";
 import {
   PASSWORD_REQUIRED_MESSAGE,
   PASSWORD_MIN_LENGTH_MESSAGE,
@@ -15,6 +17,8 @@ import {
   PASSWORD_CONFIRMATION_REQUIRED_MESSAGE,
   PASSWORD_CONFIRMATION_MATCH_MESSAGE,
   CURRENT_PASSWORD_CONFIRMATION_REQUIRED_MESSAGE,
+  PASSWORD_POLICY_REGEX,
+  PASSWORD_POLICY_MESSAGE,
 } from "@/constants/validate";
 
 interface IPassWordForm {
@@ -27,7 +31,8 @@ const schema = yup.object({
   newPassword: yup
     .string()
     .required(PASSWORD_REQUIRED_MESSAGE)
-    .min(MIN_PASSWORD_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
+    .min(MIN_PASSWORD_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE)
+    .matches(PASSWORD_POLICY_REGEX, PASSWORD_POLICY_MESSAGE),
   confirmPassword: yup
     .string()
     .required(PASSWORD_CONFIRMATION_REQUIRED_MESSAGE)
@@ -40,6 +45,7 @@ const schema = yup.object({
 
 const PassWordForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const methods = useForm<IPassWordForm>({
     resolver: yupResolver(schema),
@@ -49,6 +55,7 @@ const PassWordForm = () => {
 
   const onSubmit = async (data: IPassWordForm) => {
     setIsLoading(true);
+    setMessage("");
     try {
       const { currentPassword, newPassword } = data;
       await changePassword({
@@ -57,51 +64,65 @@ const PassWordForm = () => {
       });
       successToast("Đổi mật khẩu thành công");
       reset();
-    } catch {
-      // interceptor đã toast lỗi
+    } catch (error: unknown) {
+      setMessage(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="shadow-lg border border-dark-50 rounded-lg">
-      <h1 className="text-xl border-b border-b-dark-50 p-4 font-medium">
-        Thay đổi mật khẩu
-      </h1>
+    <section className="rounded-lg border border-white-300 bg-white p-5 md:p-6">
+      <h2 className="text-lg font-bold">Đổi mật khẩu</h2>
+      <p className="mt-0.5 text-sm text-dark-400">
+        Dùng mật khẩu mới cho các lần đăng nhập sau.
+      </p>
 
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)} className="p-4">
-          <div className="mx-auto flex flex-col gap-6">
-            <InputPassword
-              name="currentPassword"
-              label="Mật khẩu hiện tại"
-              placeholder="Nhập mật khẩu hiện tại"
-              autoComplete="current-password"
-            />
-            <InputPassword
-              name="newPassword"
-              label="Mật khẩu mới"
-              placeholder="Nhập mật khẩu mới"
-              autoComplete="off"
-            />
-            <InputPassword
-              name="confirmPassword"
-              label="Xác nhận mật khẩu mới"
-              placeholder="Xác nhận mật khẩu mới"
-              autoComplete="off"
-            />
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-5">
+          <div className="flex flex-col gap-4">
+            <FormRow label="Mật khẩu hiện tại" htmlFor="currentPassword">
+              <InputPassword
+                name="currentPassword"
+                id="currentPassword"
+                placeholder="Nhập mật khẩu hiện tại"
+                autoComplete="current-password"
+                className="text-base"
+              />
+            </FormRow>
+            <FormRow label="Mật khẩu mới" htmlFor="newPassword">
+              <InputPassword
+                name="newPassword"
+                id="newPassword"
+                placeholder="Nhập mật khẩu mới"
+                autoComplete="off"
+                className="text-base"
+              />
+            </FormRow>
+            <FormRow label="Xác nhận mật khẩu mới" htmlFor="confirmPassword">
+              <InputPassword
+                name="confirmPassword"
+                id="confirmPassword"
+                placeholder="Xác nhận mật khẩu mới"
+                autoComplete="off"
+                className="text-base"
+              />
+            </FormRow>
           </div>
-          <Button
-            type="submit"
-            className="w-44 font-normal mt-6"
-            loading={isLoading}
-          >
-            Đặt lại mật khẩu
-          </Button>
+          {message && <p className="mt-3 text-sm text-red">{message}</p>}
+          <div className="mt-6 flex justify-end">
+            <Button
+              type="submit"
+              size="sm"
+              className="px-6"
+              loading={isLoading}
+            >
+              Đổi mật khẩu
+            </Button>
+          </div>
         </form>
       </FormProvider>
-    </div>
+    </section>
   );
 };
 
