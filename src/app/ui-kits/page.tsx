@@ -518,6 +518,13 @@ export default function UIKits() {
             />
             <Counter disabled defaultValue={5} min={0} max={10} />
             <Counter variant="pill" defaultValue={1} min={1} max={10} />
+            <Counter
+              variant="pill"
+              size="sm"
+              defaultValue={1}
+              min={1}
+              max={10}
+            />
           </section>
 
           {/* Selector Section */}

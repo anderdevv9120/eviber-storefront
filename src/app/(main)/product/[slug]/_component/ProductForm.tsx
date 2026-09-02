@@ -12,6 +12,7 @@ import FlashSale from "./FlashSale";
 import { IProductOption, IProductVariant } from "@/@types/Product.type";
 import { PATH } from "@/constants/paths";
 import { addToCart } from "@/apis/cart";
+import { useCartStore } from "@/store/useCartStore";
 import { successToast } from "@/utils/toast";
 import { cn } from "@/config/utils";
 import useProductGalleryStore from "@/store/useProductGalleryStore";
@@ -81,6 +82,7 @@ const ProductForm = ({ options, variants }: ProductFormProps) => {
     setIsSubmitting(true);
     try {
       await addToCart({ variantId: selectedVariant.id, quantity });
+      useCartStore.getState().fetchCart(true);
       successToast("Thêm vào giỏ hàng thành công");
     } catch {
     } finally {
@@ -95,6 +97,7 @@ const ProductForm = ({ options, variants }: ProductFormProps) => {
     setIsSubmitting(true);
     try {
       await addToCart({ variantId: selectedVariant.id, quantity });
+      useCartStore.getState().fetchCart(true);
       router.push(PATH.CART);
     } catch {
     } finally {

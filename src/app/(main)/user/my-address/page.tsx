@@ -270,11 +270,11 @@ const AddressItem: React.FC<IAddressItemProps> = ({
         </div>
 
         <div
-          className="cursor-pointer"
+          className="cursor-pointer text-dark-300 hover:text-red transition-colors"
           onClick={() => onDelete(address)}
           title="Xóa"
         >
-          <Trash className="w-6 h-6 text-primary-300" />
+          <Trash className="w-6 h-6" />
         </div>
       </div>
     </div>

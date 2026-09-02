@@ -1,52 +1,47 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import ProgressStepper from "@/components/ui/ProgressStepper";
 import CountdownTimer from "@/components/ui/CountdownTimer";
+import { PATH } from "@/constants/paths";
+
+const STEP_BY_PATH: Record<string, number> = {
+  [PATH.CART]: 1,
+  [PATH.CHECKOUT]: 2,
+  [PATH.PAYMENT_SUCCESS]: 3,
+};
 
 const LayoutCheckout = ({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) => {
-  const [currentStep, setCurrentStep] = useState<number>(0);
   const pathname = usePathname();
-
-  useEffect(() => {
-    if (pathname === "/cart") {
-      setCurrentStep(1);
-    } else if (pathname === "/checkout") {
-      setCurrentStep(2);
-    } else if (pathname === "/payment-success") {
-      setCurrentStep(3);
-    }
-  }, [pathname]);
+  const currentStep = STEP_BY_PATH[pathname] ?? 1;
 
   return (
-    <div className="w-full">
-      <div className="container-base">
-        <div className="w-full pb-12 pt-16 sm:px-20 px-0">
-          <ProgressStepper
-            currentStep={Number(currentStep)}
-            stepItems={[
-              { title: "Giỏ hàng", stepNumber: 1 },
-              { title: "Thanh toán", stepNumber: 2 },
-              { title: "Hoàn thành", stepNumber: 3 },
-            ]}
-          />
-        </div>
-
-        {currentStep == 2 && (
-          <p className="pb-11 text-xl font-medium text-center">
-            Đơn hàng của bạn sẽ được đặt trong
-            <CountdownTimer countdownMinutes={10} redirectTo="/cart" />
-            phút nữa
-          </p>
-        )}
-
-        <div className="pb-12">{children}</div>
+    <div className="container-base">
+      <div className="pt-10 md:pt-12 pb-8">
+        <ProgressStepper
+          currentStep={currentStep}
+          stepItems={[
+            { title: "Giỏ hàng", stepNumber: 1 },
+            { title: "Thanh toán", stepNumber: 2 },
+            { title: "Hoàn thành", stepNumber: 3 },
+          ]}
+        />
       </div>
+
+      {currentStep === 2 && (
+        <p className="pb-8 font-medium text-center">
+          Đơn hàng của bạn sẽ được đặt trong
+          <CountdownTimer countdownMinutes={10} redirectTo={PATH.CART} />
+          phút nữa
+        </p>
+      )}
+
+      <div className="pb-12 md:pb-16">{children}</div>
     </div>
   );
 };

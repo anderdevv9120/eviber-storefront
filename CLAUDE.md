@@ -40,7 +40,7 @@ src/
 │   ├── organisms/          # khối lớn (Authentication, PageNotFound)
 │   └── icons/              # icon components — check ở đây trước khi thêm icon mới
 ├── layouts/                # Header/, Footer
-├── store/                  # Zustand v4: useAppStore, useFilterCollectionStore, useProductGalleryStore
+├── store/                  # Zustand v4: use{Name}Store theo domain (useAppStore, useCartStore, ...)
 ├── hooks/                  # useDebounce, useClickOutside, useMediaQuery, useWindowSize, usePrevious, useIgnoreFirstEffect...
 ├── constants/              # paths.ts (PATH.*), orderStatus, validate (message constants + regex), payment, service
 ├── @types/                 # Product.type, Address.type, index.d.ts
