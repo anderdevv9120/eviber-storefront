@@ -9,6 +9,10 @@ import {
 import { memo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+/** Key localStorage theo đích redirect — nơi reset countdown phải dùng đúng key này */
+export const getCountdownStorageKey = (redirectTo?: string) =>
+  `countdownTimer:${redirectTo ?? "default"}`;
+
 interface CountdownTimerProps {
   countdownMinutes: number;
   className?: string;
@@ -21,8 +25,7 @@ const CountdownTimer = ({
   redirectTo,
 }: CountdownTimerProps) => {
   const router = useRouter();
-  // Key theo ngữ cảnh để nhiều CountdownTimer không ghi đè lẫn nhau
-  const storageKey = `countdownTimer:${redirectTo ?? "default"}`;
+  const storageKey = getCountdownStorageKey(redirectTo);
 
   // Khởi tạo theo prop; đọc localStorage trong effect để tránh hydration mismatch
   const [timeLeft, setTimeLeft] = useState(() => countdownMinutes * 60);
@@ -64,13 +67,8 @@ const CountdownTimer = ({
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
 
   return (
-    <span
-      className={cn(
-        "font-bold text-primary-600 mx-1 block sm:inline",
-        className
-      )}
-    >
-      {minutes} : {seconds}
+    <span className={cn("font-bold text-primary-700 tabular-nums", className)}>
+      {minutes}:{seconds}
     </span>
   );
 };

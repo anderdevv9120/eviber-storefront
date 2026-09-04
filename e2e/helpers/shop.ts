@@ -50,6 +50,34 @@ export async function fillShippingForm(page: Page, email: string) {
   await page.locator('input[name="address"]').fill("Số 1 Đường E2E Test");
 }
 
+/**
+ * User đăng nhập có sổ địa chỉ → checkout hiện danh sách radio card thay vì form;
+ * địa chỉ mặc định được chọn sẵn, chỉ cần email (prefill) rồi Đặt hàng.
+ */
+export async function expectSavedAddressSelected(
+  page: Page,
+  recipientName: string,
+  email: string
+) {
+  await expect(
+    page.getByRole("radio", { name: new RegExp(recipientName) })
+  ).toBeChecked();
+  await expect(page.getByTestId("checkout-account-email")).toContainText(email);
+}
+
+/** Định nghĩa duy nhất của "không tràn ngang" — dùng cho sweep lẫn spec flow */
+export async function expectNoHorizontalOverflow(page: Page) {
+  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  // +1px dung sai làm tròn subpixel
+  expect(
+    scrollWidth,
+    `trang tràn ngang: scrollWidth ${scrollWidth} > clientWidth ${clientWidth}`
+  ).toBeLessThanOrEqual(clientWidth + 1);
+}
+
 export async function submitOrderAndExpectSuccess(page: Page) {
   await page.getByRole("button", { name: "Đặt hàng" }).click();
   await page.waitForURL(/\/payment-success/);

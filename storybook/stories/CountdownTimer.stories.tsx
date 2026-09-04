@@ -32,7 +32,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** 5 phút → hiển thị "05 : 00" ngay ban đầu. */
+/** 5 phút → hiển thị "05:00" ngay ban đầu. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -42,7 +42,7 @@ export const Default: Story = {
   },
 };
 
-/** 10 phút → hiển thị "10 : 00". */
+/** 10 phút → hiển thị "10:00". */
 export const CustomMinutes: Story = {
   args: { countdownMinutes: 10 },
   play: async ({ canvasElement }) => {
@@ -109,7 +109,7 @@ export const NoRedirectWithoutTarget: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Hết giờ → hiển thị 00 : 00
+    // Hết giờ → hiển thị 00:00
     await waitFor(() =>
       expect(canvas.getByText(/^00\s*:\s*00$/)).toBeInTheDocument()
     );

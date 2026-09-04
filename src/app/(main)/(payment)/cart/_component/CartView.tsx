@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { removeFromCart, updateQuantity } from "@/apis/cart";
+import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
+import { removeLocalStorage } from "@/utils/localStorage";
 import { useCartStore } from "@/store/useCartStore";
 import { formatPrice } from "@/utils/formatPrice";
 import useDebounce from "@/hooks/useDebounce";
@@ -41,6 +43,10 @@ export default function CartView() {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  useEffect(() => {
+    removeLocalStorage(getCountdownStorageKey(PATH.CART));
+  }, []);
 
   useEffect(() => {
     if (debouncedQuantity.variantId) {
@@ -367,10 +373,10 @@ function CartSkeleton() {
 }
 
 /**
- * Illustration túi shopping line-art cho empty state — vẽ tay theo bộ stroke của
- * site, cỡ lớn (viewBox 200) nên stroke đặt theo px tuyệt đối, không scale từ icon 24
+ * Illustration túi shopping line-art cho empty state (cart + checkout) — vẽ tay theo
+ * bộ stroke của site, cỡ lớn (viewBox 200) nên stroke đặt theo px tuyệt đối
  */
-function EmptyCartIllustration({ className }: { className?: string }) {
+export function EmptyCartIllustration({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 200 170" fill="none" className={className} aria-hidden>
       {/* bóng đổ */}

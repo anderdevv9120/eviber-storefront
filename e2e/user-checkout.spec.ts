@@ -4,12 +4,14 @@ import {
   SEED_CUSTOMER,
   selectHoodieVariantAndAddToCart,
   goToCheckoutFromCart,
-  fillShippingForm,
+  expectSavedAddressSelected,
   submitOrderAndExpectSuccess,
   loginViaUi,
 } from "./helpers/shop";
 
-test("user đăng nhập: add to cart → checkout tạo đơn thành công", async ({
+// Seed customer1 có 1 địa chỉ primary (users.fixture) → flow user là CHỌN địa chỉ
+// đã lưu, không điền form như guest
+test("user đăng nhập: add to cart → checkout chọn địa chỉ đã lưu → tạo đơn thành công", async ({
   page,
 }) => {
   await loginViaUi(page, SEED_CUSTOMER.email, SEED_CUSTOMER.password);
@@ -17,6 +19,6 @@ test("user đăng nhập: add to cart → checkout tạo đơn thành công", as
   await page.goto(HOODIE.url);
   await selectHoodieVariantAndAddToCart(page);
   await goToCheckoutFromCart(page);
-  await fillShippingForm(page, SEED_CUSTOMER.email);
+  await expectSavedAddressSelected(page, "Nguyễn Thị Lan", SEED_CUSTOMER.email);
   await submitOrderAndExpectSuccess(page);
 });

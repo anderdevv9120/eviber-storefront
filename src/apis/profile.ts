@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from "axios";
 import axiosRequest from "@/config/axios";
 
 export interface IAddressProps {
@@ -41,8 +42,8 @@ export const uploadImage = (file: File) => {
   });
 };
 
-export const getAddresses = () => {
-  return axiosRequest.get(`users/address`);
+export const getAddresses = (config?: AxiosRequestConfig) => {
+  return axiosRequest.get(`users/address`, config);
 };
 
 export const getUser = () => {

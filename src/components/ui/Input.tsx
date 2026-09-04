@@ -12,11 +12,11 @@ const inputVariants = cva(
     variants: {
       variant: {
         outlined:
-          "border px-3 rounded-[10px] border-dark-200 hover:border-primary focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100",
+          "border px-3 rounded-lg border-dark-200 hover:border-primary focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100",
         standard:
           "border-b-[1px] border-b-dark-200 py-2 hover:border-b-primary focus-visible:border-b-primary-500",
         filled:
-          "px-3 shadow-md rounded-[10px] focus-visible:ring-2 focus-visible:ring-primary-100",
+          "px-3 shadow-md rounded-lg focus-visible:ring-2 focus-visible:ring-primary-100",
       },
     },
     defaultVariants: {

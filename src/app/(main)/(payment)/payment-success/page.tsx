@@ -6,6 +6,10 @@ import { Check } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Spin from "@/components/ui/Spin";
 import { getGuestOrder } from "@/apis/order";
+import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
+import { useCartStore } from "@/store/useCartStore";
+import { removeLocalStorage } from "@/utils/localStorage";
+import { PATH } from "@/constants/paths";
 import { IOrderResponse } from "@/@types/Order.type";
 import { formatPrice } from "@/utils/formatPrice";
 import { PAYMENT_METHOD_LABEL, PaymentMethod } from "@/constants/payment";
@@ -25,6 +29,13 @@ const PaymentSuccessContent = () => {
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
+  // Đích của checkout: BE đã dọn cart trong transaction tạo đơn → badge Header về 0;
+  // countdown reset ở đây (mount sau khi timer unmount) để không đua với tick 1s ở checkout
+  useEffect(() => {
+    removeLocalStorage(getCountdownStorageKey(PATH.CART));
+    useCartStore.getState().fetchCart(true);
+  }, []);
 
   useEffect(() => {
     const fetchOrder = async () => {
