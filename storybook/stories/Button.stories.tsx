@@ -13,7 +13,7 @@ const meta = {
   argTypes: {
     variant: {
       control: "inline-radio",
-      options: ["primary", "outlined", "secondary", "outline"],
+      options: ["primary", "outlined", "secondary", "outline", "danger"],
     },
     size: {
       control: "inline-radio",
@@ -52,6 +52,13 @@ export const Secondary: Story = {
  */
 export const Outline: Story = {
   args: { variant: "outline", children: "Nút viền Pine" },
+};
+
+/**
+ * Hành động phá hủy trong dialog confirm (xóa địa chỉ) — chỉ nút mang màu đỏ.
+ */
+export const Danger: Story = {
+  args: { variant: "danger", children: "Xóa địa chỉ" },
 };
 
 /**

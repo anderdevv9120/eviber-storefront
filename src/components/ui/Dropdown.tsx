@@ -12,7 +12,8 @@ interface IDropdownItem {
 }
 
 interface DropdownProps<T extends BaseValueType> {
-  size?: "sm" | "lg";
+  size?: "sm" | "md" | "lg";
+  ariaLabelledBy?: string;
   placeholder?: string;
   options: IDropdownItem[];
   disabled?: boolean;
@@ -28,6 +29,7 @@ interface DropdownProps<T extends BaseValueType> {
 
 const Dropdown = <T extends BaseValueType>({
   size = "sm",
+  ariaLabelledBy,
   placeholder = "Select an option",
   options,
   value,
@@ -136,6 +138,9 @@ const Dropdown = <T extends BaseValueType>({
           {
             // sm: viền hairline + bo lớn (form checkout dùng lg — giữ nguyên border đậm)
             "px-3 py-2 rounded-lg border-white-600": size === "sm",
+            // md: khớp Input outlined (py-3, rounded-[10px], text-base) — form cụm /user
+            // text-base đặt ở trigger để search input kế thừa (body 14px dưới md)
+            "px-3 py-3 rounded-[10px] border-dark-200 text-base": size === "md",
             "px-3.5 py-3 rounded-xl border-dark-200": size === "lg",
             "cursor-pointer hover:border-primary": !disabled,
             "text-dark-300": (!currentValue && !searchTerm) || disabled,
@@ -144,6 +149,7 @@ const Dropdown = <T extends BaseValueType>({
           }
         )}
         role="combobox"
+        aria-labelledby={ariaLabelledBy}
         aria-controls={listboxId}
         aria-expanded={isOpen}
         aria-disabled={disabled || undefined}
@@ -154,7 +160,13 @@ const Dropdown = <T extends BaseValueType>({
           // phải giữ nguyên hành vi gõ chữ (Space từng bị nuốt + đóng dropdown)
           const fromTrigger = e.target === e.currentTarget;
           if (e.key === "Escape") {
+            // Escape đang mở listbox chỉ đóng listbox — không bubble lên Modal
+            // bọc ngoài (Modal cũng bắt Escape → đóng form, mất dữ liệu đang nhập)
+            if (isOpen) e.stopPropagation();
             toggleDropdown(false);
+            // Search input unmount khi đóng → focus rơi ra body; trả về trigger để
+            // Escape tiếp theo vẫn tới Modal và Tab đi tiếp đúng thứ tự
+            e.currentTarget.focus();
             return;
           }
           if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -211,7 +223,11 @@ const Dropdown = <T extends BaseValueType>({
             <span
               className={cn(
                 "block truncate",
-                size === "sm" ? "text-sm" : "text-lg",
+                {
+                  "text-sm": size === "sm",
+                  "text-base": size === "md",
+                  "text-lg": size === "lg",
+                },
                 !currentValue ? "text-dark-300" : "text-dark"
               )}
             >
@@ -255,6 +271,7 @@ const Dropdown = <T extends BaseValueType>({
                   "cursor-pointer transition-colors",
                   {
                     "px-3 py-2.5 text-sm": size === "sm",
+                    "px-3 py-2.5": size === "md",
                     "px-4 py-3": size === "lg",
                   },
                   item.value === currentValue

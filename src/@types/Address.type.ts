@@ -13,7 +13,7 @@ export interface IAddress {
   name: string;
   country: string;
   city: string;
-  district: string;
+  district?: string;
   ward: string;
   specificAddress: string;
   phoneNumber: string;

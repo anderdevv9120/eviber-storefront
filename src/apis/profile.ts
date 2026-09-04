@@ -3,7 +3,9 @@ import axiosRequest from "@/config/axios";
 export interface IAddressProps {
   name: string;
   city: string;
-  district: string;
+  // Địa giới 2 cấp không còn huyện. FE LUÔN gửi "" (không bỏ field): BE PUT merge
+  // từng key, bỏ field là huyện cũ của địa chỉ 3 cấp còn nguyên trong DB
+  district?: string;
   ward: string;
   specificAddress: string;
   phoneNumber: string;
@@ -41,8 +43,9 @@ export const uploadImage = (file: File) => {
   });
 };
 
+// Màn my-address hiển thị lỗi tải inline kèm nút thử lại
 export const getAddresses = () => {
-  return axiosRequest.get(`users/address`);
+  return axiosRequest.get(`users/address`, { toastError: false });
 };
 
 export const getUser = () => {

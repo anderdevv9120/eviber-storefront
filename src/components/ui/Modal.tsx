@@ -9,7 +9,13 @@ interface ModalProps {
   isShowFooter?: boolean;
   onOk?: () => void;
   onCancel?: () => void;
+  // false khi đang lưu/xóa: X mờ + disabled, overlay và Escape không đóng
+  closable?: boolean;
   title?: string;
+  titleClassName?: string;
+  // false: body không cuộn riêng (bỏ cả .scrollbarStyle vì class đó tự đặt overflow)
+  // — form có Dropdown (listbox absolute) cần vậy để listbox không bị cắt; khung ngoài vẫn cuộn
+  bodyScrollable?: boolean;
   okText?: string;
   cancelText?: string;
   className?: string;
@@ -25,9 +31,12 @@ const Modal = ({
   cancelText,
   okText,
   onCancel,
+  closable = true,
   onOk,
   children,
   title,
+  titleClassName,
+  bodyScrollable = true,
   className,
   footer,
   ariaLabelledBy,
@@ -39,7 +48,7 @@ const Modal = ({
   ).current;
 
   const handleCancel = () => {
-    if (!isOpen) return;
+    if (!isOpen || !closable) return;
     onCancel?.();
   };
 
@@ -102,14 +111,18 @@ const Modal = ({
           tabIndex={-1}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 id={`${modalId}-title`} className="text-2xl font-semibold">
+            <h2
+              id={`${modalId}-title`}
+              className={cn("text-2xl font-semibold", titleClassName)}
+            >
               {title || "Modal"}
             </h2>
             <button
               type="button"
               onClick={handleCancel}
               aria-label="Close modal"
-              className="rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
+              disabled={!closable}
+              className="rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <XMark className="w-6 h-6 transition-transform duration-300 hover:rotate-90 text-primary-400" />
             </button>
@@ -117,7 +130,12 @@ const Modal = ({
 
           <div
             id={`${modalId}-description`}
-            className="overflow-auto scrollbarStyle pr-1"
+            className={cn(
+              "pr-1",
+              bodyScrollable
+                ? "overflow-auto scrollbarStyle"
+                : "overflow-visible"
+            )}
           >
             {children}
           </div>

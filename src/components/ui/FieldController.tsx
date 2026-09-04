@@ -3,6 +3,9 @@ import React, { ReactElement } from "react";
 import { cn } from "@/config/utils";
 import FormError from "./FormError";
 
+export const FORM_LABEL_CLASS =
+  "pb-2 text-sm font-medium normal-case text-dark-500";
+
 interface FieldControllerProps {
   name: string;
   required?: string;

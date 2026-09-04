@@ -18,6 +18,8 @@ const buttonVariants = cva(
         // hành động phụ cần điểm neo trên panel trắng (vd resend); hover phủ nhẹ, không đổ đặc
         outline:
           "bg-white border border-primary text-primary-700 hover:bg-primary-50 disabled:border-white-600 disabled:bg-white-100 disabled:text-dark-400",
+        // hành động phá hủy trong confirm (xóa địa chỉ) — màu chỉ nằm ở nút, không tô dialog
+        danger: "bg-red-800 text-white hover:bg-red-900",
       },
       size: {
         // sm: hành động phụ nhẹ trong khối nội dung (vd Xem thêm mô tả)

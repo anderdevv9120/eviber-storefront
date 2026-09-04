@@ -620,5 +620,9 @@
     <path d="M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7" />
     <path d="M6.5 7l.6 11.2A2.2 2.2 0 0 0 9.3 20.3h5.4a2.2 2.2 0 0 0 2.2-2.1L17.5 7" />
   </symbol>
+  <symbol id="icon-pen-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19.1h8" />
+    <path d="M16 4.4a1.9 1.9 0 0 1 2.7 2.7L7.6 18.2 4 19.1l.9-3.6Z" />
+  </symbol>
   </defs>
 </svg>

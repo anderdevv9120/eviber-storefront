@@ -214,6 +214,7 @@ export default function UIKits() {
               </Button>
               <Button variant="secondary">Secondary</Button>
               <Button variant="outline">Outline</Button>
+              <Button variant="danger">Danger</Button>
               <Button loading>Đang xử lý</Button>
             </div>
             <h3 className="text-sm font-medium text-dark-500">
@@ -311,6 +312,14 @@ export default function UIKits() {
                 size="lg"
                 disabled
                 placeholder="Disabled dropdown"
+                options={[
+                  { value: "HN", label: "Hà Nội" },
+                  { value: "HD", label: "Hải Dương" },
+                ]}
+              />
+              <Dropdown
+                size="md"
+                placeholder="Size md (khớp Input)"
                 options={[
                   { value: "HN", label: "Hà Nội" },
                   { value: "HD", label: "Hải Dương" },

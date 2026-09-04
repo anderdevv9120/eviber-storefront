@@ -28,6 +28,11 @@ export const Controlled: Story = {
   args: { value: "sneaker" },
 };
 
+/** Size md khớp Input outlined (py-3, rounded 10px, text-base) — dùng trong form cụm /user. */
+export const Medium: Story = {
+  args: { size: "md", defaultValue: "jean" },
+};
+
 /** Mở dropdown → chọn item → nhãn hiển thị đổi + onChange nhận value. */
 export const OpenAndSelect: Story = {
   play: async ({ canvasElement, args }) => {
