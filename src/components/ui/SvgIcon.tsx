@@ -8,7 +8,7 @@ interface IconProps extends SVGProps<SVGSVGElement> {
 
 const SvgIcon = ({ name, className, ...props }: IconProps) => (
   <svg className={cn(className)} {...props}>
-    <use xlinkHref={`/sprites.svg?v=2.1#icon-${name}`} />
+    <use xlinkHref={`/sprites.svg?v=2.2#icon-${name}`} />
   </svg>
 );
 

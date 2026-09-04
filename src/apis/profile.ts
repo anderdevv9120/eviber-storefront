@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from "axios";
 import axiosRequest from "@/config/axios";
 
 export interface IAddressProps {
@@ -43,9 +44,10 @@ export const uploadImage = (file: File) => {
   });
 };
 
-// Màn my-address hiển thị lỗi tải inline kèm nút thử lại
-export const getAddresses = () => {
-  return axiosRequest.get(`users/address`, { toastError: false });
+// Mặc định không toast: my-address hiển thị lỗi tải inline kèm nút thử lại,
+// checkout cũng tự xử lý; caller cần toast thì truyền config đè lại
+export const getAddresses = (config?: AxiosRequestConfig) => {
+  return axiosRequest.get(`users/address`, { toastError: false, ...config });
 };
 
 export const getUser = () => {

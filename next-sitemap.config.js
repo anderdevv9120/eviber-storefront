@@ -1,10 +1,8 @@
 /** @type {import('next-sitemap').IConfig} */
 
-// Trang chặn crawl qua robots.txt: chưa/không mang meta noindex (checkout,
-// payment-success — task phase 3 tương ứng chuyển sang noindex thì bỏ khỏi đây)
-// hoặc vùng private sau đăng nhập.
+// Trang chặn crawl qua robots.txt: chưa/không mang meta noindex (payment-success —
+// task phase 3 tương ứng chuyển sang noindex thì bỏ khỏi đây) hoặc vùng private sau đăng nhập.
 const robotsDisallow = [
-  "/checkout",
   "/payment-success",
   "/user/my-account",
   "/user/my-address",
@@ -17,6 +15,7 @@ const robotsDisallow = [
 // (bot phải crawl được mới thấy noindex), chỉ loại khỏi sitemap.
 const noindexPages = [
   "/cart",
+  "/checkout",
   "/forget-password",
   "/new-password",
   "/verify-email",

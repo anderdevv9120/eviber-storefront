@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { test } from "@playwright/test";
+import { expectNoHorizontalOverflow } from "./helpers/shop";
 
 // Quét horizontal overflow — biến criterion "mobile/tablet/desktop không vỡ"
 // thành check máy chạy được (exit code). Màn mới khi ổn định → THÊM route vào đây.
@@ -12,6 +13,7 @@ const ROUTES = [
   "/login",
   "/register",
   "/cart",
+  "/checkout",
   "/product/ao-khoac-hoodie-ni",
   "/user/my-account",
   "/user/my-address",
@@ -44,16 +46,7 @@ for (const vp of VIEWPORTS) {
       await page.goto(route);
       await page.waitForLoadState("networkidle");
 
-      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-        scrollWidth: document.documentElement.scrollWidth,
-        clientWidth: document.documentElement.clientWidth,
-      }));
-
-      // +1px dung sai làm tròn subpixel
-      expect(
-        scrollWidth,
-        `trang tràn ngang: scrollWidth ${scrollWidth} > clientWidth ${clientWidth}`
-      ).toBeLessThanOrEqual(clientWidth + 1);
+      await expectNoHorizontalOverflow(page);
     });
   }
 }

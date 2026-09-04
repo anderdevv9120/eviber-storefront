@@ -13,6 +13,9 @@ export const PASSWORD_CONFIRMATION_REQUIRED_MESSAGE =
 export const PASSWORD_CONFIRMATION_MATCH_MESSAGE = "Mật khẩu không trùng khớp";
 export const PHONE_NUMBER_REQUIRED_MESSAGE = "Vui lòng nhập số điện thoại";
 export const PHONE_NUMBER_INVALID_MESSAGE = "Số điện thoại không hợp lệ";
+// Khớp BE ShippingInfo.phoneNumber @Length(10, 20) — ngắn hơn là 400 khó hiểu
+export const PHONE_NUMBER_MIN_LENGTH = 10;
+export const PHONE_NUMBER_MIN_LENGTH_MESSAGE = `Số điện thoại cần ít nhất ${PHONE_NUMBER_MIN_LENGTH} chữ số`;
 export const ADDRESS_REQUIRED_MESSAGE = "Vui lòng nhập địa chỉ chi tiết";
 export const PROVINCE_REQUIRED_MESSAGE = "Vui lòng nhập Tỉnh/Thành phố";
 export const DISTRICT_REQUIRED_MESSAGE = "Vui lòng nhập Quận/Huyện";
@@ -20,6 +23,9 @@ export const WARD_REQUIRED_MESSAGE = "Vui lòng nhập Phường/Xã";
 export const ZIP_REQUIRED_MESSAGE = "Vui lòng nhập mã zip";
 export const COUNTRY_REQUIRED_MESSAGE = "Vui lòng chọn đất nước của bạn";
 export const PAYMENT_METHOD_MESSAGE = "Vui lòng chọn phương thức thanh toán";
+// Khớp BE MakeOrderDto.customerNote @MaxLength(1000)
+export const NOTE_MAX_LENGTH = 1000;
+export const NOTE_MAX_LENGTH_MESSAGE = `Ghi chú tối đa ${NOTE_MAX_LENGTH} ký tự`;
 export const CURRENT_PASSWORD_CONFIRMATION_REQUIRED_MESSAGE =
   "Vui lòng nhập mật khẩu hiện tại";
 export const USER_AVATAR_URL_REQUIRED_MESSAGE = "Vui lòng chọn ảnh";

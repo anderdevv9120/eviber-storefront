@@ -30,7 +30,7 @@ export const mockProductDetailNoDiscount: IProductListItem = {
 };
 
 /**
- * Cart item cho ProductItem (contract mới ICartItem): có discount + attributes.
+ * Cart item theo contract ICartItem (CartItemRow / summary checkout): có discount + attributes.
  * price = giá bán, originalPrice = giá gốc (BE tính sẵn, FE không tự giảm giá).
  */
 export const mockCartItemWithDiscount: ICartItem = {

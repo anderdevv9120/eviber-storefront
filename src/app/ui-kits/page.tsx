@@ -282,6 +282,7 @@ export default function UIKits() {
             <h2 className="text-2xl font-semibold">Dropdowns</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Dropdown
+                label="Có nhãn"
                 size="lg"
                 isShowSearch
                 value={selectedItem}
@@ -527,6 +528,13 @@ export default function UIKits() {
             />
             <Counter disabled defaultValue={5} min={0} max={10} />
             <Counter variant="pill" defaultValue={1} min={1} max={10} />
+            <Counter
+              variant="pill"
+              size="sm"
+              defaultValue={1}
+              min={1}
+              max={10}
+            />
           </section>
 
           {/* Selector Section */}

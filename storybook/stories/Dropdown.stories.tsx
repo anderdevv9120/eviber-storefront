@@ -33,6 +33,16 @@ export const Medium: Story = {
   args: { size: "md", defaultValue: "jean" },
 };
 
+/** Label trên control (cùng cách với Input) — form checkout dùng size lg. */
+export const WithLabel: Story = {
+  args: {
+    size: "lg",
+    label: "Danh mục",
+    labelClassName: "pb-1 text-sm font-medium text-dark-500",
+    className: "w-72",
+  },
+};
+
 /** Mở dropdown → chọn item → nhãn hiển thị đổi + onChange nhận value. */
 export const OpenAndSelect: Story = {
   play: async ({ canvasElement, args }) => {

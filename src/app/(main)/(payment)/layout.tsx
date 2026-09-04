@@ -21,7 +21,7 @@ const LayoutCheckout = ({
   const currentStep = STEP_BY_PATH[pathname] ?? 1;
 
   return (
-    <div className="container-base">
+    <div className="container-base container-narrow">
       <div className="pt-10 md:pt-12 pb-8">
         <ProgressStepper
           currentStep={currentStep}
@@ -34,9 +34,13 @@ const LayoutCheckout = ({
       </div>
 
       {currentStep === 2 && (
-        <p className="pb-8 font-medium text-center">
+        <p className="-mt-2 pb-7 text-sm text-dark-500 text-center">
           Đơn hàng của bạn sẽ được đặt trong
-          <CountdownTimer countdownMinutes={10} redirectTo={PATH.CART} />
+          <CountdownTimer
+            className="px-1"
+            countdownMinutes={10}
+            redirectTo={PATH.CART}
+          />
           phút nữa
         </p>
       )}

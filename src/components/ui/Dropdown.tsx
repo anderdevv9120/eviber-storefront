@@ -14,6 +14,8 @@ interface IDropdownItem {
 interface DropdownProps<T extends BaseValueType> {
   size?: "sm" | "md" | "lg";
   ariaLabelledBy?: string;
+  label?: string;
+  labelClassName?: string;
   placeholder?: string;
   options: IDropdownItem[];
   disabled?: boolean;
@@ -30,6 +32,8 @@ interface DropdownProps<T extends BaseValueType> {
 const Dropdown = <T extends BaseValueType>({
   size = "sm",
   ariaLabelledBy,
+  label,
+  labelClassName,
   placeholder = "Select an option",
   options,
   value,
@@ -132,16 +136,19 @@ const Dropdown = <T extends BaseValueType>({
 
   return (
     <div className={cn("relative w-fit h-fit", className)} ref={dropdownRef}>
+      {label && (
+        <span className={cn("block mb-1", labelClassName)}>{label}</span>
+      )}
       <div
         className={cn(
           "flex items-center justify-between select-none border transition-colors h-full focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100",
           {
-            // sm: viền hairline + bo lớn (form checkout dùng lg — giữ nguyên border đậm)
+            // sm: viền hairline; lg: control form, cùng radius/border với Input
             "px-3 py-2 rounded-lg border-white-600": size === "sm",
             // md: khớp Input outlined (py-3, rounded-[10px], text-base) — form cụm /user
             // text-base đặt ở trigger để search input kế thừa (body 14px dưới md)
             "px-3 py-3 rounded-[10px] border-dark-200 text-base": size === "md",
-            "px-3.5 py-3 rounded-xl border-dark-200": size === "lg",
+            "px-3.5 py-3 rounded-lg border-dark-200": size === "lg",
             "cursor-pointer hover:border-primary": !disabled,
             "text-dark-300": (!currentValue && !searchTerm) || disabled,
             "opacity-75 cursor-not-allowed": disabled,
@@ -223,11 +230,7 @@ const Dropdown = <T extends BaseValueType>({
             <span
               className={cn(
                 "block truncate",
-                {
-                  "text-sm": size === "sm",
-                  "text-base": size === "md",
-                  "text-lg": size === "lg",
-                },
+                size === "sm" ? "text-sm" : "text-base",
                 !currentValue ? "text-dark-300" : "text-dark"
               )}
             >
