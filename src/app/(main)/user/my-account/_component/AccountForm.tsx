@@ -1,6 +1,7 @@
 "use client";
 
 import Input from "@/components/ui/Input";
+import { FORM_LABEL_CLASS } from "@/components/ui/FieldController";
 import Button from "@/components/ui/Button";
 import { RadioGroup } from "@/components/ui/InputRadio/Radio";
 import { cn } from "@/config/utils";
@@ -35,9 +36,6 @@ interface IAccountData {
   imgUrl?: string;
   gender?: TGender;
 }
-
-// FieldController mặc định label text-xl capitalize (đời cũ) — màn này theo mockup label nhỏ
-const FIELD_LABEL = "pb-2 text-sm font-medium normal-case text-dark-500";
 
 const GENDER_OPTIONS: { label: string; value: TGender }[] = [
   { label: "Nữ", value: "FEMALE" },
@@ -245,26 +243,23 @@ const AccountForm = () => {
               label="Họ đệm"
               name="firstName"
               className="text-base"
-              labelClassName={FIELD_LABEL}
+              labelClassName={FORM_LABEL_CLASS}
             />
             <Input
               label="Tên"
               name="lastName"
               className="text-base"
-              labelClassName={FIELD_LABEL}
+              labelClassName={FORM_LABEL_CLASS}
             />
             <Input
               label="Số điện thoại"
               name="phone"
               placeholder="Nhập số điện thoại"
               className="text-base"
-              labelClassName={FIELD_LABEL}
+              labelClassName={FORM_LABEL_CLASS}
             />
             <div>
-              <p
-                id="gender-label"
-                className="mb-2 text-sm font-medium text-dark-500"
-              >
+              <p id="gender-label" className={FORM_LABEL_CLASS}>
                 Giới tính
               </p>
               {isFetching ? (
@@ -288,10 +283,7 @@ const AccountForm = () => {
               )}
             </div>
             <div className="md:col-span-2">
-              <p
-                id="email-label"
-                className="mb-2 text-sm font-medium text-dark-500"
-              >
+              <p id="email-label" className={FORM_LABEL_CLASS}>
                 Email
               </p>
               {/* rounded-[10px] bám radius của Input.tsx — đổi cùng lúc khi chuẩn hoá input */}

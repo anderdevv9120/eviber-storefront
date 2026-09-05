@@ -16,6 +16,7 @@ const ROUTES = [
   "/checkout",
   "/product/ao-khoac-hoodie-ni",
   "/user/my-account",
+  "/user/my-address",
 ];
 
 const VIEWPORTS = [

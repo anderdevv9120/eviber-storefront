@@ -35,6 +35,7 @@ import Spin from "./Spin";
 import Trash from "./Trash";
 import TrashOutline from "./TrashOutline";
 import Pen from "./Pen";
+import PenOutline from "./PenOutline";
 import FilterIcon from "./FilterIcon";
 import Bell from "./Bell";
 import Ticket from "./Ticket";
@@ -99,6 +100,7 @@ export {
   Trash,
   TrashOutline,
   Pen,
+  PenOutline,
   FilterIcon,
   Bell,
   Ticket,

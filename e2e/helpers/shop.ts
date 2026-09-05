@@ -45,7 +45,12 @@ export async function fillShippingForm(page: Page, email: string) {
   await page.locator('input[name="phoneNumber"]').fill("0900123456");
   await page.locator('input[name="email"]').fill(email);
   await pickFirstDropdownOption(page, "Chọn Tỉnh/Thành");
-  await pickFirstDropdownOption(page, "Chọn Quận/Huyện");
+  // Danh sách xã lazy-import theo tỉnh — chờ dropdown hết disabled rồi mới mở
+  await page
+    .locator(
+      '[role="combobox"]:has-text("Chọn Phường/Xã"):not([aria-disabled])'
+    )
+    .waitFor();
   await pickFirstDropdownOption(page, "Chọn Phường/Xã");
   await page.locator('input[name="address"]').fill("Số 1 Đường E2E Test");
 }

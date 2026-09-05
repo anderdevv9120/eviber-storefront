@@ -1,28 +1,52 @@
 import Modal from "@/components/ui/Modal";
-import { Address } from "@/components/icons";
+import Button from "@/components/ui/Button";
 
-interface EditPrimaryModal {
-  isOpen?: boolean;
-  onClose?: () => void;
-  onConfirm?: () => void;
+interface ISetPrimaryAddressModalProps {
+  isOpen: boolean;
+  isSaving?: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
-const EditPrimaryModal = ({ isOpen, onClose, onConfirm }: EditPrimaryModal) => {
-  return (
-    <Modal
-      onCancel={onClose}
-      onOk={onConfirm}
-      title="Đặt làm địa chỉ mặc định?"
-      isOpen={isOpen}
-      cancelText="Thoát"
-      okText="Xác nhận"
-    >
-      <div className="flex gap-2 py-4">
-        <Address className="text-primary-300 w-14 h-14 " />
-        Bạn có chắc chắn muốn đặt địa chỉ này thành địa chỉ mặc định
+const SetPrimaryAddressModal = ({
+  isOpen,
+  isSaving,
+  onClose,
+  onConfirm,
+}: ISetPrimaryAddressModalProps) => (
+  <Modal
+    isOpen={isOpen}
+    onCancel={onClose}
+    closable={!isSaving}
+    title="Đặt làm địa chỉ mặc định?"
+    titleClassName="text-xl"
+    className="w-[420px]"
+    footer={
+      <div className="flex justify-end gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          className="px-5"
+          onClick={onClose}
+          disabled={isSaving}
+        >
+          Hủy
+        </Button>
+        <Button
+          size="sm"
+          className="px-5"
+          onClick={onConfirm}
+          loading={isSaving}
+        >
+          Đặt mặc định
+        </Button>
       </div>
-    </Modal>
-  );
-};
+    }
+  >
+    <p className="text-sm text-dark-500">
+      Địa chỉ này sẽ được điền sẵn ở bước thanh toán.
+    </p>
+  </Modal>
+);
 
-export default EditPrimaryModal;
+export default SetPrimaryAddressModal;

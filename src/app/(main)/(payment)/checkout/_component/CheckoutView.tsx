@@ -66,6 +66,7 @@ export default function CheckoutView() {
   const isAddressLoading = isLoggedIn && addresses === null;
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [review, setReview] = useState<ICheckoutReview>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -147,6 +148,12 @@ export default function CheckoutView() {
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [isLoggedIn, loadAddresses, setValue]);
+
+  // Sổ mất (GET fail / đăng xuất) khi modal thêm địa chỉ đang mở → UI đã flip sang form
+  // inline, modal không còn ngữ cảnh — đóng để không đè lên form và không POST primary nhầm
+  useEffect(() => {
+    if (!useSavedAddress) setIsAddressModalOpen(false);
+  }, [useSavedAddress]);
 
   // Prefill từ profile: email luôn theo tài khoản; tên/SĐT chỉ khi ô còn trống
   useEffect(() => {
@@ -243,25 +250,30 @@ export default function CheckoutView() {
     return shipping;
   };
 
-  /** POST address trả về CẢ danh sách — tìm item mới bằng cách so id với danh sách cũ */
+  /** POST address trả về CẢ danh sách, BE luôn append cuối → phần tử cuối là địa chỉ vừa tạo.
+   *  Không so id với list cũ: list cũ có thể rỗng do GET fail trong khi BE đã có N địa chỉ. */
   const saveToAddressBook = async (form: IAddressProps) => {
     const payload = { ...form, country: "Việt Nam" };
     const res = await createAddress(payload);
     const list: IAddress[] = Array.isArray(res?.data) ? res.data : [];
-    const previousIds = new Set((addresses ?? []).map((a) => a._id));
-    const created = list.find((a) => !previousIds.has(a._id));
+    const created = list[list.length - 1];
     setAddresses(list);
+    setHasAddressError(false);
     return created;
   };
 
-  const handleAddressModalChange = async (form: IAddressProps) => {
-    setIsAddressModalOpen(false);
+  const handleAddressModalSubmit = async (form: IAddressProps) => {
+    if (isSavingAddress) return;
+    setIsSavingAddress(true);
     try {
       const created = await saveToAddressBook(form);
       if (created?._id) setSelectedAddressId(created._id);
-      successToast("Thêm địa chỉ thành công");
+      successToast("Đã lưu địa chỉ");
+      setIsAddressModalOpen(false);
     } catch {
-      // interceptor đã toast lỗi
+      // interceptor đã toast lỗi — giữ modal mở để user sửa rồi lưu lại
+    } finally {
+      setIsSavingAddress(false);
     }
   };
 
@@ -490,8 +502,10 @@ export default function CheckoutView() {
       {isAddressModalOpen && (
         <AddressModal
           isOpen
+          defaultPrimary={(addresses ?? []).length === 0}
+          isSaving={isSavingAddress}
           onCancel={() => setIsAddressModalOpen(false)}
-          onChange={handleAddressModalChange}
+          onSubmit={handleAddressModalSubmit}
         />
       )}
     </>

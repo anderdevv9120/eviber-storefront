@@ -18,8 +18,9 @@ export const PHONE_NUMBER_MIN_LENGTH = 10;
 export const PHONE_NUMBER_MIN_LENGTH_MESSAGE = `Số điện thoại cần ít nhất ${PHONE_NUMBER_MIN_LENGTH} chữ số`;
 export const ADDRESS_REQUIRED_MESSAGE = "Vui lòng nhập địa chỉ chi tiết";
 export const PROVINCE_REQUIRED_MESSAGE = "Vui lòng nhập Tỉnh/Thành phố";
-export const DISTRICT_REQUIRED_MESSAGE = "Vui lòng nhập Quận/Huyện";
 export const WARD_REQUIRED_MESSAGE = "Vui lòng nhập Phường/Xã";
+export const WARD_LOAD_ERROR_MESSAGE =
+  "Không tải được danh sách phường/xã, chọn lại Tỉnh/Thành để thử lại";
 export const ZIP_REQUIRED_MESSAGE = "Vui lòng nhập mã zip";
 export const COUNTRY_REQUIRED_MESSAGE = "Vui lòng chọn đất nước của bạn";
 export const PAYMENT_METHOD_MESSAGE = "Vui lòng chọn phương thức thanh toán";

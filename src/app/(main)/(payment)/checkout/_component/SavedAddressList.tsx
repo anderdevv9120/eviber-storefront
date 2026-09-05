@@ -4,6 +4,8 @@ import { ChevronDown, Plus, RightArrow } from "@/components/icons";
 import { cn } from "@/config/utils";
 import { IAddress } from "@/@types/Address.type";
 import { PATH } from "@/constants/paths";
+import { MAX_ADDRESSES } from "@/constants/address";
+import { formatAddress } from "@/utils/formatAddress";
 import ChoiceCard from "./ChoiceCard";
 import { FIELD_LABEL } from "./checkoutForm";
 
@@ -31,8 +33,9 @@ export default function SavedAddressList({
   });
   const hiddenCount = Math.max(sorted.length - COLLAPSED_COUNT, 0);
   const selectedIndex = sorted.findIndex((a) => a._id === selectedId);
-  const isOpen =
-    isExpanded || hiddenCount === 0 || selectedIndex >= COLLAPSED_COUNT;
+  // Card đang chọn nằm ngoài 3 đầu → ép mở và ẩn nút Thu gọn (thu gọn sẽ giấu card đang chọn)
+  const isPinnedOpen = selectedIndex >= COLLAPSED_COUNT;
+  const isOpen = isExpanded || hiddenCount === 0 || isPinnedOpen;
   const visible = isOpen ? sorted : sorted.slice(0, COLLAPSED_COUNT);
 
   return (
@@ -72,11 +75,11 @@ export default function SavedAddressList({
                   )}
                 </span>
               }
-              description={formatAddressLine(address)}
+              description={formatAddress(address)}
             />
           );
         })}
-        {hiddenCount > 0 && (
+        {hiddenCount > 0 && !isPinnedOpen && (
           <button
             type="button"
             onClick={() => setIsExpanded((prev) => !prev)}
@@ -93,20 +96,17 @@ export default function SavedAddressList({
             />
           </button>
         )}
-        <button
-          type="button"
-          onClick={onAddClick}
-          className="flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed border-dark-200 text-sm font-semibold text-primary-700 hover:border-primary-500 hover:bg-primary-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
-        >
-          <Plus className="w-4 h-4" />
-          Thêm địa chỉ mới
-        </button>
+        {addresses.length < MAX_ADDRESSES && (
+          <button
+            type="button"
+            onClick={onAddClick}
+            className="flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed border-dark-200 text-sm font-semibold text-primary-700 hover:border-primary-500 hover:bg-primary-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
+          >
+            <Plus className="w-4 h-4" />
+            Thêm địa chỉ mới
+          </button>
+        )}
       </div>
     </div>
   );
 }
-
-export const formatAddressLine = (address: IAddress) =>
-  [address.specificAddress, address.ward, address.district, address.city]
-    .filter(Boolean)
-    .join(", ");

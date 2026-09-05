@@ -2,11 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { getProvinces, getDistricts, getWards } from "vietnam-provinces";
 import Dropdown from "@/components/ui/Dropdown";
 import Input from "@/components/ui/Input";
-import { ILocation, IOption } from "@/@types/Address.type";
+import { getProvinces, getWards, IWard } from "@/constants/address";
+import { WARD_LOAD_ERROR_MESSAGE } from "@/constants/validate";
 import { FIELD_LABEL } from "./checkoutForm";
+
+const PROVINCE_OPTIONS = getProvinces().map((province) => ({
+  value: String(province.code),
+  label: province.name,
+}));
 
 export default function AddressFields() {
   const {
@@ -15,39 +20,50 @@ export default function AddressFields() {
     formState: { errors },
   } = useFormContext();
 
-  const [provinceOptions, setProvinceOptions] = useState<IOption[]>([]);
-  const [districtOptions, setDistrictOptions] = useState<IOption[]>([]);
-  const [wardOptions, setWardOptions] = useState<IOption[]>([]);
-  // Dropdown làm việc bằng CODE để cascade; form giữ TÊN vì BE nhận text
-  const [provinceCode, setProvinceCode] = useState("");
-  const [districtCode, setDistrictCode] = useState("");
+  // Dropdown làm việc bằng CODE để cascade; form giữ TÊN vì BE nhận text.
+  // Object mới mỗi lần chọn tỉnh (kể cả chọn lại cùng tỉnh) để effect nạp xã chạy lại —
+  // đó là đường retry khi chunk xã tải lỗi
+  const [provinceQuery, setProvinceQuery] = useState<{ code: string }>({
+    code: "",
+  });
+  const provinceCode = provinceQuery.code;
+  const [wards, setWards] = useState<IWard[]>([]);
   const [wardCode, setWardCode] = useState("");
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+  const [wardsError, setWardsError] = useState("");
 
   useEffect(() => {
-    setProvinceOptions(mapOptions(getProvinces()));
-  }, []);
+    setWards([]);
+    setWardsError("");
+    if (!provinceQuery.code) return;
+    let cancelled = false;
+    setIsLoadingWards(true);
+    getWards(Number(provinceQuery.code))
+      .then((list) => {
+        if (!cancelled) setWards(list);
+      })
+      .catch(() => {
+        if (!cancelled) setWardsError(WARD_LOAD_ERROR_MESSAGE);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingWards(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [provinceQuery]);
+
+  const wardOptions = wards.map((ward) => ({
+    value: String(ward.code),
+    label: ward.name,
+  }));
 
   const handleProvinceChange = (value: BaseValueType, item: IDropdownLabel) => {
-    const code = String(value);
-    setProvinceCode(code);
-    setDistrictCode("");
+    setProvinceQuery({ code: String(value) });
     setWardCode("");
-    setDistrictOptions(mapOptions(getDistricts(code)));
-    setWardOptions([]);
     setValue("province", item.label);
-    setValue("district", "");
     setValue("ward", "");
-    clearErrors(["province", "district", "ward"]);
-  };
-
-  const handleDistrictChange = (value: BaseValueType, item: IDropdownLabel) => {
-    const code = String(value);
-    setDistrictCode(code);
-    setWardCode("");
-    setWardOptions(mapOptions(getWards(code)));
-    setValue("district", item.label);
-    setValue("ward", "");
-    clearErrors(["district", "ward"]);
+    clearErrors(["province", "ward"]);
   };
 
   const handleWardChange = (value: BaseValueType, item: IDropdownLabel) => {
@@ -58,37 +74,30 @@ export default function AddressFields() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Dropdown
           {...DROPDOWN_PROPS}
           label="Tỉnh / Thành phố"
           placeholder="Chọn Tỉnh/Thành"
-          options={provinceOptions}
+          options={PROVINCE_OPTIONS}
           value={provinceCode}
           isShowSearch
+          noResultsText="Không tìm thấy"
           error={errorMessage(errors.province)}
           onChange={handleProvinceChange}
         />
         <Dropdown
           {...DROPDOWN_PROPS}
-          label="Quận / Huyện"
-          placeholder="Chọn Quận/Huyện"
-          options={districtOptions}
-          value={districtCode}
-          isShowSearch={districtOptions.length > 0}
-          disabled={districtOptions.length === 0}
-          error={errorMessage(errors.district)}
-          onChange={handleDistrictChange}
-        />
-        <Dropdown
-          {...DROPDOWN_PROPS}
           label="Phường / Xã"
-          placeholder="Chọn Phường/Xã"
+          placeholder={
+            provinceCode ? "Chọn Phường/Xã" : "Chọn Tỉnh/Thành trước"
+          }
           options={wardOptions}
           value={wardCode}
           isShowSearch={wardOptions.length > 0}
-          disabled={wardOptions.length === 0}
-          error={errorMessage(errors.ward)}
+          noResultsText="Không tìm thấy"
+          disabled={!provinceCode || isLoadingWards}
+          error={wardsError || errorMessage(errors.ward)}
           onChange={handleWardChange}
         />
       </div>
@@ -113,9 +122,6 @@ const DROPDOWN_PROPS = {
   className: "w-full",
   labelClassName: FIELD_LABEL,
 } as const;
-
-const mapOptions = (items: ILocation[]): IOption[] =>
-  items.map((item) => ({ value: item.code, label: item.name }));
 
 const errorMessage = (error: unknown): string | undefined =>
   typeof error === "object" &&
