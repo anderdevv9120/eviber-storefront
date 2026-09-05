@@ -14,6 +14,8 @@ import { MapPin, PenOutline, Plus, TrashOutline } from "@/components/icons";
 import { cn } from "@/config/utils";
 import { successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { formatAddress } from "@/utils/formatAddress";
+import { MAX_ADDRESSES } from "@/constants/address";
 import AddressModal from "./_component/AddressModal";
 import DeleteAddressModal from "./_component/DeleteAddressModal";
 import SetPrimaryAddressModal from "./_component/SetPrimaryAddressModal";
@@ -22,12 +24,6 @@ const COUNTRY = "Việt Nam";
 
 const ICON_BUTTON =
   "relative flex h-8 w-8 items-center justify-center rounded-md text-dark-400 transition-colors after:absolute after:-inset-1 hover:bg-white-100 hover:text-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100";
-
-// Địa chỉ 2 cấp không có huyện — bỏ phần rỗng để không lòi dấu phẩy thừa
-const formatAddress = (address: IAddress) =>
-  [address.specificAddress, address.ward, address.district, address.city]
-    .filter(Boolean)
-    .join(", ");
 
 const AddressList = () => {
   const [addresses, setAddresses] = useState<IAddress[]>([]);
@@ -79,8 +75,7 @@ const AddressList = () => {
   const handleSaveAddress = async (data: IAddressProps) => {
     // Enter trong input vẫn submit form khi nút Lưu đang loading
     if (isSaving) return;
-    // district gửi rỗng thay vì bỏ field: BE PUT merge từng field, bỏ field là
-    // huyện cũ (địa chỉ 3 cấp) còn nguyên trong DB sau khi user đã chọn lại xã
+    // Địa giới 2 cấp không có huyện — district luôn "" cho đồng nhất với checkout
     const body = { ...data, district: "", country: COUNTRY };
     setIsSaving(true);
     try {
@@ -151,6 +146,7 @@ const AddressList = () => {
   const sortedAddresses = [...addresses].sort(
     (a, b) => Number(b.primary) - Number(a.primary)
   );
+  const isFull = addresses.length >= MAX_ADDRESSES;
 
   const renderBody = () => {
     if (isLoading) {
@@ -281,7 +277,8 @@ const AddressList = () => {
           variant="outline"
           className="px-4"
           onClick={openCreate}
-          disabled={isLoading}
+          disabled={isLoading || isFull}
+          title={isFull ? `Tối đa ${MAX_ADDRESSES} địa chỉ` : undefined}
         >
           <Plus /> Thêm địa chỉ
         </Button>

@@ -4,8 +4,7 @@ import axiosRequest from "@/config/axios";
 export interface IAddressProps {
   name: string;
   city: string;
-  // Địa giới 2 cấp không còn huyện. FE LUÔN gửi "" (không bỏ field): BE PUT merge
-  // từng key, bỏ field là huyện cũ của địa chỉ 3 cấp còn nguyên trong DB
+  // Địa giới 2 cấp không còn huyện — FE luôn gửi "" để payload đồng nhất
   district?: string;
   ward: string;
   specificAddress: string;

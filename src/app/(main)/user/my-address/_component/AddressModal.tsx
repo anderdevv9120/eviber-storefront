@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, FormProvider } from "react-hook-form";
@@ -19,8 +19,8 @@ import {
   PHONE_NUMBER_INVALID_MESSAGE,
   PHONE_NUMBER_REQUIRED_MESSAGE,
   PROVINCE_REQUIRED_MESSAGE,
+  WARD_LOAD_ERROR_MESSAGE,
   WARD_REQUIRED_MESSAGE,
-  ZIP_REQUIRED_MESSAGE,
 } from "@/constants/validate";
 import {
   findProvinceByName,
@@ -56,16 +56,20 @@ const EMPTY_FORM: IAddressForm = {
   zip: "",
 };
 
+// trim trước required: BE @Transform(trim) + @IsNotEmpty sẽ 400 tiếng Anh nếu FE cho qua chuỗi toàn dấu cách.
+// zip tùy chọn (BE optional; form checkout không có ô zip nên địa chỉ lưu từ đó zip rỗng —
+// bắt buộc ở đây thì sửa lại địa chỉ đó bị chặn)
 const schema = yup.object({
-  name: yup.string().required(FULL_NAME_REQUIRED_MESSAGE),
+  name: yup.string().trim().required(FULL_NAME_REQUIRED_MESSAGE),
   phoneNumber: yup
     .string()
+    .trim()
     .required(PHONE_NUMBER_REQUIRED_MESSAGE)
     .matches(REGEX_PHONE_NUMBER, PHONE_NUMBER_INVALID_MESSAGE),
-  specificAddress: yup.string().required(ADDRESS_REQUIRED_MESSAGE),
+  specificAddress: yup.string().trim().required(ADDRESS_REQUIRED_MESSAGE),
   city: yup.string().required(PROVINCE_REQUIRED_MESSAGE),
   ward: yup.string().required(WARD_REQUIRED_MESSAGE),
-  zip: yup.string().required(ZIP_REQUIRED_MESSAGE),
+  zip: yup.string().trim().default(""),
 });
 
 const PROVINCE_OPTIONS = getProvinces().map((province) => ({
@@ -92,8 +96,13 @@ const AddressModal = ({
   const [wards, setWards] = useState<IWard[]>([]);
   const [wardCode, setWardCode] = useState<string>("");
   const [isLoadingWards, setIsLoadingWards] = useState<boolean>(false);
+  const [wardsError, setWardsError] = useState<string>("");
   const [isPrimary, setIsPrimary] = useState<boolean>(false);
   const provinceCode = wardQuery.provinceCode;
+  // Chỉ đọc lúc MỞ form, không phải trigger: ở checkout, sổ đổi (GET fail → []) khi modal
+  // đang mở sẽ lật giá trị này — để trong deps là reset() xóa hết chữ user đang gõ
+  const defaultPrimaryRef = useRef(defaultPrimary);
+  defaultPrimaryRef.current = defaultPrimary;
 
   const methods = useForm<IAddressForm>({
     resolver: yupResolver(schema),
@@ -123,20 +132,21 @@ const AddressModal = ({
       ward: "",
       zip: initialData?.zip ?? "",
     });
-    setIsPrimary(initialData ? !!initialData.primary : defaultPrimary);
+    setIsPrimary(
+      initialData ? !!initialData.primary : defaultPrimaryRef.current
+    );
     setWardQuery({
       provinceCode: province ? String(province.code) : "",
       wardName: province ? (initialData?.ward ?? "") : "",
     });
     setWardCode("");
-  }, [isOpen, initialData, defaultPrimary, reset]);
+  }, [isOpen, initialData, reset]);
 
   useEffect(() => {
     const { provinceCode: code, wardName } = wardQuery;
-    if (!code) {
-      setWards([]);
-      return;
-    }
+    setWards([]);
+    setWardsError("");
+    if (!code) return;
     let cancelled = false;
     setIsLoadingWards(true);
     getWards(Number(code))
@@ -152,7 +162,8 @@ const AddressModal = ({
         }
       })
       .catch(() => {
-        if (!cancelled) setWards([]);
+        // Chunk wards.json 404 sau deploy / mất mạng — báo tại dropdown, chọn lại tỉnh để thử lại
+        if (!cancelled) setWardsError(WARD_LOAD_ERROR_MESSAGE);
       })
       .finally(() => {
         if (!cancelled) setIsLoadingWards(false);
@@ -273,7 +284,7 @@ const AddressModal = ({
               options={wardOptions}
               value={wardCode}
               disabled={!provinceCode || isLoadingWards}
-              error={errors.ward?.message}
+              error={wardsError || errors.ward?.message}
               onChange={handleWardChange}
             />
           </div>
@@ -289,7 +300,7 @@ const AddressModal = ({
             />
           </div>
           <Input
-            label="Mã bưu chính"
+            label="Mã bưu chính (tùy chọn)"
             name="zip"
             placeholder="700000"
             maxLength={10}

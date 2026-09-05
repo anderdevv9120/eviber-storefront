@@ -5,7 +5,7 @@
 
 ## Project Overview
 
-Storefront e-commerce cho khách hàng cuối (thị trường Việt Nam — có chọn địa chỉ tỉnh/thành qua `vietnam-provinces`). Next.js 14 App Router, SSR + SEO (sitemap tự sinh sau build). Flow chính: duyệt collection/product → cart → checkout → theo dõi đơn trong `/user`.
+Storefront e-commerce cho khách hàng cuối (thị trường Việt Nam — địa giới hành chính 2 cấp 34 tỉnh/thành → phường/xã từ `src/constants/address/`, JSON gen bằng `scripts/gen-address-data.mjs` chạy `node` trực tiếp, không phải package npm). Next.js 14 App Router, SSR + SEO (sitemap tự sinh sau build). Flow chính: duyệt collection/product → cart → checkout → theo dõi đơn trong `/user`.
 
 ## Tech Stack Notes
 
@@ -42,7 +42,8 @@ src/
 ├── layouts/                # Header/, Footer
 ├── store/                  # Zustand v4: use{Name}Store theo domain (useAppStore, useCartStore, ...)
 ├── hooks/                  # useDebounce, useClickOutside, useMediaQuery, useWindowSize, usePrevious, useIgnoreFirstEffect...
-├── constants/              # paths.ts (PATH.*), orderStatus, validate (message constants + regex), payment, service
+├── constants/              # paths.ts (PATH.*), orderStatus, validate (message constants + regex), payment, service,
+│                           #   address/ (danh mục 2 cấp getProvinces/getWards + MAX_ADDRESSES — xã lazy-import)
 ├── @types/                 # Product.type, Address.type, index.d.ts
 ├── utils/                  # cookies, formatPrice, formatTime, toast, localStorage, getParams
 ├── mocks/                  # mock data (fetchData.ts) — CHỈ còn app/ui-kits/ dùng; không import vào route thật

@@ -40,7 +40,6 @@
     "react-toastify": "^10.0.6",
     "sass": "^1.101.6",
     "tailwind-merge": "^2.6.1",
-    "vietnam-provinces": "^0.0.4",
     "yup": "^1.7.1",
     "zustand": "^4.5.7"
   },

@@ -2,7 +2,6 @@ import * as yup from "yup";
 import { InferType } from "yup";
 import {
   ADDRESS_REQUIRED_MESSAGE,
-  DISTRICT_REQUIRED_MESSAGE,
   EMAIL_INVALID_MESSAGE,
   EMAIL_REQUIRED_MESSAGE,
   FULL_NAME_REQUIRED_MESSAGE,
@@ -49,7 +48,8 @@ export const checkoutSchema = yup
       .email(EMAIL_INVALID_MESSAGE),
     address: requiredUnlessSaved(ADDRESS_REQUIRED_MESSAGE),
     province: requiredUnlessSaved(PROVINCE_REQUIRED_MESSAGE),
-    district: requiredUnlessSaved(DISTRICT_REQUIRED_MESSAGE),
+    // Địa giới 2 cấp không còn huyện — giữ field để payload/DTO không đổi, luôn rỗng
+    district: yup.string().default(""),
     ward: requiredUnlessSaved(WARD_REQUIRED_MESSAGE),
     paymentMethod: yup.string().required(PAYMENT_METHOD_MESSAGE),
     note: yup

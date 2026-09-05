@@ -1,5 +1,8 @@
 import provinces from "./provinces.json";
 
+// Khớp MAX_ADDRESSES phía BE (addAddress từ chối khi đủ) — FE chặn trước để không toast lỗi
+export const MAX_ADDRESSES = 10;
+
 export interface IProvince {
   code: number;
   name: string;
