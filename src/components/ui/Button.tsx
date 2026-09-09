@@ -4,7 +4,7 @@ import { cn } from "@/config/utils";
 import { Spin } from "@/components/icons";
 
 const buttonVariants = cva(
-  "inline-flex px-2 items-center justify-center font-medium gap-2 transition disabled:pointer-events-none disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2",
+  "inline-flex px-4 items-center justify-center font-medium gap-2 transition disabled:pointer-events-none disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2",
   {
     variants: {
       variant: {

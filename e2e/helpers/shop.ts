@@ -83,13 +83,24 @@ export async function expectNoHorizontalOverflow(page: Page) {
   ).toBeLessThanOrEqual(clientWidth + 1);
 }
 
-export async function submitOrderAndExpectSuccess(page: Page) {
+export async function submitOrderAndExpectSuccess(
+  page: Page,
+  recipientName: string
+) {
   await page.getByRole("button", { name: "Đặt hàng" }).click();
   await page.waitForURL(/\/payment-success/);
   await expect(
-    page.getByRole("heading", { name: "Đặt hàng thành công" })
+    page.getByRole("heading", { name: "Đã nhận đơn của bạn" })
   ).toBeVisible();
-  await expect(page.getByText(/ORD-\d+-[A-Z0-9]+/)).toBeVisible();
+  await expect(page.getByTestId("success-order-number")).toHaveText(
+    /^ORD-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{16}$/
+  );
+  // Đơn rà soát được: sản phẩm + tiền + địa chỉ giao đều có mặt
+  await expect(page.getByTestId("success-summary")).toBeVisible();
+  // Bám dữ liệu người nhận, không bám cấp thẻ — "Giao đến" là nhãn nhỏ, không phải heading
+  await expect(page.getByTestId("success-shipping")).toContainText(
+    recipientName
+  );
 }
 
 export async function loginViaUi(page: Page, email: string, password: string) {

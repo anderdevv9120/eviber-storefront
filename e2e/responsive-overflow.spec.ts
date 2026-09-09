@@ -14,6 +14,9 @@ const ROUTES = [
   "/register",
   "/cart",
   "/checkout",
+  // /payment-success không có mã đơn hợp lệ → đo ở trạng thái "không tìm thấy đơn";
+  // trạng thái đủ 6 khối đo trong guest-checkout.spec.ts sau khi đặt đơn thật
+  "/payment-success",
   "/product/ao-khoac-hoodie-ni",
   "/user/my-account",
   "/user/my-address",

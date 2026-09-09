@@ -315,7 +315,7 @@ export default function CheckoutView() {
       const orderNumber: string = res?.data?.orderNumber ?? "";
       isNavigating = true;
       router.push(
-        `${PATH.PAYMENT_SUCCESS}?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(data.email)}`
+        `${PATH.PAYMENT_SUCCESS}?orderNumber=${encodeURIComponent(orderNumber)}`
       );
     } catch {
       // interceptor đã toast lỗi (vd hết hàng giữa chừng) — giữ nguyên form

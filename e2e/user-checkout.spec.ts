@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import {
   HOODIE,
   SEED_CUSTOMER,
@@ -20,5 +20,11 @@ test("user đăng nhập: add to cart → checkout chọn địa chỉ đã lưu
   await selectHoodieVariantAndAddToCart(page);
   await goToCheckoutFromCart(page);
   await expectSavedAddressSelected(page, "Nguyễn Thị Lan", SEED_CUSTOMER.email);
-  await submitOrderAndExpectSuccess(page);
+  await submitOrderAndExpectSuccess(page, "Nguyễn Thị Lan");
+
+  // Khách đăng nhập đi tiếp vào sổ đơn; nút sao chép link tra cứu là đường của guest
+  await expect(
+    page.getByRole("button", { name: "Xem đơn hàng" })
+  ).toBeVisible();
+  await expect(page.getByTestId("copy-lookup-link")).toHaveCount(0);
 });

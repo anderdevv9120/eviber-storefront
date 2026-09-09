@@ -24,5 +24,10 @@ test("guest: browse → chọn variant → cart → checkout tạo đơn thành 
   await page.setViewportSize({ width: 390, height: 844 });
   await expectNoHorizontalOverflow(page);
   await page.setViewportSize({ width: 1280, height: 800 });
-  await submitOrderAndExpectSuccess(page);
+  await submitOrderAndExpectSuccess(page, "Nguyễn Văn E2E");
+
+  // Màn success đủ 6 khối chỉ tồn tại sau khi đặt đơn thật — sweep không dựng được
+  // trạng thái này (nó chỉ thấy màn "không tìm thấy đơn"), nên đo ngay tại đây
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectNoHorizontalOverflow(page);
 });

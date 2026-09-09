@@ -15,6 +15,7 @@ export default defineConfig({
     },
   },
   test: {
+    env: { TZ: "Asia/Ho_Chi_Minh" },
     environment: "node",
     include: ["src/**/*.test.ts"],
     globals: false,

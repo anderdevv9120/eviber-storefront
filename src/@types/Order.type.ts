@@ -62,6 +62,7 @@ export interface ICheckoutReviewProduct {
   productId: string;
   variantId: string;
   name: string;
+  slug: string;
   images: string[];
   inventoryCount: number;
   discountPercentage: number;
@@ -107,6 +108,8 @@ export interface IOrderProduct {
   variantId: string;
   quantity: number;
   productNameAtOrder?: string;
+  /** Đơn tạo trước khi BE snapshot slug sẽ KHÔNG có field này → render không-link */
+  productSlugAtOrder?: string;
   variantSkuAtOrder?: string;
   variantImageAtOrder?: string;
   attributeValuesAtOrder?: { name: string; value: string }[];
@@ -114,7 +117,7 @@ export interface IOrderProduct {
   originalPriceAtOrder: number;
 }
 
-/** BE: OrderResponse = Omit<Order, 'userId'|'sessionId'|'__v'> — response POST /orders, GET /orders (item), GET /orders/guest/:orderNumber */
+/** BE: OrderResponse = Omit<Order, 'userId'|'sessionId'|'__v'> — response POST /orders, GET /orders (item), GET /orders/lookup/:orderNumber */
 export interface IOrderResponse {
   _id: string;
   checkoutInfo: IOrderCheckoutInfo;

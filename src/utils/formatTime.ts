@@ -30,3 +30,22 @@ export const formatDate = (
 
   return `${day}/${month}/${year}`;
 };
+
+export const formatDeliveryEstimate = (
+  orderedAt: string,
+  minDays: number,
+  maxDays: number
+) => {
+  const ordered = new Date(orderedAt);
+  if (Number.isNaN(ordered.getTime())) return "";
+
+  const dayMonth = (addDays: number) => {
+    const date = new Date(ordered);
+    date.setDate(date.getDate() + addDays);
+    return `${String(date.getDate()).padStart(2, "0")}/${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}`;
+  };
+
+  return `${dayMonth(minDays)} – ${dayMonth(maxDays)}`;
+};

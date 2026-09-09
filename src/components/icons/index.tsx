@@ -5,6 +5,8 @@ import Clock from "./Clock";
 import ChevronLeft from "./ChevronLeft";
 import ChevronDown from "./ChevronDown";
 import Check from "./Check";
+import Copy from "./Copy";
+import LinkChain from "./LinkChain";
 import DownAngle from "./DownAngle";
 import Envelope from "./Envelope";
 import Eye from "./Eye";
@@ -70,6 +72,8 @@ export {
   ChevronDown,
   Check,
   Clock,
+  Copy,
+  LinkChain,
   DownAngle,
   Envelope,
   Eye,

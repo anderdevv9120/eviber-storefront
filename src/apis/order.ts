@@ -18,10 +18,15 @@ export const makeOrder = (payload: IMakeOrderPayload) => {
   return axiosRequest.post("/orders", payload);
 };
 
-/** Tra cứu đơn bằng orderNumber + email — dùng cho trang success (user lẫn guest) */
-export const getGuestOrder = (orderNumber: string, email: string) => {
-  return axiosRequest.get(`/orders/guest/${orderNumber}`, {
-    params: { email },
+/**
+ * Tra cứu đơn bằng mã đơn — mã 80 bit ngẫu nhiên nên tự nó là bằng chứng sở hữu,
+ * KHÔNG cần email kèm theo.
+ */
+export const getOrderByNumber = (orderNumber: string) => {
+  // Màn success đã render lỗi tại chỗ (không tìm thấy đơn / bị giới hạn tần suất)
+  // → tắt toast global, tránh double display
+  return axiosRequest.get(`/orders/lookup/${encodeURIComponent(orderNumber)}`, {
+    toastError: false,
   });
 };
 
@@ -32,9 +37,9 @@ export const cancelOrder = (orderId: string) => {
 
 const orderAPI = {
   getOrders,
+  getOrderByNumber,
   checkoutReview,
   makeOrder,
-  getGuestOrder,
   cancelOrder,
 };
 

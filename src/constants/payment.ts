@@ -39,3 +39,11 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> =
     PaymentMethod,
     string
   >;
+export const BANK_TRANSFER_ACCOUNT = {
+  bankBin: "970436",
+  bankName: "Vietcombank",
+  accountNumber: "0071000123456",
+  accountName: "CONG TY TNHH X-ECOMMERCE",
+} as const;
+
+export const DELIVERY_ESTIMATE_DAYS = { min: 3, max: 5 } as const;
