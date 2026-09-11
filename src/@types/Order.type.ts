@@ -125,7 +125,11 @@ export interface IOrderResponse {
   paymentInfo: IOrderPaymentInfo;
   productInfo: IOrderProduct[];
   status: OrderApiStatus;
-  /** Mảng rỗng với đơn tạo trước khi có status flow */
+  /**
+   * Mảng rỗng với đơn tạo trước khi có status flow. Route của chính chủ
+   * (GET /orders, /orders/by-number) đã lọc bỏ `changedBy.actorName` + `note` — hai field
+   * đó chỉ tồn tại phía admin, đừng render như thể luôn có.
+   */
   statusHistory?: IStatusHistoryEntry[];
   paymentStatus: PaymentApiStatus;
   orderNumber?: string;
