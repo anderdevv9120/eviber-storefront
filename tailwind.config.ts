@@ -55,6 +55,7 @@ const config: Config = {
       // DEFAULT = 500
       yellow: {
         DEFAULT: "#F9A825",
+        50: "#FEFAF1",
         100: "#FDE047",
         200: "#FACC15",
         300: "#F5CF05",
@@ -70,6 +71,7 @@ const config: Config = {
       // DEFAULT = 600
       red: {
         DEFAULT: "#FC2B2B",
+        50: "#FDECEC",
         100: "#FECACA",
         200: "#FCA5A5",
         300: "#F87171",
@@ -83,6 +85,7 @@ const config: Config = {
       // DEFAULT = 400
       blue: {
         DEFAULT: "#0089ED",
+        50: "#F2F9FE",
         100: "#BFDBFE",
         200: "#93C5FD",
         300: "#60A5FA",
@@ -110,6 +113,7 @@ const config: Config = {
       // DEFAULT = 700
       green: {
         DEFAULT: "#15803D",
+        50: "#F3FBF5",
         100: "#DCFCE7",
         200: "#D1FAE5",
         300: "#BBF7D0",

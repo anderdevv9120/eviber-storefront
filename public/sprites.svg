@@ -595,6 +595,10 @@
       <path d="M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7" />
       <path d="M6.5 7l.6 11.2A2.2 2.2 0 0 0 9.3 20.3h5.4a2.2 2.2 0 0 0 2.2-2.1L17.5 7" />
     </symbol>
+    <symbol id="icon-user-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="3.6"></circle>
+        <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"></path>
+    </symbol>
     <symbol id="icon-map-pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"></path>
         <circle cx="12" cy="10" r="3"></circle>

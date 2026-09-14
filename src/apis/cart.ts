@@ -7,8 +7,20 @@ export const getCart = () => {
   return axiosRequest.get("/carts", { toastError: false });
 };
 
-export const addToCart = (data: ICartProductPayload) => {
-  return axiosRequest.post("/carts/add-to-cart", data);
+/**
+ * BE nhận quantity là DELTA — cộng dồn vào số lượng đang có trong giỏ, KHÔNG phải giá trị
+ * tuyệt đối (muốn đặt số tuyệt đối thì dùng `updateQuantity`). Gọi hai lần là nhân đôi.
+ *
+ * silent: dùng cho Mua lại — thêm nhiều variant tuần tự, món lỗi được gom lại báo
+ * một lượt nên không để interceptor toast từng lỗi một
+ */
+export const addToCart = (
+  data: ICartProductPayload,
+  options?: { silent?: boolean }
+) => {
+  return axiosRequest.post("/carts/add-to-cart", data, {
+    toastError: !options?.silent,
+  });
 };
 
 export const removeFromCart = (data: ICartRemovePayload) => {

@@ -5,7 +5,8 @@ export const getOrders = (
   params: IOrderFilterParams = {},
   signal?: AbortSignal
 ) => {
-  return axiosRequest.get("/orders", { params, signal });
+  // Danh sách có khối lỗi + nút Thử lại tại chỗ → tắt toast global, tránh double display
+  return axiosRequest.get("/orders", { params, signal, toastError: false });
 };
 
 /** Review đơn trước khi đặt — BE validate tồn kho + tính subtotal/shipping/total */
@@ -30,6 +31,18 @@ export const getOrderByNumber = (orderNumber: string) => {
   });
 };
 
+/**
+ * Chi tiết một đơn của chính user đang đăng nhập — khác `getOrderByNumber` (route
+ * tra cứu công khai) ở chỗ BE kiểm tra quyền sở hữu và trả kèm lịch sử trạng thái.
+ */
+export const getMyOrderDetail = (orderNumber: string, signal?: AbortSignal) => {
+  // Trang chi tiết render lỗi tại chỗ (không tìm thấy / không phải đơn của mình)
+  return axiosRequest.get(
+    `/orders/by-number/${encodeURIComponent(orderNumber)}`,
+    { toastError: false, signal }
+  );
+};
+
 /** Khách hủy đơn PENDING của mình — BE hoàn kho trong cùng transaction */
 export const cancelOrder = (orderId: string) => {
   return axiosRequest.patch(`/orders/${orderId}/cancel`);
@@ -38,6 +51,7 @@ export const cancelOrder = (orderId: string) => {
 const orderAPI = {
   getOrders,
   getOrderByNumber,
+  getMyOrderDetail,
   checkoutReview,
   makeOrder,
   cancelOrder,

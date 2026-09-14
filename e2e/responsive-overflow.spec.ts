@@ -1,5 +1,5 @@
-import { test } from "@playwright/test";
-import { expectNoHorizontalOverflow } from "./helpers/shop";
+import { APIRequestContext, test } from "@playwright/test";
+import { expectNoHorizontalOverflow, SEED_CUSTOMER } from "./helpers/shop";
 
 // Quét horizontal overflow — biến criterion "mobile/tablet/desktop không vỡ"
 // thành check máy chạy được (exit code). Màn mới khi ổn định → THÊM route vào đây.
@@ -20,7 +20,42 @@ const ROUTES = [
   "/product/ao-khoac-hoodie-ni",
   "/user/my-account",
   "/user/my-address",
+  "/user/orders",
+  // Đơn seed cố định (orders.fixture — ORD_1, status shipped) để trang chi tiết đo được
+  // bố cục thật: stepper + 2 khối thông tin + bảng sản phẩm
+  "/user/orders/ORD-SEEDSHPPED234567",
 ];
+
+// Phiên thật, đăng nhập MỘT lần cho cả file: cụm /user render nội dung thật (đơn hàng,
+// địa chỉ của seed customer) mới đo được bố cục — cookie giả chỉ qua được middleware rồi
+// dừng ở trạng thái lỗi, không có gì để đo. Cache token vì auth có rate limit.
+let tokenPromise: Promise<string> | undefined;
+
+async function sessionCookies(request: APIRequestContext) {
+  tokenPromise ??= request
+    .post("http://localhost:3009/api/v1/auth/login", { data: SEED_CUSTOMER })
+    .then(async (res) => {
+      const body = await res.json();
+      const token = body?.data?.accessToken;
+      if (!token)
+        throw new Error(`Login seed customer thất bại: ${res.status()}`);
+      return token as string;
+    })
+    // KHÔNG giữ promise đã reject: một lần login hỏng sẽ kéo mọi test /user fail cùng lỗi cũ
+    .catch((error) => {
+      tokenPromise = undefined;
+      throw error;
+    });
+
+  return [
+    {
+      name: "accessToken",
+      value: await tokenPromise,
+      domain: "localhost",
+      path: "/",
+    },
+  ];
+}
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },
@@ -32,19 +67,11 @@ for (const vp of VIEWPORTS) {
   for (const route of ROUTES) {
     test(`không horizontal overflow: ${route} @ ${vp.name} ${vp.width}px`, async ({
       page,
+      request,
     }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
-      // /user/* qua middleware bằng cookie phiên giả — middleware chỉ check cookie
-      // tồn tại; sweep đo overflow nên không cần phiên thật (API 401 vẫn render form)
       if (route.startsWith("/user")) {
-        await page.context().addCookies([
-          {
-            name: "accessToken",
-            value: "e2e-sweep",
-            domain: "localhost",
-            path: "/",
-          },
-        ]);
+        await page.context().addCookies(await sessionCookies(request));
       }
       await page.goto(route);
       await page.waitForLoadState("networkidle");
