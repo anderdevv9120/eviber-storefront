@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Input from "@/components/ui/Input";
 import { Search, Logo } from "@/components/icons";
 import HeaderNav from "./HeaderNav";
 import UserAction from "./UserAction";
 import CategoryDropdown from "./CategoryDropdown";
+import SearchBox from "./SearchBox";
 import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
 import { ICategoryItem } from "@/@types/Home.type";
@@ -34,6 +34,9 @@ export default function Header({ categories }: HeaderProps) {
 
   const [visible, setVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
+  const closeMobileSearch = () => setIsMobileSearchOpen(false);
 
   useEffect(() => {
     lastY.current = window.scrollY;
@@ -70,7 +73,10 @@ export default function Header({ categories }: HeaderProps) {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-transform duration-300 will-change-transform border-b border-white-500",
-        visible ? "translate-y-0" : "-translate-y-full",
+        // Đang search (thanh mobile mở / panel gợi ý mở) thì header không được trốn theo cuộn
+        visible || isMobileSearchOpen || isSuggestionOpen
+          ? "translate-y-0"
+          : "-translate-y-full",
         scrolled ? "bg-white/80 backdrop-blur-sm" : "bg-white"
       )}
     >
@@ -97,26 +103,59 @@ export default function Header({ categories }: HeaderProps) {
           </Link>
 
           <div className="flex gap-5 items-center justify-end">
-            {/* Ô search decorative — chức năng search thuộc Backlog */}
-            <Input
-              variant="standard"
-              placeholder="Tìm kiếm sản phẩm"
-              error=""
-              icon={<Search className="text-dark-400" />}
-              className="xl:w-[230px] xxl:w-[320px] bg-white/0"
+            <SearchBox
+              className="xl:w-[230px] 2xl:w-[320px]"
+              onOpenChange={setIsSuggestionOpen}
             />
             <UserAction />
           </div>
         </div>
       </div>
 
-      <div className="flex py-5 px-4 justify-between items-center xl:hidden">
+      <div className="grid grid-cols-[1fr_auto_1fr] py-5 px-4 items-center xl:hidden">
         <HeaderNav menus={mobileMenus} />
         <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
-          <Logo className="text-dark-800 ml-8" />
+          <Logo className="text-dark-800" />
         </Link>
-        <UserAction />
+        <div className="flex items-center justify-end gap-4">
+          <button
+            type="button"
+            aria-label={isMobileSearchOpen ? "Đóng tìm kiếm" : "Tìm kiếm"}
+            aria-expanded={isMobileSearchOpen}
+            onClick={() => setIsMobileSearchOpen((open) => !open)}
+            className={cn(
+              "relative flex items-center transition-colors hover:text-primary-700 after:absolute after:-inset-3 after:content-['']",
+              isMobileSearchOpen ? "text-primary-700" : "text-dark-600"
+            )}
+          >
+            <Search />
+          </button>
+          <UserAction />
+        </div>
       </div>
+
+      {/* Thanh search mobile: overlay dưới header, không đẩy nội dung trang */}
+      {isMobileSearchOpen && (
+        <div
+          data-testid="mobile-search-bar"
+          className="absolute inset-x-0 top-full flex items-center gap-3 border-b border-white-500 bg-white px-4 py-3 shadow-card xl:hidden"
+        >
+          <SearchBox
+            variant="mobile"
+            autoFocus
+            className="flex-1"
+            onSubmitted={closeMobileSearch}
+            onEscape={closeMobileSearch}
+          />
+          <button
+            type="button"
+            onClick={closeMobileSearch}
+            className="relative whitespace-nowrap text-[15px] text-dark-500 transition-colors hover:text-dark-800 after:absolute after:-inset-3 after:content-['']"
+          >
+            Hủy
+          </button>
+        </div>
+      )}
     </header>
   );
 }

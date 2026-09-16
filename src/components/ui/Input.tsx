@@ -17,6 +17,8 @@ const inputVariants = cva(
           "border-b-[1px] border-b-dark-200 py-2 hover:border-b-primary focus-visible:border-b-primary-500",
         filled:
           "px-3 shadow-md rounded-lg focus-visible:ring-2 focus-visible:ring-primary-100",
+        // khung (nền/viền/chiều cao) do wrapper ngoài lo — vd ô search pill trên mobile
+        plain: "",
       },
     },
     defaultVariants: {
@@ -49,7 +51,7 @@ const InputElement = forwardRef<HTMLInputElement, InputProps>(
       <div
         className={cn(
           "absolute right-3 top-[50%] flex translate-y-[-50%] items-center",
-          variant === "standard" && "right-0"
+          (variant === "standard" || variant === "plain") && "right-0"
         )}
       >
         {icon}

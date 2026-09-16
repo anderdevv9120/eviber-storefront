@@ -10,6 +10,9 @@ import { expectNoHorizontalOverflow, SEED_CUSTOMER } from "./helpers/shop";
 const ROUTES = [
   "/",
   "/collection",
+  "/collection?search=hood",
+  // Trang 404 — StatusScreen + minh họa 150px
+  "/trang-khong-ton-tai",
   "/login",
   "/register",
   "/cart",
@@ -80,3 +83,17 @@ for (const vp of VIEWPORTS) {
     });
   }
 }
+
+// Trạng thái chỉ có sau tương tác: thanh search mobile mở + panel gợi ý (overlay
+// tuyệt đối dưới header) — không phải route nên đo riêng, chỉ ở mobile
+test("không horizontal overflow: thanh search mobile mở kèm panel gợi ý @ mobile 390px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Tìm kiếm", exact: true }).click();
+  await page.getByTestId("mobile-search-bar").getByRole("combobox").fill("áo");
+  await page.getByText("Xem tất cả kết quả").waitFor();
+
+  await expectNoHorizontalOverflow(page);
+});

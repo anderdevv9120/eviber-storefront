@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { HeartOutline } from "@/components/icons";
 import SvgIcon from "@/components/ui/SvgIcon";
 import Button from "@/components/ui/Button";
 import Counter from "@/components/ui/Counter";
@@ -154,45 +153,34 @@ const ProductForm = ({ options, variants }: ProductFormProps) => {
         />
       </div>
 
-      {/* Hàng mua A1 (chốt mobile-refine): hàng 1 counter pill + tồn kho, heart neo
-          phải CÙNG HÀNG mọi breakpoint — hàng ngắn có đối trọng, CTA nhường trọn bề ngang */}
-      <div className="flex items-center justify-between gap-4 mt-6 lg:mt-8">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
-          <span className="text-sm font-bold">Số lượng</span>
-          <Counter
-            key={selectedVariant?.id ?? "none"}
-            defaultValue={1}
-            min={1}
-            max={Math.max(inventoryCount, 1)}
-            onChangeCount={setQuantity}
-            disabled={!canBuy}
-            variant="pill"
-          />
-          {/* Khan hiếm: tồn thấp đổi giọng + màu sale để thúc quyết định (chốt vòng mobile-refine) */}
-          {canBuy ? (
-            inventoryCount <= LOW_STOCK_THRESHOLD ? (
-              <span className="text-sm font-semibold text-terracotta">
-                Chỉ còn {inventoryCount} sản phẩm
-              </span>
-            ) : (
-              <span className="text-sm text-dark-500">
-                Còn {inventoryCount} sản phẩm
-              </span>
-            )
+      {/* Hàng mua A1 (chốt mobile-refine): hàng 1 counter pill + tồn kho, CTA hàng dưới nhường trọn bề ngang */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0 mt-6 lg:mt-8">
+        <span className="text-sm font-bold">Số lượng</span>
+        <Counter
+          key={selectedVariant?.id ?? "none"}
+          defaultValue={1}
+          min={1}
+          max={Math.max(inventoryCount, 1)}
+          onChangeCount={setQuantity}
+          disabled={!canBuy}
+          variant="pill"
+        />
+        {/* Khan hiếm: tồn thấp đổi giọng + màu sale để thúc quyết định (chốt vòng mobile-refine) */}
+        {canBuy ? (
+          inventoryCount <= LOW_STOCK_THRESHOLD ? (
+            <span className="text-sm font-semibold text-terracotta">
+              Chỉ còn {inventoryCount} sản phẩm
+            </span>
           ) : (
             <span className="text-sm text-dark-500">
-              Phân loại này đã hết hàng
+              Còn {inventoryCount} sản phẩm
             </span>
-          )}
-        </div>
-        {/* hidden TẠM: vị trí/hành vi nút yêu thích user sẽ chốt sau — đừng xóa markup */}
-        <button
-          type="button"
-          aria-label="Yêu thích sản phẩm"
-          className="hidden items-center justify-center w-10 h-10 shrink-0 rounded-lg border border-white-600 text-dark-500 transition-colors hover:border-primary-300 hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
-        >
-          <HeartOutline className="w-5 h-5" />
-        </button>
+          )
+        ) : (
+          <span className="text-sm text-dark-500">
+            Phân loại này đã hết hàng
+          </span>
+        )}
       </div>
 
       {/* CTA: mobile 2 nút xếp dọc full-width (Mua ngay trên — chốt A1);

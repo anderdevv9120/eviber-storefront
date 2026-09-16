@@ -5,7 +5,7 @@
 
 ## Project Overview
 
-Storefront e-commerce cho khách hàng cuối (thị trường Việt Nam — địa giới hành chính 2 cấp 34 tỉnh/thành → phường/xã từ `src/constants/address/`, JSON gen bằng `scripts/gen-address-data.mjs` chạy `node` trực tiếp, không phải package npm). Next.js 14 App Router, SSR + SEO (sitemap tự sinh sau build). Flow chính: duyệt collection/product → cart → checkout → theo dõi đơn trong `/user`.
+Storefront e-commerce cho khách hàng cuối (thị trường Việt Nam — địa giới hành chính 2 cấp 34 tỉnh/thành → phường/xã từ `src/constants/address/`, JSON gen bằng `scripts/gen-address-data.mjs` chạy `node` trực tiếp, không phải package npm). Next.js 14 App Router, SSR + SEO (sitemap/robots là route native sinh lúc request). Flow chính: duyệt collection/product → cart → checkout → theo dõi đơn trong `/user`.
 
 ## Tech Stack Notes
 
@@ -15,7 +15,7 @@ Chi tiết root chưa ghi:
 - **UI phụ trợ**: `class-variance-authority` (variants), `react-toastify` (qua `utils/toast.ts`), `react-swipeable` + `useCustomSwipeable`, `sass` (SCSS modules song song Tailwind)
 - **State**: Zustand store dùng middleware `immer` (`useAppStore`)
 - **Auth phía client**: token trong cookie (`js-cookie`), axios tự gắn Bearer + tự refresh
-- **SEO**: `next-sitemap` chạy ở `postbuild` (config `next-sitemap.config.js`); checklist SEO per màn → rule `seo-nextjs` (`.claude/rules/` ở workspace root, auto-load khi chạm `src/app/`)
+- **SEO**: sitemap + robots là `src/app/sitemap.ts` / `src/app/robots.ts` (native App Router, sitemap lặp API product theo trang, `revalidate` 1 giờ — KHÔNG có bước postbuild); checklist SEO per màn → rule `seo-nextjs` (`.claude/rules/` ở workspace root, auto-load khi chạm `src/app/`)
 - **Storybook**: config tại `storybook/` (main.ts, preview, decorators, mocks — KHÔNG phải `.storybook/` mặc định); stories gom tập trung, không co-located
 
 ## Architecture
@@ -70,7 +70,7 @@ src/
 
 ```bash
 npm run dev          # dev server → http://localhost:3030
-npm run build        # build + postbuild sitemap
+npm run build        # build (sitemap/robots là route, không có postbuild)
 npm run lint         # next lint (lint:write để auto-fix)
 npx tsc --noEmit     # type check nhanh
 npm test             # vitest: logic thuần, co-located (src/utils/, src/constants/, app/**/_component/), ~0.2s

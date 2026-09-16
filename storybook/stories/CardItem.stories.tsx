@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, within, userEvent, waitFor } from "storybook/test";
 import CardItem from "@/components/ui/CardItem";
 import {
   mockProductDetail,
@@ -24,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithDiscount: Story = {};
 
-export const NoDiscountFavorite: Story = {
+export const NoDiscount: Story = {
   args: { productItem: mockProductDetailNoDiscount },
 };
 
@@ -43,36 +42,6 @@ export const OutOfStock: Story = {
       originalPrice: undefined,
       discountPercentage: undefined,
     },
-  },
-};
-
-/**
- * P0: Click nút "yêu thích" KHÔNG được điều hướng (Link không kích hoạt).
- * Query theo role + aria (bền với mọi thay đổi style):
- *  - handler chạy → aria-pressed đổi trạng thái
- *  - không điều hướng → link vẫn còn & href không đổi.
- */
-export const FavoriteDoesNotNavigate: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const initialHref = canvas.getByRole("link").getAttribute("href");
-
-    const heartButton = canvas.getByRole("button", {
-      name: "Yêu thích sản phẩm",
-    });
-    await expect(heartButton.getAttribute("aria-pressed")).toBe("false");
-
-    await userEvent.click(heartButton);
-
-    // Handler yêu thích đã chạy: aria-pressed đổi trạng thái.
-    await waitFor(async () => {
-      await expect(heartButton.getAttribute("aria-pressed")).toBe("true");
-    });
-
-    // Không điều hướng: link vẫn hiển thị và href không đổi.
-    await expect(canvas.getByRole("link").getAttribute("href")).toBe(
-      initialHref
-    );
   },
 };
 

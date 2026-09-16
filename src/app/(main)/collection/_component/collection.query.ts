@@ -1,5 +1,6 @@
 import { IGetProductsParams } from "@/apis/product";
 import { IProductListItem } from "@/@types/Product.type";
+import { normalizeSearchTerm, SEARCH_PARAM } from "@/constants/search";
 import {
   PAGE_SIZE,
   PRICE_CAP,
@@ -10,6 +11,8 @@ import {
 
 /** Query state của màn collection — parse từ URL searchParams, nguồn sự thật duy nhất */
 export interface ICollectionQuery {
+  /** Từ khóa từ ô search Header — "" khi không tìm */
+  search: string;
   categories: string[];
   priceMin: number;
   priceMax: number;
@@ -57,12 +60,13 @@ const isSortKey = (value: string | undefined): value is SortKey =>
 
 /**
  * Parse + sanitize searchParams → query state. Chỉ đọc key trong whitelist
- * (category/priceMin/priceMax/sort/page) — BE bật forbidNonWhitelisted nên
+ * (search/category/priceMin/priceMax/sort/page) — BE bật forbidNonWhitelisted nên
  * KHÔNG forward nguyên searchParams; giá trị rác đưa về default im lặng.
  */
 export function parseCollectionQuery(
   source: SearchParamsSource
 ): ICollectionQuery {
+  const search = normalizeSearchTerm(getParam(source, SEARCH_PARAM) ?? "");
   const categories = (getParam(source, "category") ?? "")
     .split(",")
     .map((slug) => slug.trim())
@@ -82,6 +86,7 @@ export function parseCollectionQuery(
   const pageParsed = Number(getParam(source, "page"));
 
   return {
+    search,
     categories: Array.from(new Set(categories)),
     priceMin,
     priceMax,
@@ -97,6 +102,7 @@ export function parseCollectionQuery(
  */
 export function buildCollectionSearch(query: ICollectionQuery): string {
   const params = new URLSearchParams();
+  if (query.search) params.set(SEARCH_PARAM, query.search);
   if (query.categories.length) {
     params.set("category", query.categories.join(","));
   }
@@ -128,6 +134,7 @@ export function toProductApiParams(
     page: query.page,
     pageSize: PAGE_SIZE,
   };
+  if (query.search) params.search = query.search;
   if (query.categories.length) params.category = query.categories.join(",");
   if (query.priceMin > 0) params.priceMin = query.priceMin;
   if (query.priceMax < PRICE_CAP) params.priceMax = query.priceMax;

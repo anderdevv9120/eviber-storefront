@@ -192,9 +192,14 @@ export default function CollectionContent({
     navigate({ ...query, priceMin: 0, priceMax: PRICE_CAP, page: 1 });
   };
 
+  const handleClearSearch = () => {
+    navigate({ ...query, search: "", page: 1 });
+  };
+
   const handleClearAll = () => {
     navigate({
       ...query,
+      search: "",
       categories: [],
       priceMin: 0,
       priceMax: PRICE_CAP,
@@ -214,6 +219,15 @@ export default function CollectionContent({
   };
 
   const chips: IFilterChip[] = [
+    ...(query.search
+      ? [
+          {
+            key: "search",
+            label: `Từ khóa: ${query.search}`,
+            onRemove: handleClearSearch,
+          },
+        ]
+      : []),
     ...query.categories.map((slug) => ({
       key: `category-${slug}`,
       // Slug lạ trên URL (danh mục đã xóa) vẫn hiện chip để gỡ được
@@ -261,7 +275,10 @@ export default function CollectionContent({
           // Chưa có gì để giữ lại mà đang fetch (retry sau SSR lỗi) → skeleton thay vì trang trống
           <CollectionSkeleton />
         ) : result.total === 0 ? (
-          <EmptyCollection onClearFilters={handleClearAll} />
+          <EmptyCollection
+            onClearFilters={handleClearAll}
+            searchTerm={query.search}
+          />
         ) : (
           <div
             aria-busy={isLoading}

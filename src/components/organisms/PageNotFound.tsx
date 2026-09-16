@@ -1,27 +1,30 @@
-import Button from "@/components/ui/Button";
 import Link from "next/link";
-import Image from "next/image";
+import Button from "@/components/ui/Button";
+import StatusScreen from "@/components/ui/StatusScreen";
+import { NotFoundIllustration } from "@/components/ui/StatusIllustrations";
 import { PATH } from "@/constants/paths";
 
 const PageNotFound = () => {
   return (
-    <div className="flex flex-col items-center justify-center mb-10 px-9">
-      <Image
-        src="/images/404.jpeg"
-        alt="404 Not Found"
-        width={800}
-        height={450}
-        sizes="(max-width: 768px) 100vw, 50vw"
-        priority
-        className="w-full max-w-screen-sm mb-6"
-      />
-
-      <Link href={PATH.HOME}>
-        <Button className="md:-mt-0 hover:opacity-80 px-6 text-base rounded-lg shadow-lg">
-          Trở về trang chủ
-        </Button>
-      </Link>
-    </div>
+    <StatusScreen
+      illustration={<NotFoundIllustration />}
+      title="Không tìm thấy trang"
+      description="Đường dẫn có thể đã đổi hoặc sản phẩm không còn bán. Bộ sưu tập vẫn ở đây."
+      actions={
+        <>
+          <Link href={PATH.HOME}>
+            <Button size="lg" className="px-6">
+              Về trang chủ
+            </Button>
+          </Link>
+          <Link href={PATH.COLLECTION}>
+            <Button size="lg" variant="outline" className="px-6">
+              Xem sản phẩm
+            </Button>
+          </Link>
+        </>
+      }
+    />
   );
 };
 
