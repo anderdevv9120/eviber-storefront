@@ -56,7 +56,7 @@ src/
 ## Conventions
 
 - **Code style = `.prettierrc` + `.eslintrc.json` của repo** — hooks tự format/enforce sau mỗi edit, không tự chế style khác.
-- Rules tự load theo path: `typescript-pro`, `tailwind-v3`, `zustand-v4`, `react-performance` (xem `.claude/rules/`).
+- Rules tự load theo path: `typescript-pro`, `tailwind-v3`, `zustand-v4`, `react-performance` (xem `.claude/rules/`); `checkout-policy` khi chạm cart / checkout / payment-success, `apis/cart|order.ts`, `useCartStore` (số tiền hiển thị lấy từ response BE).
 - Component riêng của 1 route → `app/**/{route}/_component/`. Tái sử dụng ≥2 nơi → `components/ui/`.
 - Route path: LUÔN dùng `PATH.*` từ `constants/paths.ts` — không hardcode string.
 - Gọi API: LUÔN qua `apis/` — không import axios trực tiếp trong component.
@@ -71,7 +71,8 @@ src/
 ```bash
 npm run dev          # dev server → http://localhost:3030
 npm run build        # build (sitemap/robots là route, không có postbuild)
-npm run lint         # next lint (lint:write để auto-fix)
+npm run lint         # next lint --max-warnings 0 — cùng ngưỡng với Stop hook và pre-commit (lint:write để auto-fix)
+npx prettier --write src e2e   # format — Stop hook chạy đúng lệnh này trước tsc
 npx tsc --noEmit     # type check nhanh
 npm test             # vitest: logic thuần, co-located (src/utils/, src/constants/, app/**/_component/), ~0.2s
 npm run test:e2e     # Playwright e2e (xem mục Testing)
