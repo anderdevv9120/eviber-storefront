@@ -39,11 +39,22 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> =
     PaymentMethod,
     string
   >;
-export const BANK_TRANSFER_ACCOUNT = {
-  bankBin: "970436",
-  bankName: "Vietcombank",
-  accountNumber: "0071000123456",
-  accountName: "CONG TY TNHH X-ECOMMERCE",
+/** Nhãn PaymentStatus BE (order.model.ts) */
+export const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  unpaid: "Chưa thanh toán",
+  paid: "Đã thanh toán",
+  refunded: "Đã hoàn tiền",
+  failed: "Thanh toán thất bại",
+};
+
+/**
+ * Màn chờ chuyển khoản tự hỏi lại BE để đổi sang "Đã nhận thanh toán" khi admin duyệt.
+ * 15s × 10 phút = 40 request, dưới throttle 20 req/60s của route lookup; quá 10 phút dừng hẳn
+ * (khách còn email + mở lại link).
+ */
+export const BANK_TRANSFER_POLLING = {
+  intervalMs: 15_000,
+  durationMs: 10 * 60 * 1000,
 } as const;
 
 export const DELIVERY_ESTIMATE_DAYS = { min: 3, max: 5 } as const;

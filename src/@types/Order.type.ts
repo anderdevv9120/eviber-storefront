@@ -24,6 +24,24 @@ export interface IStatusHistoryEntry {
 /** BE: PaymentStatus (order.model.ts) */
 export type PaymentApiStatus = "unpaid" | "paid" | "refunded" | "failed";
 
+/**
+ * BE: PaymentHistoryEntry (order.model.ts) — dấu vết đổi paymentStatus. Route khách đã lọc
+ * bỏ `note`/`reference`/`actorName`; route public còn không có `changedBy`.
+ */
+export interface IPaymentHistoryEntry {
+  status: PaymentApiStatus;
+  changedAt: string;
+  changedBy?: { actorType: "admin" | "system" | "webhook" };
+}
+
+/** BE: BankTransferAccountResponse (payment.interface.ts) — shape VietQR, FE ghép URL ảnh QR */
+export interface IBankTransferAccount {
+  bankBin: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
 /** BE: ShippingInfo trong MakeOrderDto — LƯU Ý tên field: name (không phải fullName), city (không phải province), specificAddress (không phải address), email BẮT BUỘC */
 export interface IShippingInfoPayload {
   userAddressId?: string;
@@ -132,6 +150,11 @@ export interface IOrderResponse {
    */
   statusHistory?: IStatusHistoryEntry[];
   paymentStatus: PaymentApiStatus;
+  paymentHistory?: IPaymentHistoryEntry[];
+  /** Có khi paymentStatus đã từng là paid */
+  paidAt?: string;
+  /** Chỉ đơn BANK_TRANSFER tạo sau khi có hạn thanh toán; đơn cũ không có → không đếm giờ */
+  paymentDueAt?: string;
   orderNumber?: string;
   customerNote?: string;
   created_at: string;

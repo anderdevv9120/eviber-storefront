@@ -46,6 +46,22 @@ export const formatDateTime = (isoDate: string) => {
   return `${formatDate(isoDate, "DD/MM/YYYY")} · ${hours}:${minutes}`;
 };
 
+/**
+ * "14:32 ngày 22/09" (long) / "10:05, 21/09" (short) — mốc trong vài ngày tới nên bỏ năm;
+ * giờ máy khách (đúng múi giờ khách đang xem)
+ */
+export const formatTimeDayMonth = (
+  isoDate: string,
+  style: "long" | "short" = "short"
+) => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  const dayMonth = `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
+  return style === "long" ? `${time} ngày ${dayMonth}` : `${time}, ${dayMonth}`;
+};
+
 export const formatDeliveryEstimate = (
   orderedAt: string,
   minDays: number,

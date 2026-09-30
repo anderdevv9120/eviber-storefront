@@ -24,6 +24,33 @@ export function CloudOfflineIllustration() {
   );
 }
 
+/** Thẻ tag mang dấu hỏi — mã đơn không khớp đơn nào */
+export function OrderNotFoundIllustration() {
+  return (
+    <div
+      className="flex h-24 w-24 items-center justify-center rounded-full bg-primary-50 md:h-32 md:w-32"
+      aria-hidden
+    >
+      <svg
+        className="h-[46px] w-[46px] text-primary-300 md:h-[60px] md:w-[60px]"
+        viewBox="0 0 64 64"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M10 12h24l20 20-22 22L10 34V12Z" />
+        <circle cx="19" cy="21" r="3" />
+        <path
+          className="text-primary"
+          d="M28 30a5.5 5.5 0 1 1 7.5 5.1c-1.8.8-2.3 2-2.3 3.9M33.2 44v.6"
+        />
+      </svg>
+    </div>
+  );
+}
+
 /** Số 404 viền Pine, số 0 tô đặc — chính con số là nhãn, màn 404 không cần nhãn chữ riêng */
 export function NotFoundIllustration() {
   return (

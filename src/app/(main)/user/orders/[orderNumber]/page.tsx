@@ -6,6 +6,11 @@ import { IOrderResponse } from "@/@types/Order.type";
 import { getMyOrderDetail } from "@/apis/order";
 import { ApiError } from "@/config/axios";
 import Button from "@/components/ui/Button";
+import StatusScreen from "@/components/ui/StatusScreen";
+import {
+  CloudOfflineIllustration,
+  OrderNotFoundIllustration,
+} from "@/components/ui/StatusIllustrations";
 import { ChevronLeft } from "@/components/icons";
 import { PATH } from "@/constants/paths";
 import { getErrorMessage } from "@/utils/getErrorMessage";
@@ -18,13 +23,17 @@ const OrderDetailPage = ({ params }: { params: { orderNumber: string } }) => {
   const { orderNumber } = params;
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+  // notFound: BE trả 404 chung cho "mã sai" lẫn "đơn của tài khoản khác"; failed: mạng/máy chủ
+  const [loadError, setLoadError] = useState<{
+    kind: "notFound" | "failed";
+    message: string;
+  }>();
 
   // silent: nạp lại sau khi hủy đơn — giữ nội dung đang hiện thay vì nháy skeleton
   const fetchOrder = useCallback(
     async (options?: { silent?: boolean; signal?: AbortSignal }) => {
       if (!options?.silent) setIsLoading(true);
-      setLoadError("");
+      setLoadError(undefined);
       try {
         const res = await getMyOrderDetail(orderNumber, options?.signal);
         setOrder(res.data);
@@ -36,12 +45,10 @@ const OrderDetailPage = ({ params }: { params: { orderNumber: string } }) => {
           errorToast(getErrorMessage(error));
           return;
         }
-        // BE cố tình trả 404 chung cho "mã không tồn tại" lẫn "đơn của người khác" và
-        // message gốc là tiếng Anh — nói lại bằng lời khách hiểu, đúng cả hai trường hợp
         setLoadError(
           error instanceof ApiError && error.status === 404
-            ? "Mã đơn không đúng, hoặc đơn này không thuộc tài khoản của bạn."
-            : getErrorMessage(error)
+            ? { kind: "notFound", message: "" }
+            : { kind: "failed", message: getErrorMessage(error) }
         );
       } finally {
         if (!options?.signal?.aborted) setIsLoading(false);
@@ -81,27 +88,63 @@ const OrderDetailPage = ({ params }: { params: { orderNumber: string } }) => {
       )}
 
       {!isLoading && loadError && (
-        <div className="rounded-xl border border-white-300 bg-white p-6">
-          <p className="font-semibold">Không mở được đơn hàng này</p>
-          <p className="mt-1 text-sm text-dark-400">
-            {loadError} — kiểm tra lại mã đơn, hoặc quay về danh sách để chọn
-            đơn khác.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="px-5"
-              onClick={() => fetchOrder()}
-            >
-              Thử lại
-            </Button>
-            <Link href={PATH.ORDER}>
-              <Button size="sm" className="px-5">
-                Về danh sách đơn
-              </Button>
-            </Link>
-          </div>
+        <div
+          data-testid="order-load-error"
+          className="flex flex-col justify-center rounded-xl border border-white-300 bg-white md:min-h-[520px]"
+        >
+          {loadError.kind === "notFound" ? (
+            <StatusScreen
+              className="py-12 md:py-16"
+              illustration={<OrderNotFoundIllustration />}
+              title="Không tìm thấy đơn hàng này"
+              description="Mã đơn có thể gõ nhầm, hoặc đơn thuộc tài khoản khác. Mã đúng nằm trong email xác nhận đặt hàng."
+              actions={
+                <>
+                  <Link href={PATH.ORDER} className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full px-6 sm:w-auto">
+                      Về danh sách đơn
+                    </Button>
+                  </Link>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full px-6 sm:w-auto"
+                    onClick={() => fetchOrder()}
+                  >
+                    Thử lại
+                  </Button>
+                </>
+              }
+            />
+          ) : (
+            // Lỗi mạng/máy chủ: đảo vai — Thử lại là việc khách cần làm, về danh sách là lối phụ
+            <StatusScreen
+              className="py-12 md:py-16"
+              illustration={<CloudOfflineIllustration />}
+              title="Không tải được đơn hàng"
+              description={loadError.message}
+              actions={
+                <>
+                  <Button
+                    size="lg"
+                    className="w-full px-6 sm:w-auto"
+                    onClick={() => fetchOrder()}
+                  >
+                    Thử lại
+                  </Button>
+                  <Link href={PATH.ORDER} className="w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full px-6 sm:w-auto"
+                    >
+                      Về danh sách đơn
+                    </Button>
+                  </Link>
+                </>
+              }
+            />
+          )}
         </div>
       )}
 

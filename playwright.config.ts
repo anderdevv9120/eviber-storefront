@@ -26,6 +26,16 @@ export default defineConfig({
       env: { AUTH_THROTTLE_LIMIT: "100" },
     },
     {
+      // Admin entrypoint cho e2e bank-transfer (admin set paid qua API). Port 8011 vì 8001
+      // trên máy dev đang bị service khác chiếm; spec đọc E2E_ADMIN_API cùng giá trị
+      command: "npm run start:admin:dev",
+      cwd: "../backend",
+      url: "http://localhost:8011/admin-docs",
+      reuseExistingServer: true,
+      timeout: 120_000,
+      env: { ADMIN_PORT: "8011" },
+    },
+    {
       command: "npm run dev",
       url: "http://localhost:3030",
       reuseExistingServer: true,

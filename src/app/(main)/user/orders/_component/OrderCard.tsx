@@ -14,7 +14,7 @@ import OrderStatusPill, {
 import OrderProductLine from "./OrderProductLine";
 import CancelOrderModal from "./CancelOrderModal";
 import { useCancelOrder } from "./useCancelOrder";
-import { useReorder } from "./useReorder";
+import { useReorder } from "@/hooks/useReorder";
 
 /** Số dòng sản phẩm hiện trên card — phần còn lại gộp thành một dòng đếm */
 const VISIBLE_PRODUCTS = 2;
@@ -27,15 +27,23 @@ interface OrderCardProps {
 
 const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
   const { reorder, reorderingId } = useReorder();
-  const { _id, created_at, status, productInfo, checkoutInfo, orderNumber } =
-    order;
+  const {
+    _id,
+    created_at,
+    status,
+    paymentStatus,
+    productInfo,
+    checkoutInfo,
+    orderNumber,
+  } = order;
   const cancel = useCancelOrder(_id, onCancelled);
   const totalQuantity = productInfo.reduce(
     (sum, product) => sum + product.quantity,
     0
   );
   const hiddenCount = productInfo.length - VISIBLE_PRODUCTS;
-  const isPending = status === "pending";
+  // Đơn đã trả tiền khách không tự hủy (BE 400) → không hiện nút
+  const canCancel = status === "pending" && paymentStatus !== "paid";
 
   return (
     <article className="overflow-hidden rounded-xl border border-white-300 bg-white shadow-card">
@@ -79,7 +87,7 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
-          {isPending ? (
+          {canCancel ? (
             <Button
               size="sm"
               variant="secondary"

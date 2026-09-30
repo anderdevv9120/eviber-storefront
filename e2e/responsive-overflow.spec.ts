@@ -20,6 +20,10 @@ const ROUTES = [
   // /payment-success không có mã đơn hợp lệ → đo ở trạng thái "không tìm thấy đơn";
   // trạng thái đủ 6 khối đo trong guest-checkout.spec.ts sau khi đặt đơn thật
   "/payment-success",
+  // Đơn chuyển khoản seed: màn chờ (QR + STK + chip hạn) và màn đã hủy (E2 + CTA đặt lại);
+  // trạng thái "đã nhận" đo trong bank-transfer.spec.ts sau khi admin set paid thật
+  "/payment-success?orderNumber=ORD-SEEDBANKPENDNG23",
+  "/payment-success?orderNumber=ORD-SEEDCANCELLED234",
   "/product/ao-khoac-hoodie-ni",
   "/user/my-account",
   "/user/my-address",
@@ -27,6 +31,8 @@ const ROUTES = [
   // Đơn seed cố định (orders.fixture — ORD_1, status shipped) để trang chi tiết đo được
   // bố cục thật: stepper + 2 khối thông tin + bảng sản phẩm
   "/user/orders/ORD-SEEDSHPPED234567",
+  // Mã không tồn tại → màn không tìm thấy đơn
+  "/user/orders/ORD-KHONGTONTAJ2345",
 ];
 
 // Phiên thật, đăng nhập MỘT lần cho cả file: cụm /user render nội dung thật (đơn hàng,
