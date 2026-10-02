@@ -21,9 +21,10 @@ const GUEST_EMAIL = "guest-bank@demo.local";
 
 async function loginToken(
   request: APIRequestContext,
-  credentials: { email: string; password: string }
+  credentials: { email: string; password: string },
+  baseUrl = STOREFRONT
 ) {
-  const res = await request.post(`${STOREFRONT}/auth/login`, {
+  const res = await request.post(`${baseUrl}/auth/login`, {
     data: credentials,
   });
   const token = (await res.json())?.data?.accessToken;
@@ -32,8 +33,9 @@ async function loginToken(
   return token as string;
 }
 
+// Admin API chỉ nhận token ký bởi chính cổng admin (secret riêng) — token storefront bị 401
 const adminToken = (request: APIRequestContext) =>
-  loginToken(request, SEED_ADMIN);
+  loginToken(request, SEED_ADMIN, ADMIN);
 
 async function lookupOrder(request: APIRequestContext, orderNumber: string) {
   const res = await request.get(`${STOREFRONT}/orders/lookup/${orderNumber}`);
