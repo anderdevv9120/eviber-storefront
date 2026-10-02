@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, memo, MouseEvent } from "react";
+import { memo } from "react";
 import { cn } from "@/config/utils";
-import { HeartOutline, Plus, Star } from "@/components/icons";
+import { Plus, Star } from "@/components/icons";
 import ItemPrice from "@/components/ui/ItemPrice";
 import { IProductListItem } from "@/@types/Product.type";
 import { PATH } from "@/constants/paths";
@@ -26,18 +26,9 @@ const CardItem = ({
   currentPriceClass,
   priceClass,
 }: CardItemProps) => {
-  const [favorite, setFavorite] = useState(false);
-
   // price undefined = product chưa có variant ACTIVE nào (BE attachPreviewVariants)
   const isOutOfStock = productItem.price == null;
   const discountPercentage = productItem.discountPercentage ?? 0;
-
-  const toggleFavorite = (e: MouseEvent<HTMLButtonElement>) => {
-    // Nút nằm trong <Link> nên phải chặn điều hướng khi bấm
-    e.preventDefault();
-    e.stopPropagation();
-    setFavorite(!favorite);
-  };
 
   return (
     <Link
@@ -55,7 +46,7 @@ const CardItem = ({
             className="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover/card:scale-105"
           />
         )}
-        <div className="absolute inset-x-2.5 top-2.5 flex items-center pointer-events-none">
+        <div className="absolute inset-x-2.5 top-2.5 flex items-center gap-2 pointer-events-none">
           {discountPercentage > 0 && (
             <div className="px-2 py-0.5 text-xs font-semibold text-white bg-terracotta rounded-md">
               -{discountPercentage}%
@@ -66,21 +57,6 @@ const CardItem = ({
               Hết hàng
             </div>
           )}
-
-          <button
-            type="button"
-            className="relative ml-auto pointer-events-auto flex items-center justify-center w-9 h-9 bg-white rounded-full shadow-md cursor-pointer transition-colors hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 after:absolute after:-inset-1.5 after:content-['']"
-            aria-label="Yêu thích sản phẩm"
-            aria-pressed={favorite}
-            onClick={toggleFavorite}
-          >
-            <HeartOutline
-              className={cn(
-                "w-[18px] h-[18px]",
-                favorite ? "text-red" : "text-dark-500"
-              )}
-            />
-          </button>
         </div>
       </div>
 

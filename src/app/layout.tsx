@@ -4,6 +4,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.scss";
 import { ReactNode } from "react";
+import { PATH } from "@/constants/paths";
+import { SEARCH_PARAM } from "@/constants/search";
 
 // Subset "vietnamese" bắt buộc — thiếu là dấu tiếng Việt render font fallback
 const manrope = Manrope({
@@ -16,7 +18,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3030";
 
 // JSON-LD Organization + WebSite (SEO GĐ2) — chỉ field có giá trị thật;
 // sameAs (social) chủ đích bỏ trống vì link social còn placeholder;
-// SearchAction chủ đích bỏ vì chức năng search chưa tồn tại (khai báo láo phản tác dụng)
+// SearchAction trỏ đúng URL kết quả search của Header (phase 5)
 const siteJsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -30,6 +32,14 @@ const siteJsonLd = {
       "@type": "WebSite",
       name: "CLOTHES",
       url: SITE_URL,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE_URL}${PATH.COLLECTION}?${SEARCH_PARAM}={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
     },
   ],
 };

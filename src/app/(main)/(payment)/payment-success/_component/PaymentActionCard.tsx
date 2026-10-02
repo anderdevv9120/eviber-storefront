@@ -1,67 +1,53 @@
-import { cn } from "@/config/utils";
 import { formatPrice } from "@/utils/formatPrice";
-import {
-  BANK_TRANSFER_ACCOUNT,
-  PAYMENT_METHOD_LABEL,
-  PaymentMethod,
-} from "@/constants/payment";
+import { PAYMENT_METHOD_LABEL, PaymentMethod } from "@/constants/payment";
+import { BankTransferState } from "@/utils/bankTransfer";
+import BankTransferPanel from "@/components/ui/BankTransferPanel";
 
 interface PaymentActionCardProps {
   method?: string;
   totalPrice: number;
   orderNumber: string;
+  bankState: BankTransferState | null;
+  now: Date;
+  paymentDueAt?: string;
+  paidAt?: string;
+  paymentStatus?: string;
 }
 
 /**
- * Nhóm "Thanh toán" bên trong thẻ thông tin đơn. Chuyển khoản là việc khách còn phải
- * làm nên mở đủ thông tin + slot QR, và nhận nền Pine tràn mép thẻ để khối cao đó có
- * chỗ neo giữa các nhóm hairline; COD chỉ cần một dòng nên để trần như nhóm thường.
+ * Nhóm "Thanh toán" bên trong thẻ thông tin đơn. Chuyển khoản đang chờ là việc khách còn phải
+ * làm nên nhận nền Pine tràn mép thẻ để khối cao đó có chỗ neo giữa các nhóm hairline;
+ * đã trả / hết hạn / COD chỉ cần một dòng nên để trần như nhóm thường.
  */
 export default function PaymentActionCard({
   method,
   totalPrice,
   orderNumber,
+  bankState,
+  now,
+  paymentDueAt,
+  paidAt,
+  paymentStatus,
 }: PaymentActionCardProps) {
-  if (method === "BANK_TRANSFER") {
+  if (bankState) {
+    const isAwaiting = bankState === "awaiting";
     return (
       <section
-        data-testid="bank-transfer-guide"
-        className="-mx-6 border-b border-white-500 bg-primary-50 px-6 py-5"
+        className={
+          isAwaiting
+            ? "-mx-6 border-b border-white-500 bg-primary-50 px-6 py-5"
+            : "border-b border-white-500 py-5"
+        }
       >
-        <p className="text-xs font-bold uppercase tracking-widest text-primary-700">
-          Thanh toán
-        </p>
-        <p className="mt-1 font-bold text-primary-800">
-          Chuyển khoản để hoàn tất
-        </p>
-        <p className="mb-4 mt-1 text-sm text-dark-500">
-          Đơn được xác nhận ngay khi tiền về tài khoản. Giữ đúng nội dung chuyển
-          khoản để đối soát tự động.
-        </p>
-
-        <div className="flex flex-wrap items-start gap-4">
-          <dl className="flex min-w-[240px] flex-1 flex-col gap-2.5 text-sm">
-            <BankRow label="Ngân hàng" value={BANK_TRANSFER_ACCOUNT.bankName} />
-            <BankRow
-              label="Số tài khoản"
-              value={BANK_TRANSFER_ACCOUNT.accountNumber}
-              isTabular
-            />
-            <BankRow
-              label="Chủ tài khoản"
-              value={BANK_TRANSFER_ACCOUNT.accountName}
-            />
-            <BankRow label="Số tiền" value={formatPrice(totalPrice)} />
-            <BankRow label="Nội dung" value={orderNumber} isTabular />
-          </dl>
-
-          <div
-            data-testid="qr-slot"
-            className="grid h-[132px] w-[132px] shrink-0 place-items-center rounded-lg border border-dashed border-primary-200 bg-white p-2.5 text-center text-xs leading-snug text-dark-400"
-          >
-            Mã QR chuyển khoản sẽ hiển thị ở đây
-          </div>
-        </div>
+        <BankTransferPanel
+          state={bankState}
+          orderNumber={orderNumber}
+          totalPrice={totalPrice}
+          now={now}
+          paymentDueAt={paymentDueAt}
+          paidAt={paidAt}
+          paymentStatus={paymentStatus}
+        />
       </section>
     );
   }
@@ -92,29 +78,5 @@ export default function PaymentActionCard({
         </p>
       )}
     </section>
-  );
-}
-
-function BankRow({
-  label,
-  value,
-  isTabular,
-}: {
-  label: string;
-  value: string;
-  isTabular?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <dt className="text-dark-500">{label}</dt>
-      <dd
-        className={cn(
-          "m-0 text-right font-bold",
-          isTabular && "tabular-nums tracking-wide"
-        )}
-      >
-        {value}
-      </dd>
-    </div>
   );
 }

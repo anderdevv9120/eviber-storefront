@@ -24,6 +24,22 @@ export const getProducts = (
   return axiosRequest.get("/products", { params, signal });
 };
 
+/**
+ * Gợi ý typeahead ở Header — cùng GET /products (BE regex theo name + description,
+ * không có endpoint gợi ý riêng), pageSize nhỏ. Lỗi KHÔNG toast: panel tự hiện trạng thái lỗi.
+ */
+export const suggestProducts = (
+  term: string,
+  limit: number,
+  signal?: AbortSignal
+) => {
+  return axiosRequest.get("/products", {
+    params: { search: term, pageSize: limit },
+    signal,
+    toastError: false,
+  });
+};
+
 export const getDetailProduct = (id: string) => {
   return axiosRequest.get(`/products/${id}`);
 };

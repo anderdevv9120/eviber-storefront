@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, RightArrow } from "@/components/icons";
+import { Check, Clock, RightArrow } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
 import { getOrderByNumber } from "@/apis/order";
@@ -11,12 +11,19 @@ import { useAppStore } from "@/store/useAppStore";
 import { useCartStore } from "@/store/useCartStore";
 import { removeLocalStorage } from "@/utils/localStorage";
 import { formatAddress } from "@/utils/formatAddress";
-import { formatDeliveryEstimate } from "@/utils/formatTime";
+import { formatDeliveryEstimate, formatTimeDayMonth } from "@/utils/formatTime";
+import { getBankTransferState } from "@/utils/bankTransfer";
+import { useReorder } from "@/hooks/useReorder";
+import { useNow } from "@/hooks/useNow";
 import { PATH } from "@/constants/paths";
-import { DELIVERY_ESTIMATE_DAYS } from "@/constants/payment";
+import {
+  BANK_TRANSFER_POLLING,
+  DELIVERY_ESTIMATE_DAYS,
+} from "@/constants/payment";
 import { statusStyles } from "@/constants/orderStatus";
 import { IOrderResponse } from "@/@types/Order.type";
-import CopyButton from "./CopyButton";
+import { cn } from "@/config/utils";
+import CopyButton from "@/components/ui/CopyButton";
 import OrderSummaryPanel from "./OrderSummaryPanel";
 import PaymentActionCard from "./PaymentActionCard";
 
@@ -29,6 +36,10 @@ const PaymentSuccessContent = () => {
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorKind, setErrorKind] = useState<"notFound" | "throttled">();
+  // Tick mỗi phút để đơn chuyển khoản tự sang "hết hạn" đúng giờ dù job BE chưa quét
+  const now = useNow();
+  const { reorder, reorderingId } = useReorder();
+  const bankState = order ? getBankTransferState(order, now) : null;
 
   // Đích của checkout: BE đã dọn cart trong transaction tạo đơn → badge Header về 0;
   // countdown reset ở đây (mount sau khi timer unmount) để không đua với tick 1s ở checkout
@@ -62,6 +73,26 @@ const PaymentSuccessContent = () => {
     fetchOrder();
   }, [orderNumber]);
 
+  // Polling nhẹ khi đang chờ chuyển khoản: admin duyệt → trang tự đổi sang "Đã nhận thanh toán".
+  // Dừng khi hết cửa sổ hoặc state đổi; lỗi (throttle/mạng) bỏ qua, lần sau thử lại.
+  useEffect(() => {
+    if (bankState !== "awaiting" || !orderNumber) return;
+    const startedAt = Date.now();
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt >= BANK_TRANSFER_POLLING.durationMs) {
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const res = await getOrderByNumber(orderNumber);
+        if (res?.data) setOrder(res.data);
+      } catch {
+        // im lặng — đây là làm mới nền, không phải thao tác của khách
+      }
+    }, BANK_TRANSFER_POLLING.intervalMs);
+    return () => clearInterval(timer);
+  }, [bankState, orderNumber]);
+
   if (isLoading) return <PaymentSuccessSkeleton />;
 
   if (errorKind || !order) {
@@ -91,9 +122,13 @@ const PaymentSuccessContent = () => {
 
   const { shippingInfo, checkoutInfo, paymentInfo, productInfo } = order;
   const statusLabel =
-    order.status && order.status in statusStyles
-      ? statusStyles[order.status as keyof typeof statusStyles].label
-      : statusStyles.pending.label;
+    bankState === "awaiting"
+      ? "Chờ thanh toán"
+      : order.status && order.status in statusStyles
+        ? statusStyles[order.status as keyof typeof statusStyles].label
+        : statusStyles.pending.label;
+  const isClosed = bankState === "expired" || bankState === "cancelled";
+  const hero = getHero(bankState, order, shippingInfo.email);
   const deliveryEstimate = formatDeliveryEstimate(
     order.created_at,
     DELIVERY_ESTIMATE_DAYS.min,
@@ -104,19 +139,28 @@ const PaymentSuccessContent = () => {
     <div className="flex flex-col items-start gap-8 lg:flex-row lg:gap-10">
       <div className="w-full lg:flex-1">
         <div className="mb-5 flex items-center gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary text-white">
-            <Check className="h-5 w-5" />
+          <span
+            className={cn(
+              "grid h-12 w-12 shrink-0 place-items-center rounded-full",
+              hero.tone === "pending" && "bg-primary-100 text-primary-700",
+              hero.tone === "done" && "bg-primary text-white",
+              hero.tone === "closed" && "bg-white-300 text-dark-500"
+            )}
+          >
+            {hero.tone === "pending" ? (
+              <Clock className="h-5 w-5" />
+            ) : (
+              <Check className="h-5 w-5" />
+            )}
           </span>
           <div>
-            <h1 className="text-xl font-extrabold md:text-2xl">
-              Đã nhận đơn của bạn
+            <h1
+              className="text-xl font-extrabold md:text-2xl"
+              data-testid="success-hero-title"
+            >
+              {hero.title}
             </h1>
-            <p className="mt-1 text-sm text-dark-500">
-              Xác nhận đơn đã gửi tới{" "}
-              <b className="font-semibold text-dark-800">
-                {shippingInfo.email}
-              </b>
-            </p>
+            <p className="mt-1 text-sm text-dark-500">{hero.subtitle}</p>
           </div>
         </div>
 
@@ -145,6 +189,11 @@ const PaymentSuccessContent = () => {
             method={paymentInfo?.method}
             totalPrice={checkoutInfo.totalPrice}
             orderNumber={order.orderNumber ?? ""}
+            bankState={bankState}
+            now={now}
+            paymentDueAt={order.paymentDueAt}
+            paidAt={order.paidAt}
+            paymentStatus={order.paymentStatus}
           />
 
           <section
@@ -172,12 +221,23 @@ const PaymentSuccessContent = () => {
               <p className="text-xs font-bold uppercase tracking-widest text-dark-400">
                 Trạng thái
               </p>
-              <p className="mt-1 inline-flex items-center gap-2 font-semibold text-primary-800">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <p
+                className={cn(
+                  "mt-1 inline-flex items-center gap-2 font-semibold",
+                  isClosed ? "text-terracotta" : "text-primary-800"
+                )}
+              >
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    isClosed ? "bg-terracotta" : "bg-primary"
+                  )}
+                />
                 {statusLabel}
+                {bankState === "expired" && " · quá hạn"}
               </p>
             </div>
-            {deliveryEstimate && (
+            {deliveryEstimate && !isClosed && (
               <div className="text-right">
                 <p className="text-xs font-bold uppercase tracking-widest text-dark-400">
                   Dự kiến giao
@@ -215,17 +275,103 @@ const PaymentSuccessContent = () => {
           )
         }
       >
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={() => router.push(PATH.HOME)}
-        >
-          Tiếp tục mua sắm
-        </Button>
+        {isClosed ? (
+          <>
+            <Button
+              size="lg"
+              className="w-full"
+              loading={reorderingId === order._id}
+              onClick={() => reorder(order._id, productInfo)}
+              data-testid="reorder-products"
+            >
+              Đặt lại các sản phẩm này
+            </Button>
+            <button
+              type="button"
+              onClick={() => router.push(PATH.HOME)}
+              className="mt-3 w-full rounded text-center text-sm font-semibold text-dark-500 transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+            >
+              Tiếp tục mua sắm
+            </button>
+          </>
+        ) : (
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={() => router.push(PATH.HOME)}
+          >
+            Tiếp tục mua sắm
+          </Button>
+        )}
       </OrderSummaryPanel>
     </div>
   );
 };
+
+/**
+ * Hero là câu trả lời cho "tôi có cần làm gì nữa không": chờ chuyển khoản → nói việc phải làm
+ * + hạn; đã nhận → xong việc; hết hạn → nói vì sao hủy, không đổ lỗi cho khách (E2: hero trung tính).
+ */
+function getHero(
+  bankState: ReturnType<typeof getBankTransferState>,
+  order: IOrderResponse,
+  email: string
+): { tone: "pending" | "done" | "closed"; title: string; subtitle: string } {
+  const due = order.paymentDueAt
+    ? formatTimeDayMonth(order.paymentDueAt, "long")
+    : "";
+  switch (bankState) {
+    case "awaiting":
+      return {
+        tone: "pending",
+        title: "Chuyển khoản để hoàn tất đơn",
+        subtitle: due
+          ? `Đơn giữ chỗ tới ${due}, quá hạn sẽ tự hủy. Hướng dẫn cũng đã gửi tới ${email}`
+          : `Hướng dẫn chuyển khoản đã gửi tới ${email}`,
+      };
+    case "paid":
+      return {
+        tone: "done",
+        title: "Đã nhận thanh toán",
+        subtitle: `Shop đang chuẩn bị hàng. Xác nhận đã gửi tới ${email}`,
+      };
+    case "expired":
+      return {
+        tone: "closed",
+        title: "Đơn này đã hết hạn thanh toán",
+        subtitle: closedSubtitle(
+          order.paymentStatus,
+          due
+            ? `Không nhận được chuyển khoản trước ${due} nên đơn tự hủy và hàng trả về kho.`
+            : "Không nhận được chuyển khoản đúng hạn nên đơn tự hủy và hàng trả về kho."
+        ),
+      };
+    case "cancelled":
+      return {
+        tone: "closed",
+        title: "Đơn này đã hủy",
+        subtitle: closedSubtitle(
+          order.paymentStatus,
+          "Đơn hủy trước khi thanh toán, hàng đã trả về kho."
+        ),
+      };
+    default:
+      return {
+        tone: "done",
+        title: "Đã nhận đơn của bạn",
+        subtitle: `Xác nhận đơn đã gửi tới ${email}`,
+      };
+  }
+}
+
+// Đơn đã đóng nhưng tiền đã về (muộn) / đã hoàn: hero không được nói "chưa nhận"
+function closedSubtitle(paymentStatus: string, unpaidText: string) {
+  if (paymentStatus === "paid")
+    return "Đơn đã hủy nhưng shop đã nhận tiền, sẽ liên hệ để hoàn lại.";
+  if (paymentStatus === "refunded")
+    return "Đơn đã hủy, tiền đã được hoàn lại cho bạn.";
+  return unpaidText;
+}
 
 function PaymentSuccessSkeleton() {
   return (

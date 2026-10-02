@@ -62,7 +62,7 @@ const DESCRIPTION = "Khám phá và tìm sản phẩm phù hợp với phong cá
 
 // Canonical trỏ URL sạch — mỗi tổ hợp filter/sort/page là 1 biến thể trùng nội dung,
 // không để index; title/description không sinh theo filter
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: PATH.COLLECTION },
@@ -78,3 +78,21 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
   },
 };
+
+// Có từ khóa: title phản ánh từ khóa cho tab/history, nhưng noindex — trang kết quả
+// search là vô hạn biến thể, canonical vẫn về /collection
+export function generateMetadata({
+  searchParams,
+}: CollectionPageProps): Metadata {
+  const { search } = parseCollectionQuery(searchParams);
+  if (!search) return BASE_METADATA;
+
+  const title = `Kết quả cho “${search}”`;
+  return {
+    ...BASE_METADATA,
+    title,
+    robots: { index: false, follow: true },
+    openGraph: { ...BASE_METADATA.openGraph, title },
+    twitter: { ...BASE_METADATA.twitter, title },
+  };
+}

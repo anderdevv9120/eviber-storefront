@@ -3,10 +3,16 @@
 import { IOrderResponse } from "@/@types/Order.type";
 import Button from "@/components/ui/Button";
 import { cn } from "@/config/utils";
-import { PAYMENT_METHOD_LABEL, PaymentMethod } from "@/constants/payment";
+import {
+  PAYMENT_METHOD_LABEL,
+  PAYMENT_STATUS_LABEL,
+  PaymentMethod,
+} from "@/constants/payment";
+import BankTransferPanel from "@/components/ui/BankTransferPanel";
 import { formatAddress } from "@/utils/formatAddress";
 import { formatPrice } from "@/utils/formatPrice";
-import { formatDate } from "@/utils/formatTime";
+import { formatDate, formatDateTime } from "@/utils/formatTime";
+import { getBankTransferState } from "@/utils/bankTransfer";
 import OrderStatusPill, {
   isKnownStatus,
   STATUS_HEADER,
@@ -15,14 +21,8 @@ import OrderProductLine from "./OrderProductLine";
 import OrderTimeline from "./OrderTimeline";
 import CancelOrderModal from "./CancelOrderModal";
 import { useCancelOrder } from "./useCancelOrder";
-import { useReorder } from "./useReorder";
-
-const PAYMENT_STATUS_LABEL: Record<string, string> = {
-  unpaid: "Chưa thanh toán",
-  paid: "Đã thanh toán",
-  refunded: "Đã hoàn tiền",
-  failed: "Thanh toán thất bại",
-};
+import { useReorder } from "@/hooks/useReorder";
+import { useNow } from "@/hooks/useNow";
 
 const SECTION = "border-t border-white-300 p-4 sm:p-5";
 const SECTION_TITLE =
@@ -47,9 +47,16 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
     shippingInfo,
     paymentInfo,
     paymentStatus,
+    paidAt,
   } = order;
 
   const cancel = useCancelOrder(_id, onRefresh);
+  // Qua mốc hạn lúc trang đang mở: khối chuyển khoản tự thu về "hết hạn", không mời chuyển tiếp
+  const now = useNow();
+  const bankState = getBankTransferState(order, now);
+  const isAwaitingTransfer = bankState === "awaiting";
+  // Đơn đã trả tiền: khách không tự hủy (BE 400 + hướng liên hệ) → ẩn nút, không để bấm rồi lỗi
+  const canCancel = status === "pending" && paymentStatus !== "paid";
   const totalQuantity = productInfo.reduce(
     (sum, product) => sum + product.quantity,
     0
@@ -73,7 +80,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         </div>
 
         <div className="flex flex-none gap-2">
-          {status === "pending" ? (
+          {canCancel ? (
             <Button
               size="sm"
               variant="secondary"
@@ -82,7 +89,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
             >
               Hủy đơn
             </Button>
-          ) : (
+          ) : status === "pending" ? null : (
             <Button
               size="sm"
               variant="outline"
@@ -129,13 +136,28 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         </section>
 
         <section className="rounded-xl border border-white-300 bg-white p-4 sm:p-5">
-          <h2 className={SECTION_TITLE}>Thanh toán</h2>
-          <p className="font-semibold">{paymentLabel}</p>
-          <p className="mt-0.5 text-sm text-dark-500">
-            {PAYMENT_STATUS_LABEL[paymentStatus] ?? paymentStatus}
-          </p>
+          {isAwaitingTransfer ? (
+            <h2 className={SECTION_TITLE}>Tổng tiền</h2>
+          ) : (
+            <>
+              <h2 className={SECTION_TITLE}>Thanh toán</h2>
+              <p className="font-semibold">{paymentLabel}</p>
+              <p className="mt-0.5 text-sm text-dark-500">
+                {PAYMENT_STATUS_LABEL[paymentStatus] ?? paymentStatus}
+                {paymentStatus === "paid" &&
+                  paidAt &&
+                  ` · ${formatDateTime(paidAt)}`}
+                {bankState === "expired" && " · hết hạn chuyển khoản"}
+              </p>
+            </>
+          )}
 
-          <dl className="mt-4 border-t border-white-300 pt-4 text-sm">
+          <dl
+            className={cn(
+              "text-sm",
+              !isAwaitingTransfer && "mt-4 border-t border-white-300 pt-4"
+            )}
+          >
             <div className="flex justify-between text-dark-500">
               <dt>Tạm tính</dt>
               <dd>{formatPrice(checkoutInfo.subtotal)}</dd>
@@ -161,6 +183,22 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
           </dl>
         </section>
       </div>
+
+      {isAwaitingTransfer && orderNumber && (
+        <section
+          data-testid="order-bank-transfer"
+          className="mb-4 rounded-xl border border-primary-200 bg-primary-50 p-4 sm:p-5"
+        >
+          <BankTransferPanel
+            state="awaiting"
+            orderNumber={orderNumber}
+            totalPrice={checkoutInfo.totalPrice}
+            now={now}
+            paymentDueAt={order.paymentDueAt}
+            eyebrow={`Thanh toán · ${paymentLabel}`}
+          />
+        </section>
+      )}
 
       <section className="overflow-hidden rounded-xl border border-white-300 bg-white">
         <header className="flex items-center justify-between border-b border-white-300 bg-white-50 px-4 py-3 sm:px-5">

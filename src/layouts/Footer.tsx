@@ -104,7 +104,7 @@ const Footer = () => {
             <Input
               type="text"
               placeholder="Email của bạn"
-              className="flex-1 min-w-0 border-none h-10 bg-white rounded-full px-4"
+              className="flex-1 min-w-0 border-none h-10 bg-white rounded-full px-4 text-base"
             />
             <Button className="h-10 rounded-full px-5 text-sm shrink-0">
               Đăng ký

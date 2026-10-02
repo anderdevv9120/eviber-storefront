@@ -6,10 +6,13 @@ import { PATH } from "@/constants/paths";
 
 interface EmptyCollectionProps {
   onClearFilters: () => void;
+  /** Có từ khóa → copy nêu đích danh từ khóa, không đổ lỗi cho bộ lọc */
+  searchTerm?: string;
 }
 
 export default function EmptyCollection({
   onClearFilters,
+  searchTerm,
 }: EmptyCollectionProps) {
   return (
     <div className="flex flex-col items-center text-center py-14">
@@ -32,22 +35,27 @@ export default function EmptyCollection({
       </div>
 
       <p className="text-lg font-semibold mb-1.5">
-        Không có sản phẩm khớp bộ lọc
+        {searchTerm
+          ? `Không tìm thấy sản phẩm nào cho “${searchTerm}”`
+          : "Không có sản phẩm khớp bộ lọc"}
       </p>
       <p className="text-sm text-dark-400 mb-6 max-w-xs">
-        Thử nới điều kiện lọc hoặc xóa bộ lọc để xem tất cả sản phẩm.
+        {searchTerm
+          ? "Thử từ khóa ngắn hơn, hoặc xóa bộ lọc để xem tất cả sản phẩm."
+          : "Thử nới điều kiện lọc hoặc xóa bộ lọc để xem tất cả sản phẩm."}
       </p>
 
-      <Button className="px-6" onClick={onClearFilters}>
-        Xóa bộ lọc
-      </Button>
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        <Button className="px-6" onClick={onClearFilters}>
+          Xóa bộ lọc
+        </Button>
 
-      <Link
-        href={PATH.HOME}
-        className="mt-4 text-sm text-dark-400 underline hover:text-dark-600 transition-colors"
-      >
-        Về trang chủ
-      </Link>
+        <Link href={PATH.HOME}>
+          <Button variant="outline" className="px-6">
+            Về trang chủ
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
