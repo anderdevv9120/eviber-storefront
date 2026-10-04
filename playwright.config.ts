@@ -11,6 +11,8 @@ export default defineConfig({
   reporter: [["list"]],
   use: {
     baseURL: "http://localhost:3030",
+    // Optional installed browser for local runs; default remains Playwright Chromium.
+    channel: process.env.E2E_BROWSER_CHANNEL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
