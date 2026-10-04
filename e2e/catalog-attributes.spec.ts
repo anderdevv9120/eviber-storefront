@@ -5,7 +5,6 @@ import {
   selectHoodieVariantAndAddToCart,
   goToCheckoutFromCart,
   fillShippingForm,
-  submitOrderAndExpectSuccess,
   expectNoHorizontalOverflow,
 } from "./helpers/shop";
 
@@ -170,12 +169,22 @@ async function purchase(page: Page, request: APIRequestContext, token: string) {
   await fillShippingForm(page, "catalog-e2e@demo.local");
   await page.setViewportSize({ width: 375, height: 812 });
   await expectNoHorizontalOverflow(page);
-  await page.setViewportSize({ width: 1280, height: 900 });
   const response = page.waitForResponse(
     (res) =>
       res.url() === `${STOREFRONT}/orders` && res.request().method() === "POST"
   );
-  await submitOrderAndExpectSuccess(page, "Nguyễn Văn E2E");
+  await page
+    .getByTestId("checkout-sticky-bar")
+    .getByRole("button", { name: "Đặt hàng", exact: true })
+    .click();
+  await page.waitForURL(/\/payment-success/);
+  await expect(
+    page.getByRole("heading", { name: "Đã nhận đơn của bạn" })
+  ).toBeVisible();
+  await expect(page.getByTestId("success-shipping")).toContainText(
+    "Nguyễn Văn E2E"
+  );
+  await expectNoHorizontalOverflow(page);
   const created = await response;
   expect(created.status()).toBe(201);
   const order = (await created.json()).data;
