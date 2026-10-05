@@ -104,9 +104,10 @@ const stripHtml = (html: string) =>
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const product = await fetchProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await fetchProductBySlug(slug);
   if (!product) return { title: "Không tìm thấy sản phẩm" };
 
   const title = product.seo?.metaTitle ?? product.name;
@@ -131,15 +132,16 @@ export async function generateMetadata({
 export default async function Product({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const productDetail = await fetchProductBySlug(params.slug);
+  const { slug } = await params;
+  const productDetail = await fetchProductBySlug(slug);
   if (!productDetail) {
     // Link từ lịch sử đơn hàng chỉ có productId (order snapshot không lưu slug)
     // → resolve theo id rồi đưa về URL slug canonical; segment khác (kể cả
     // dạng slug-id cũ) rơi thẳng xuống 404
-    if (OBJECT_ID_REGEX.test(params.slug)) {
-      const byId = await getDetailProduct(params.slug)
+    if (OBJECT_ID_REGEX.test(slug)) {
+      const byId = await getDetailProduct(slug)
         .then((res) => (res?.data ?? null) as IProductDetailResponse | null)
         .catch(rethrowUnlessNotFound);
       if (byId) redirect(`${PATH.PRODUCT}/${byId.slug}`);
@@ -236,7 +238,7 @@ export default async function Product({
       {productDetail.description && (
         <div className="mt-12 md:mt-16">
           <ProductDescription
-            key={params.slug}
+            key={slug}
             descriptionHtml={productDetail.description}
           />
         </div>

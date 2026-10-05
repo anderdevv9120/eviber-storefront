@@ -48,13 +48,6 @@ export default function CartView() {
     removeLocalStorage(getCountdownStorageKey(PATH.CART));
   }, []);
 
-  useEffect(() => {
-    if (debouncedQuantity.variantId) {
-      handleChangeQuantity(debouncedQuantity);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuantity]);
-
   // Bắn PUT ngay nếu có gì cần gửi, trả null nếu không: item đã bị xóa, hoặc
   // quantity đã về đúng số server (bấm + rồi − quay lại số cũ — không guard là
   // PUT bắn giá trị trung gian)
@@ -81,6 +74,13 @@ export default function CartView() {
       setCounterResetKey((k) => k + 1);
     }
   };
+
+  useEffect(() => {
+    if (debouncedQuantity.variantId) {
+      handleChangeQuantity(debouncedQuantity);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuantity]);
 
   // Slot pending là MỘT cho cả list — chuyển sang chỉnh item khác phải flush
   // update của item trước ngay, không thì nó bị ghi đè mất (server giữ số cũ)

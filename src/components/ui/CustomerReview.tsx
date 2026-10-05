@@ -49,9 +49,9 @@ const CustomerReview = ({ reviews }: CustomerReviewProps) => {
   const calculateIndex = Math.max(0, Math.ceil(reviews.length - visibleItems));
 
   // Clamp khi đổi breakpoint/resize — index cũ vượt max là track translate quá đà
-  useEffect(() => {
-    setCurrentIndex((prev) => Math.min(prev, calculateIndex));
-  }, [calculateIndex]);
+  if (currentIndex > calculateIndex) {
+    setCurrentIndex(calculateIndex);
+  }
 
   const handlePrev = () => {
     setCurrentIndex((prevIndex) =>

@@ -5,7 +5,7 @@ import FadeWrapper from "@/components/ui/FadeWrapper";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useIsPc } from "@/hooks/useMediaQuery";
 import Link from "next/link";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 
 interface HeaderNavProps {
   menus: { name: string; link: string; icon?: ReactNode }[];
@@ -17,11 +17,9 @@ const HeaderNav = ({ menus }: HeaderNavProps) => {
   const headerMenuRef = useRef<HTMLDivElement>(null);
   useClickOutside(headerMenuRef, () => setIsOpenNavMenu(false));
 
-  useEffect(() => {
-    if (isPc) {
-      setIsOpenNavMenu(false);
-    }
-  }, [isPc]);
+  if (isPc && isOpenNavMenu) {
+    setIsOpenNavMenu(false);
+  }
 
   return (
     <div ref={headerMenuRef}>

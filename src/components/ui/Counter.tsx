@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/config/utils";
 import InputNumber from "@/components/ui/InputNumber";
 import { Plus, Minus } from "@/components/icons";
@@ -38,9 +38,10 @@ const Counter = ({
   );
 
   // Clamp lại khi min/max thay đổi để count không vượt khoảng
-  useEffect(() => {
-    setCount((prev) => Math.min(Math.max(prev, min), max));
-  }, [min, max]);
+  const clampedCount = Math.min(Math.max(count, min), max);
+  if (!Object.is(count, clampedCount)) {
+    setCount(clampedCount);
+  }
 
   const handleIncrement = () => {
     if (disabled || count >= max) return;

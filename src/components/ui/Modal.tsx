@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useEffect, KeyboardEvent } from "react";
+import { ReactNode, useRef, useEffect, useId, KeyboardEvent } from "react";
 import Button from "@/components/ui/Button";
 import Portal from "@/components/ui/Portal";
 import { cn } from "@/config/utils";
@@ -43,9 +43,7 @@ const Modal = ({
   ariaDescribedBy,
 }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  const modalId = useRef(
-    `modal-${Math.random().toString(36).substring(7)}`
-  ).current;
+  const modalId = useId();
 
   const handleCancel = () => {
     if (!isOpen || !closable) return;

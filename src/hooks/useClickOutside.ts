@@ -4,7 +4,7 @@ import { RefObject, useEffect } from "react";
  * Hook to handle click outside of the provided refs
  */
 const useClickOutside = (
-  ref: RefObject<HTMLElement>,
+  ref: RefObject<HTMLElement | null>,
   handler: () => void
 ): void => {
   useEffect(() => {
