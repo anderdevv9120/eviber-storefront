@@ -26,20 +26,6 @@ const Carousel = ({
   const widthSubtract = isTablet ? "14px" : "22px";
   const imagesLength = images.length;
 
-  useEffect(() => {
-    // Không autoplay khi hiển thị thumbnail dưới hoặc không đủ ảnh
-    if (isShowImageBottom || imagesLength <= 1) return;
-
-    const interval = setInterval(() => {
-      handleNext();
-    }, timeAnimation);
-
-    return () => {
-      clearInterval(interval);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isShowImageBottom, timeAnimation, imagesLength]);
-
   const handlePrev = () => {
     if (imagesLength === 0) return;
     setCurrentIndex((prevIndex) =>
@@ -53,6 +39,20 @@ const Carousel = ({
       prevIndex === imagesLength - 1 ? 0 : prevIndex + 1
     );
   };
+
+  useEffect(() => {
+    // Không autoplay khi hiển thị thumbnail dưới hoặc không đủ ảnh
+    if (isShowImageBottom || imagesLength <= 1) return;
+
+    const interval = setInterval(() => {
+      handleNext();
+    }, timeAnimation);
+
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isShowImageBottom, timeAnimation, imagesLength]);
 
   const handleSwipe = useCustomSwipeable({
     onSwipedLeft: handleNext,

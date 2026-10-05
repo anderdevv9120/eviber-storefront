@@ -32,8 +32,9 @@ async function revokeSession(pair: TokenPair): Promise<void> {
 // Logout: revoke ĐÚNG phiên hiện tại phía BE (refresh token là httpOnly nên phải đi qua đây),
 // rồi xóa cookie phiên. Revoke thất bại vẫn xóa cookie — logout phía client luôn hoàn tất.
 export async function POST() {
-  const accessToken = cookies().get(ACCESS_TOKEN)?.value;
-  const refreshToken = cookies().get(REFRESH_TOKEN)?.value;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_TOKEN)?.value;
+  const refreshToken = cookieStore.get(REFRESH_TOKEN)?.value;
 
   if (refreshToken) {
     try {
@@ -54,9 +55,9 @@ export async function POST() {
     }
   }
 
-  cookies().delete(ACCESS_TOKEN);
-  cookies().delete(REFRESH_TOKEN);
-  cookies().delete(REMEMBER_ME);
+  cookieStore.delete(ACCESS_TOKEN);
+  cookieStore.delete(REFRESH_TOKEN);
+  cookieStore.delete(REMEMBER_ME);
 
   return NextResponse.json({ message: "Logged out" });
 }

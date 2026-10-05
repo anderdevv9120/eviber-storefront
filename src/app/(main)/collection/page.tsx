@@ -11,7 +11,7 @@ import {
 } from "./_component/collection.query";
 
 interface CollectionPageProps {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 // SSR lần đầu theo URL; lỗi BE → null để CLIENT tự fetch lại khi mount
@@ -34,7 +34,7 @@ async function fetchInitialProducts(
 
 // Trang đọc searchParams → Next tự render dynamic mỗi request, không khai revalidate
 const Collection = async ({ searchParams }: CollectionPageProps) => {
-  const query = parseCollectionQuery(searchParams);
+  const query = parseCollectionQuery(await searchParams);
   const [initialResult, categories] = await Promise.all([
     fetchInitialProducts(query),
     fetchCategoriesCached(),
@@ -81,10 +81,10 @@ const BASE_METADATA: Metadata = {
 
 // Có từ khóa: title phản ánh từ khóa cho tab/history, nhưng noindex — trang kết quả
 // search là vô hạn biến thể, canonical vẫn về /collection
-export function generateMetadata({
+export async function generateMetadata({
   searchParams,
-}: CollectionPageProps): Metadata {
-  const { search } = parseCollectionQuery(searchParams);
+}: CollectionPageProps): Promise<Metadata> {
+  const { search } = parseCollectionQuery(await searchParams);
   if (!search) return BASE_METADATA;
 
   const title = `Kết quả cho “${search}”`;

@@ -52,9 +52,9 @@ const CardItemSlider = ({
   }, [isMobile, isTablet, productLength]);
 
   // Clamp currentIndex khi số item hiển thị đổi (đổi breakpoint)
-  useEffect(() => {
-    setCurrentIndex((prev) => Math.min(prev, maxIndex));
-  }, [maxIndex]);
+  if (currentIndex > maxIndex) {
+    setCurrentIndex(maxIndex);
+  }
 
   const handlePrev = () => {
     setCurrentIndex((prevIndex) =>

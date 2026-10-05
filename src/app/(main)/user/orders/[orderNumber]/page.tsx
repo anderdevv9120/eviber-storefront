@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { IOrderResponse } from "@/@types/Order.type";
 import { getMyOrderDetail } from "@/apis/order";
 import { ApiError } from "@/config/axios";
@@ -17,10 +18,10 @@ import { getErrorMessage } from "@/utils/getErrorMessage";
 import { errorToast } from "@/utils/toast";
 import OrderDetailView from "../_component/OrderDetailView";
 
-const OrderDetailPage = ({ params }: { params: { orderNumber: string } }) => {
+const OrderDetailPage = () => {
   // Next đã decode dynamic param trước khi đưa vào `params` — decode lần hai vừa thừa
   // vừa ném URIError với input hợp lệ (vd `/user/orders/ORD%25`), mà app không có error boundary
-  const { orderNumber } = params;
+  const { orderNumber } = useParams<{ orderNumber: string }>();
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
   // notFound: BE trả 404 chung cho "mã sai" lẫn "đơn của tài khoản khác"; failed: mạng/máy chủ

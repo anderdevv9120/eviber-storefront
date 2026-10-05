@@ -12,7 +12,7 @@ interface FieldControllerProps {
   className?: string;
   title?: string;
   labelClassName?: string;
-  children: ReactElement;
+  children: ReactElement<Record<string, unknown>>;
   isUncontrolled?: boolean;
   defaultValue?: any;
   rules?: ControllerProps["rules"];

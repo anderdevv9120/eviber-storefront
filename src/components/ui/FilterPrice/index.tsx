@@ -85,7 +85,9 @@ const FilterPrice = ({
   };
 
   // Cặp input nhập tay không có "thả tay" → commit debounce theo giá trị đã gõ
-  const inputCommitTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const inputCommitTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
   useEffect(() => {
     return () => clearTimeout(inputCommitTimerRef.current);
   }, []);

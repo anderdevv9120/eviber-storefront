@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import Checkbox from "./Checkbox";
 import { cn } from "@/config/utils";
 import Accordion from "./Accordion";
@@ -22,7 +22,6 @@ interface FilterProps {
 }
 
 const Filter = ({ data, className, onChange }: FilterProps) => {
-  const [filters, setFilters] = useState<DataFilter[]>(data);
   const [selectedFilter, setSelectedFilter] = useState<{
     [key: string]: BaseValueInputType[];
   }>({});
@@ -36,13 +35,9 @@ const Filter = ({ data, className, onChange }: FilterProps) => {
     setSelectedFilter(newFilter);
   };
 
-  useEffect(() => {
-    setFilters(data);
-  }, [data]);
-
   return (
     <div className={cn(className)}>
-      {filters.map((filterItem, index) => (
+      {data.map((filterItem, index) => (
         <FilterItem
           key={index}
           filter={filterItem}
