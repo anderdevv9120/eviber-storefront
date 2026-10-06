@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -12,11 +18,12 @@ import FieldController from "@/components/ui/FieldController";
 import AddressModal from "@/app/(main)/user/my-address/_component/AddressModal";
 import { EmptyCartIllustration } from "@/app/(main)/(payment)/cart/_component/CartView";
 import { ChevronLeft } from "@/components/icons";
-import { checkoutReview, makeOrder } from "@/apis/order";
+import { checkoutReview, getCheckoutSettings, makeOrder } from "@/apis/order";
 import { createAddress, getAddresses, IAddressProps } from "@/apis/profile";
 import { useCartStore } from "@/store/useCartStore";
 import { useAppStore } from "@/store/useAppStore";
 import { errorToast, successToast } from "@/utils/toast";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 import { formatPrice } from "@/utils/formatPrice";
 import { cn } from "@/config/utils";
 import { PATH } from "@/constants/paths";
@@ -27,6 +34,7 @@ import {
   PaymentMethod,
 } from "@/constants/payment";
 import { IAddress } from "@/@types/Address.type";
+import { ICartResponse } from "@/@types/Cart.type";
 import { ICheckoutReview, IShippingInfoPayload } from "@/@types/Order.type";
 import {
   CheckoutFormInput,
@@ -38,6 +46,12 @@ import AddressFields from "./AddressFields";
 import SavedAddressList from "./SavedAddressList";
 import PaymentMethodField from "./PaymentMethodField";
 import CheckoutSummary from "./CheckoutSummary";
+import {
+  canSubmitCheckout,
+  getCheckoutPolicyKey,
+  getCheckoutPolicyError,
+  type GuestCheckoutState,
+} from "./checkout-policy";
 
 const isPaymentMethod = (value: string): value is PaymentMethod =>
   CHECKOUT_PAYMENT_METHODS.some((m) => m.value === value);
@@ -52,6 +66,15 @@ const isShippingContactValid = (address: IAddress) =>
 const pickDefaultAddressId = (addresses: IAddress[]) =>
   (addresses.find((a) => a.primary) ?? addresses[0])?._id ?? "";
 
+const getCheckoutContextKey = (profileId: string, cart: ICartResponse | null) =>
+  `${profileId || "guest"}:${cart?.cartId ?? ""}:${cart?.totalQuantity ?? 0}`;
+
+const getCurrentCheckoutKey = () =>
+  getCheckoutContextKey(
+    useAppStore.getState().profile._id,
+    useCartStore.getState().cart
+  );
+
 export default function CheckoutView() {
   const router = useRouter();
   const cart = useCartStore((s) => s.cart);
@@ -59,6 +82,19 @@ export default function CheckoutView() {
   const fetchCart = useCartStore((s) => s.fetchCart);
   const profile = useAppStore((s) => s.profile);
   const isLoggedIn = !!profile._id;
+  const contextKey = getCheckoutContextKey(profile._id, cart);
+  const [policyContext, setPolicyContext] = useState({
+    key: contextKey,
+    generation: 0,
+  });
+  if (policyContext.key !== contextKey) {
+    setPolicyContext({
+      key: contextKey,
+      generation: policyContext.generation + 1,
+    });
+  }
+  // Returning to the same account/cart needs fresh policy and review approval.
+  const currentKey = getCheckoutPolicyKey(contextKey, policyContext.generation);
 
   // null = chưa load (hoặc guest); [] = user chưa có địa chỉ nào → form inline
   const [addresses, setAddresses] = useState<IAddress[] | null>(null);
@@ -67,8 +103,25 @@ export default function CheckoutView() {
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
-  const [review, setReview] = useState<ICheckoutReview>();
+  const [reviewResult, setReviewResult] = useState<{
+    key: string;
+    data: ICheckoutReview;
+  }>();
+  const review =
+    reviewResult?.key === currentKey ? reviewResult.data : undefined;
+  const [guestState, setGuestState] = useState<GuestCheckoutState>();
+  const livePolicy = useRef({ key: currentKey, state: guestState });
+  useLayoutEffect(() => {
+    livePolicy.current = { key: currentKey, state: guestState };
+  }, [currentKey, guestState]);
+  const [reviewAttempt, setReviewAttempt] = useState(0);
+  const guestStatus =
+    guestState?.key === currentKey ? guestState.status : "loading";
+  const formEnabled = isLoggedIn || guestStatus === "allowed";
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submissionPending = useRef(false);
+  const submitDisabled =
+    isSubmitting || !canSubmitCheckout(isLoggedIn, currentKey, guestState);
 
   const useSavedAddress = isLoggedIn && !!addresses && addresses.length > 0;
   // Email đơn = email tài khoản (my-account cũng khóa email) — chỉ guest mới nhập
@@ -102,13 +155,68 @@ export default function CheckoutView() {
     const cartId = cart?.cartId;
     if (!cartId || !cart.totalQuantity) return;
     const controller = new AbortController();
-    checkoutReview(cartId, controller.signal)
-      .then((res) => setReview(res?.data))
-      .catch(() => {
-        // interceptor đã toast — summary fallback tổng từ cart
-      });
+    const isCurrent = () =>
+      !controller.signal.aborted && getCurrentCheckoutKey() === contextKey;
+    const loadReview = async () => {
+      try {
+        if (!isLoggedIn) {
+          const settings = await getCheckoutSettings(controller.signal);
+          if (!isCurrent()) return;
+          if (typeof settings?.data?.allowGuestCheckout !== "boolean") {
+            throw new Error(
+              "Không kiểm tra được quyền mua hàng. Vui lòng thử lại."
+            );
+          }
+          const allowed = settings.data.allowGuestCheckout;
+          setGuestState({
+            key: currentKey,
+            status: allowed ? "allowed" : "disabled",
+            reviewReady: false,
+          });
+          if (!allowed) return;
+        }
+        const res = await checkoutReview(cartId, controller.signal, {
+          toastError: isLoggedIn,
+        });
+        if (!isCurrent()) return;
+        if (!res?.data) throw new Error("Không kiểm tra được đơn hàng.");
+        setReviewResult({ key: currentKey, data: res.data });
+        if (!isLoggedIn) {
+          setGuestState({
+            key: currentKey,
+            status: "allowed",
+            reviewReady: true,
+          });
+        }
+      } catch (cause) {
+        if (!isCurrent()) return;
+        if (!isLoggedIn) {
+          setGuestState({
+            key: currentKey,
+            status: getCheckoutPolicyError(cause) ?? "unavailable",
+            reviewReady: false,
+          });
+        }
+        // Authenticated review errors retain the existing toast/cart-total fallback.
+      }
+    };
+    loadReview().catch((cause) => {
+      if (isCurrent()) errorToast(getErrorMessage(cause));
+    });
     return () => controller.abort();
-  }, [cart?.cartId, cart?.totalQuantity]);
+  }, [
+    cart?.cartId,
+    cart?.totalQuantity,
+    contextKey,
+    currentKey,
+    isLoggedIn,
+    reviewAttempt,
+  ]);
+
+  const retryGuestReview = () => {
+    setGuestState({ key: currentKey, status: "loading", reviewReady: false });
+    setReviewAttempt((attempt) => attempt + 1);
+  };
 
   const loadAddresses = useCallback(async () => {
     try {
@@ -127,7 +235,7 @@ export default function CheckoutView() {
       setAddresses([]);
       setHasAddressError(true);
     }
-  }, []);
+  }, [setAddresses, setHasAddressError, setSelectedAddressId]);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -184,7 +292,7 @@ export default function CheckoutView() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [isReady]);
+  }, [isReady, formEnabled]);
 
   const buildShippingFromSaved = (
     email: string
@@ -278,8 +386,21 @@ export default function CheckoutView() {
   };
 
   const onSubmit: SubmitHandler<CheckoutFormInput> = async (data) => {
+    if (
+      submissionPending.current ||
+      getCurrentCheckoutKey() !== contextKey ||
+      livePolicy.current.key !== currentKey ||
+      !canSubmitCheckout(
+        !!useAppStore.getState().profile._id,
+        currentKey,
+        livePolicy.current.state
+      )
+    )
+      return;
+    submissionPending.current = true;
     setIsSubmitting(true);
     let isNavigating = false;
+    let orderRequested = false;
     try {
       // Lấy cart TƯƠI ngay trước khi đặt: accessToken hết hạn giữa chừng thì
       // danh tính (user/guest) của 2 request vẫn nhất quán — tránh "Cart does
@@ -293,23 +414,49 @@ export default function CheckoutView() {
         return;
       }
       if (!freshCart?.cartId || freshCart.totalQuantity === 0) return;
+      const freshKey = getCurrentCheckoutKey();
+      if (
+        freshKey !== contextKey ||
+        livePolicy.current.key !== currentKey ||
+        !canSubmitCheckout(
+          !!useAppStore.getState().profile._id,
+          currentKey,
+          livePolicy.current.state
+        )
+      )
+        return;
 
       const shippingInfo = useSavedAddress
         ? buildShippingFromSaved(data.email)
         : await buildShippingFromForm(data);
       if (!shippingInfo) return;
+      // Address saving can refresh auth too; recheck immediately before POST.
+      if (
+        getCurrentCheckoutKey() !== freshKey ||
+        livePolicy.current.key !== currentKey ||
+        !canSubmitCheckout(
+          !!useAppStore.getState().profile._id,
+          currentKey,
+          livePolicy.current.state
+        )
+      )
+        return;
 
       const note = data.note?.trim();
-      const res = await makeOrder({
-        cartId: freshCart.cartId,
-        shippingInfo,
-        paymentInfo: {
-          method: isPaymentMethod(data.paymentMethod)
-            ? data.paymentMethod
-            : DEFAULT_PAYMENT_METHOD,
+      orderRequested = true;
+      const res = await makeOrder(
+        {
+          cartId: freshCart.cartId,
+          shippingInfo,
+          paymentInfo: {
+            method: isPaymentMethod(data.paymentMethod)
+              ? data.paymentMethod
+              : DEFAULT_PAYMENT_METHOD,
+          },
+          customerNote: note || undefined,
         },
-        customerNote: note || undefined,
-      });
+        { toastError: false }
+      );
       // Refetch cart + reset countdown làm ở /payment-success (mount sau khi rời trang):
       // làm ở đây thì store về 0 → empty state chớp lên, và tick 1s của countdown ghi lại key
       const orderNumber: string = res?.data?.orderNumber ?? "";
@@ -317,11 +464,27 @@ export default function CheckoutView() {
       router.push(
         `${PATH.PAYMENT_SUCCESS}?orderNumber=${encodeURIComponent(orderNumber)}`
       );
-    } catch {
-      // interceptor đã toast lỗi (vd hết hàng giữa chừng) — giữ nguyên form
+    } catch (cause) {
+      if (!orderRequested) return;
+      const policyError = getCheckoutPolicyError(cause);
+      if (!policyError) errorToast(getErrorMessage(cause));
+      if (
+        !isLoggedIn &&
+        getCurrentCheckoutKey() === contextKey &&
+        livePolicy.current.key === currentKey
+      ) {
+        setGuestState({
+          key: currentKey,
+          status: policyError ?? "unavailable",
+          reviewReady: false,
+        });
+      }
     } finally {
       // Nhánh thành công giữ nút loading tới khi rời trang
-      if (!isNavigating) setIsSubmitting(false);
+      if (!isNavigating) {
+        submissionPending.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -346,108 +509,153 @@ export default function CheckoutView() {
 
       {isEmpty && <CheckoutEmptyState hasItems={cart.items.length > 0} />}
 
+      {isReady && !isLoggedIn && guestStatus !== "allowed" && (
+        <div
+          className="mt-6 rounded-xl border border-white-500 p-5"
+          role="status"
+        >
+          {guestStatus === "loading" ? (
+            <p>Đang kiểm tra quyền mua hàng...</p>
+          ) : guestStatus === "disabled" ? (
+            <>
+              <p className="mb-3">
+                Vui lòng đăng nhập để đặt hàng. Giỏ hàng của bạn được giữ
+                nguyên.
+              </p>
+              <Link
+                href={PATH.LOGIN}
+                className="font-semibold text-primary-700 underline"
+              >
+                Đăng nhập
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="mb-3">
+                Chưa thể kiểm tra đơn hàng. Vui lòng thử lại trước khi đặt hàng.
+              </p>
+              <Button
+                variant="outline"
+                onClick={retryGuestReview}
+                disabled={isSubmitting}
+              >
+                Thử lại
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
       {isReady && (
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 mt-6 items-start">
               <div className="w-full lg:flex-1">
-                <section className="pb-6 md:pb-8 border-b border-white-500">
-                  <div className="mb-5">
-                    <h2 className="text-base font-bold">Thông tin nhận hàng</h2>
-                    {hasAccountEmail && (
-                      <p
-                        className="text-sm text-dark-500 mt-1"
-                        data-testid="checkout-account-email"
-                      >
-                        Xác nhận đơn gửi về{" "}
-                        <span className="font-semibold text-dark-800">
-                          {profile.email}
-                        </span>
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-6">
-                    {hasAddressError && (
-                      <p className="text-sm text-dark-500 -mt-2">
-                        Không tải được sổ địa chỉ — nhập địa chỉ giao hàng bên
-                        dưới.
-                      </p>
-                    )}
-                    {isAddressLoading ? (
-                      <AddressSkeleton />
-                    ) : useSavedAddress && addresses ? (
-                      <SavedAddressList
-                        addresses={addresses}
-                        selectedId={selectedAddressId}
-                        onSelect={setSelectedAddressId}
-                        onAddClick={() => setIsAddressModalOpen(true)}
-                      />
-                    ) : (
-                      <>
-                        <div className="flex flex-col gap-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <Input
-                              name="fullName"
-                              label="Họ và tên"
-                              labelClassName={FIELD_LABEL}
-                              className="text-base"
-                              placeholder="Nguyễn Văn A"
-                            />
-                            <Input
-                              name="phoneNumber"
-                              type="tel"
-                              inputMode="numeric"
-                              label="Số điện thoại"
-                              labelClassName={FIELD_LABEL}
-                              className="text-base"
-                              placeholder="0912345678"
-                            />
-                          </div>
-                          {!hasAccountEmail && (
-                            <Input
-                              name="email"
-                              type="email"
-                              label="Email nhận thông tin đơn hàng"
-                              labelClassName={FIELD_LABEL}
-                              className="text-base"
-                              placeholder="ban@email.com"
-                            />
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-3">
-                          <AddressFields />
-                          {isLoggedIn && (
-                            <FieldController name="saveAddress">
-                              <Checkbox
-                                label="Lưu địa chỉ này vào sổ địa chỉ"
-                                labelClassName="text-sm font-medium text-dark-600"
+                <fieldset
+                  disabled={!formEnabled}
+                  hidden={!formEnabled}
+                  className="min-w-0"
+                >
+                  <section className="pb-6 md:pb-8 border-b border-white-500">
+                    <div className="mb-5">
+                      <h2 className="text-base font-bold">
+                        Thông tin nhận hàng
+                      </h2>
+                      {hasAccountEmail && (
+                        <p
+                          className="text-sm text-dark-500 mt-1"
+                          data-testid="checkout-account-email"
+                        >
+                          Xác nhận đơn gửi về{" "}
+                          <span className="font-semibold text-dark-800">
+                            {profile.email}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-6">
+                      {hasAddressError && (
+                        <p className="text-sm text-dark-500 -mt-2">
+                          Không tải được sổ địa chỉ — nhập địa chỉ giao hàng bên
+                          dưới.
+                        </p>
+                      )}
+                      {isAddressLoading ? (
+                        <AddressSkeleton />
+                      ) : useSavedAddress && addresses ? (
+                        <SavedAddressList
+                          addresses={addresses}
+                          selectedId={selectedAddressId}
+                          onSelect={setSelectedAddressId}
+                          onAddClick={() => setIsAddressModalOpen(true)}
+                        />
+                      ) : (
+                        <>
+                          <div className="flex flex-col gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <Input
+                                name="fullName"
+                                label="Họ và tên"
+                                labelClassName={FIELD_LABEL}
+                                className="text-base"
+                                placeholder="Nguyễn Văn A"
                               />
-                            </FieldController>
-                          )}
-                        </div>
-                      </>
-                    )}
-                    <FieldController
-                      name="note"
-                      title="Ghi chú (không bắt buộc)"
-                      labelClassName={FIELD_LABEL}
-                    >
-                      <textarea
-                        rows={3}
-                        maxLength={NOTE_MAX_LENGTH}
-                        placeholder="Giờ nhận hàng thuận tiện, chỉ dẫn cho shipper..."
-                        className="w-full min-h-[88px] px-3 py-3 border border-dark-200 rounded-lg text-base text-dark-900 placeholder-dark-300 outline-none resize-y hover:border-primary focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100"
-                      />
-                    </FieldController>
-                  </div>
-                </section>
+                              <Input
+                                name="phoneNumber"
+                                type="tel"
+                                inputMode="numeric"
+                                label="Số điện thoại"
+                                labelClassName={FIELD_LABEL}
+                                className="text-base"
+                                placeholder="0912345678"
+                              />
+                            </div>
+                            {!hasAccountEmail && (
+                              <Input
+                                name="email"
+                                type="email"
+                                label="Email nhận thông tin đơn hàng"
+                                labelClassName={FIELD_LABEL}
+                                className="text-base"
+                                placeholder="ban@email.com"
+                              />
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            <AddressFields />
+                            {isLoggedIn && (
+                              <FieldController name="saveAddress">
+                                <Checkbox
+                                  label="Lưu địa chỉ này vào sổ địa chỉ"
+                                  labelClassName="text-sm font-medium text-dark-600"
+                                />
+                              </FieldController>
+                            )}
+                          </div>
+                        </>
+                      )}
+                      <FieldController
+                        name="note"
+                        title="Ghi chú (không bắt buộc)"
+                        labelClassName={FIELD_LABEL}
+                      >
+                        <textarea
+                          rows={3}
+                          maxLength={NOTE_MAX_LENGTH}
+                          placeholder="Giờ nhận hàng thuận tiện, chỉ dẫn cho shipper..."
+                          className="w-full min-h-[88px] px-3 py-3 border border-dark-200 rounded-lg text-base text-dark-900 placeholder-dark-300 outline-none resize-y hover:border-primary focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-100"
+                        />
+                      </FieldController>
+                    </div>
+                  </section>
 
-                <section className="py-6 md:py-8">
-                  <h2 className="text-base font-bold mb-5">
-                    Phương thức thanh toán
-                  </h2>
-                  <PaymentMethodField totalPrice={totalPrice} />
-                </section>
+                  <section className="py-6 md:py-8">
+                    <h2 className="text-base font-bold mb-5">
+                      Phương thức thanh toán
+                    </h2>
+                    <PaymentMethodField totalPrice={totalPrice} />
+                  </section>
+                </fieldset>
 
                 <Link
                   href={PATH.CART}
@@ -464,6 +672,7 @@ export default function CheckoutView() {
                 totalPrice={totalPrice}
                 shippingFee={review?.shippingFee ?? 0}
                 isSubmitting={isSubmitting}
+                submitDisabled={submitDisabled}
               />
 
               <div
@@ -487,7 +696,7 @@ export default function CheckoutView() {
                   type="submit"
                   className="px-7"
                   loading={isSubmitting}
-                  disabled={isSubmitting}
+                  disabled={submitDisabled}
                 >
                   Đặt hàng
                 </Button>

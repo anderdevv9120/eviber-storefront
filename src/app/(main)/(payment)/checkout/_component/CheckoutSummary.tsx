@@ -10,10 +10,11 @@ interface CheckoutSummaryProps {
   totalPrice: number;
   shippingFee: number;
   isSubmitting: boolean;
+  submitDisabled?: boolean;
 }
 
 const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
-  ({ cart, totalPrice, shippingFee, isSubmitting }, ref) => {
+  ({ cart, totalPrice, shippingFee, isSubmitting, submitDisabled }, ref) => {
     const isFreeShipping = shippingFee <= 0;
     return (
       <aside
@@ -72,7 +73,7 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
           size="lg"
           className="w-full"
           loading={isSubmitting}
-          disabled={isSubmitting}
+          disabled={isSubmitting || submitDisabled}
         >
           Đặt hàng
         </Button>

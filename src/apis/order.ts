@@ -1,4 +1,5 @@
 import axiosRequest from "@/config/axios";
+import type { AxiosRequestConfig } from "axios";
 import { IMakeOrderPayload, IOrderFilterParams } from "@/@types/Order.type";
 
 export const getOrders = (
@@ -10,13 +11,32 @@ export const getOrders = (
 };
 
 /** Review đơn trước khi đặt — BE validate tồn kho + tính subtotal/shipping/total */
-export const checkoutReview = (cartId: string, signal?: AbortSignal) => {
-  return axiosRequest.get(`/orders/checkout-review/${cartId}`, { signal });
+export const getCheckoutSettings = (
+  signal?: AbortSignal
+): Promise<{ data: { allowGuestCheckout: boolean } }> => {
+  return axiosRequest.get("/orders/checkout-settings", {
+    signal,
+    toastError: false,
+  });
+};
+
+export const checkoutReview = (
+  cartId: string,
+  signal?: AbortSignal,
+  options?: Pick<AxiosRequestConfig, "toastError">
+) => {
+  return axiosRequest.get(`/orders/checkout-review/${cartId}`, {
+    signal,
+    ...options,
+  });
 };
 
 /** Tạo đơn thật — hoạt động cho cả user (JWT) lẫn guest (sessionId cookie) */
-export const makeOrder = (payload: IMakeOrderPayload) => {
-  return axiosRequest.post("/orders", payload);
+export const makeOrder = (
+  payload: IMakeOrderPayload,
+  options?: Pick<AxiosRequestConfig, "toastError">
+) => {
+  return axiosRequest.post("/orders", payload, options);
 };
 
 /**
@@ -53,6 +73,7 @@ const orderAPI = {
   getOrderByNumber,
   getMyOrderDetail,
   checkoutReview,
+  getCheckoutSettings,
   makeOrder,
   cancelOrder,
 };

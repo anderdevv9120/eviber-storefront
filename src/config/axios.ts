@@ -32,14 +32,16 @@ const NETWORK_ERROR_MESSAGE = "Không thể kết nối đến máy chủ, vui l
  */
 export class ApiError extends Error {
   status?: number;
+  code?: string;
   /** Message gốc từ BE — là string[] khi lỗi class-validator trả nhiều dòng */
   messages: string | string[];
 
-  constructor(messages: string | string[], status?: number) {
+  constructor(messages: string | string[], status?: number, code?: string) {
     super(Array.isArray(messages) ? String(messages[0] ?? "") : messages);
     this.name = "ApiError";
     this.messages = messages;
     this.status = status;
+    this.code = code;
   }
 }
 const SESSION_EXPIRED_MESSAGE = "Phiên đăng nhập đã hết hạn";
@@ -253,7 +255,10 @@ axiosRequest.interceptors.response.use(
     return Promise.reject(
       new ApiError(
         error.response?.data?.message ?? error.message,
-        error.response?.status
+        error.response?.status,
+        typeof error.response?.data?.errors?.code === "string"
+          ? error.response.data.errors.code
+          : undefined
       )
     );
   }
