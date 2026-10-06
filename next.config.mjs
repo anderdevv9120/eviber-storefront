@@ -1,3 +1,7 @@
+// Dev: ảnh upload phục vụ từ backend http://localhost — Next 16 chặn http và IP nội bộ mặc định.
+// Production giữ nguyên (API chạy https, đã khớp pattern "**").
+const isProd = process.env.NODE_ENV === "production";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
@@ -19,7 +23,9 @@ const nextConfig = {
   },
   images: {
     qualities: [75, 100],
+    dangerouslyAllowLocalIP: !isProd,
     remotePatterns: [
+      ...(isProd ? [] : [{ protocol: "http", hostname: "localhost" }]),
       {
         protocol: "https",
         hostname: "**",

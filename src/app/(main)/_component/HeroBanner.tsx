@@ -8,6 +8,7 @@ import useCustomSwipeable from "@/hooks/useCustomSwipeable";
 import { cn } from "@/config/utils";
 import { IBanner } from "@/@types/Home.type";
 import { PATH } from "@/constants/paths";
+import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 const AUTO_SLIDE_MS = 5000;
 
@@ -56,7 +57,7 @@ const HeroBanner = ({ banners }: HeroBannerProps) => {
             aria-hidden={index !== current}
           >
             <Image
-              src={banner.image}
+              src={resolveImageUrl(banner.image)}
               alt={banner.title}
               fill
               priority={index === 0}
