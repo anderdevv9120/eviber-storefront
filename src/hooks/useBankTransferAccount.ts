@@ -28,11 +28,6 @@ export const useBankTransferAccount = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Request đang bay có thể resolve giữa render và effect → đồng bộ lại thay vì return trần
-    if (cached) {
-      setAccount(cached);
-      return;
-    }
     let active = true;
     load()
       .then((data) => active && setAccount(data))

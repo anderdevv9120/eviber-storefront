@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/config/utils";
 import RatingStar from "@/components/ui/RatingStar";
 import Pagination from "@/components/ui/Pagination";
-import useIgnoreFirstEffect from "@/hooks/useIgnoreFirstEffect";
 import { getProductReviews } from "@/apis/review";
 import { REVIEW_PAGE_SIZE } from "@/constants";
 import {
@@ -13,6 +12,8 @@ import {
   IProductReviewsResponse,
 } from "@/@types/Review.type";
 import { formatDate } from "@/utils/formatTime";
+import { resolveImageUrl } from "@/utils/resolveImageUrl";
+import ReviewForm from "./ReviewForm";
 
 const RATING_LEVELS = [5, 4, 3, 2, 1];
 
@@ -36,15 +37,15 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
   const [ratingFilter, setRatingFilter] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [data, setData] = useState(initialData);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(0);
 
   // summary lấy theo response mới nhất — BE luôn tính trên toàn bộ review approved
   // nên histogram/chips không đổi số khi đang lọc (contract GET /reviews)
   const summary = data.summary;
 
-  useIgnoreFirstEffect(() => {
+  useEffect(() => {
     const controller = new AbortController();
-    setIsLoading(true);
 
     getProductReviews(
       {
@@ -56,7 +57,7 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
       controller.signal
     )
       .then((res) => {
-        if (res?.data) setData(res.data);
+        if (!controller.signal.aborted && res?.data) setData(res.data);
       })
       // Lỗi mạng: interceptor đã toast global — giữ data trang trước
       .catch(() => undefined)
@@ -66,9 +67,10 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
 
     // Cleanup hủy request đang bay khi đổi trang/lọc tiếp hoặc rời trang
     return () => controller.abort();
-  }, [productId, page, ratingFilter]);
+  }, [productId, page, ratingFilter, refresh]);
 
   const handleFilter = (rating: number | null) => {
+    if (rating !== ratingFilter || page !== 1) setIsLoading(true);
     setRatingFilter(rating);
     setPage(1);
   };
@@ -77,6 +79,19 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
     // scroll-mt bù header fixed khi nhảy anchor từ meta "N đánh giá"
     <section id="danh-gia" className="scroll-mt-24">
       <h2 className="text-xl md:text-2xl font-bold mb-5">Đánh giá sản phẩm</h2>
+      <ReviewForm
+        productId={productId}
+        onSaved={(review) => {
+          if (review.status !== "approved") {
+            setData((current) => ({
+              ...current,
+              items: current.items.filter((item) => item._id !== review._id),
+            }));
+          }
+          setIsLoading(true);
+          setRefresh((current) => current + 1);
+        }}
+      />
 
       {summary.total === 0 ? (
         // E1 (chốt /ui-audit vòng 2): giữ vỏ panel + sao rỗng + copy mời —
@@ -188,7 +203,10 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
                 total={data.total}
                 pageSize={REVIEW_PAGE_SIZE}
                 currentPage={page}
-                onPageChange={setPage}
+                onPageChange={(nextPage) => {
+                  if (nextPage !== page) setIsLoading(true);
+                  setPage(nextPage);
+                }}
               />
             </div>
           )}
@@ -253,13 +271,29 @@ const ReviewItem = ({ item }: { item: IProductReviewItem }) => (
         {item.images.map((imageUrl) => (
           <Image
             key={imageUrl}
-            src={imageUrl}
+            src={resolveImageUrl(imageUrl)}
             alt={`Ảnh đánh giá của ${item.displayName}`}
             width={128}
             height={128}
             className="w-16 h-16 rounded-lg object-cover bg-white-100"
           />
         ))}
+      </div>
+    )}
+    {item.adminReply && (
+      <div className="mt-3 border-l-2 border-primary-600 pl-3">
+        <p className="text-sm font-semibold">Phản hồi từ người bán</p>
+        <p className="mt-1 text-xs text-dark-500">
+          {formatDate(item.adminReply.repliedAt)}
+        </p>
+        <p className="mt-1.5 whitespace-pre-wrap break-words text-dark-500 leading-relaxed">
+          {item.adminReply.content}
+        </p>
+        {item.adminReply.isStale && (
+          <p className="mt-1.5 text-xs text-dark-500">
+            Đánh giá đã được cập nhật sau phản hồi này.
+          </p>
+        )}
       </div>
     )}
   </div>

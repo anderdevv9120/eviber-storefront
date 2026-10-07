@@ -12,6 +12,7 @@ import OrderStatusPill, {
   STATUS_HEADER,
 } from "./OrderStatusPill";
 import OrderProductLine from "./OrderProductLine";
+import OrderReviewLink from "./OrderReviewLink";
 import CancelOrderModal from "./CancelOrderModal";
 import { useCancelOrder } from "./useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
@@ -69,6 +70,14 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
             key={product.variantId}
             product={product}
             className="border-t border-white-200 py-4 first:border-t-0"
+            reviewAction={
+              orderNumber && (
+                <OrderReviewLink
+                  productId={product.productId}
+                  orderNumber={orderNumber}
+                />
+              )
+            }
           />
         ))}
         {hiddenCount > 0 && (

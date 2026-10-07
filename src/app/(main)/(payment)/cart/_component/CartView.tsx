@@ -38,7 +38,6 @@ export default function CartView() {
   // 1s — đủ cho chuỗi bấm +/- liên tiếp gộp thành 1 request update-quantity
   const debouncedQuantity = useDebounce(quantityChange, 1000);
   const pendingRef = useRef(quantityChange);
-  pendingRef.current = quantityChange;
 
   useEffect(() => {
     fetchCart();
@@ -70,13 +69,15 @@ export default function CartView() {
       successToast("Cập nhật số lượng thành công");
     } catch {
       // interceptor đã toast lỗi — reload để đồng bộ lại số lượng thật
-      fetchCart(true);
+      await fetchCart(true);
       setCounterResetKey((k) => k + 1);
     }
   };
 
   useEffect(() => {
     if (debouncedQuantity.variantId) {
+      // Sync the remote cart; the local counter reset runs only after the async request fails.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleChangeQuantity(debouncedQuantity);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,7 +95,8 @@ export default function CartView() {
           setCounterResetKey((k) => k + 1);
         });
     }
-    setQuantityChange({ variantId, quantity });
+    pendingRef.current = { variantId, quantity };
+    setQuantityChange(pendingRef.current);
   };
 
   // Unmount giữa cửa sổ debounce → update cuối bị nuốt im lặng; flush fire-and-forget
@@ -105,7 +107,6 @@ export default function CartView() {
         ?.then(() => useCartStore.getState().fetchCart(true))
         .catch(() => {});
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDeleteClick = (variantId: string) => {

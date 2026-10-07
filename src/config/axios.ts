@@ -256,9 +256,11 @@ axiosRequest.interceptors.response.use(
       new ApiError(
         error.response?.data?.message ?? error.message,
         error.response?.status,
-        typeof error.response?.data?.errors?.code === "string"
-          ? error.response.data.errors.code
-          : undefined
+        typeof error.response?.data?.errors === "string"
+          ? error.response.data.errors
+          : typeof error.response?.data?.errors?.code === "string"
+            ? error.response.data.errors.code
+            : undefined
       )
     );
   }

@@ -19,6 +19,28 @@ afterEach(() => {
 });
 
 describe("API error normalization", () => {
+  it.each(["review00003", "review00004", "review00005"])(
+    "preserves string domain code %s without global toast",
+    async (code) => {
+      const adapter: AxiosAdapter = async (config) => {
+        throw new AxiosError("Conflict", "ERR_BAD_RESPONSE", config, null, {
+          status: 409,
+          statusText: "Conflict",
+          headers: new AxiosHeaders(),
+          config,
+          data: { message: "Review changed", errors: code },
+        });
+      };
+      await expect(
+        axiosRequest.patch("/reviews/review", new FormData(), {
+          adapter,
+          toastError: false,
+        })
+      ).rejects.toMatchObject({ status: 409, code, message: "Review changed" });
+      expect(errorToast).not.toHaveBeenCalled();
+    }
+  );
+
   it.each([
     [403, "GUEST_CHECKOUT_DISABLED"],
     [503, "CHECKOUT_SETTINGS_UNAVAILABLE"],

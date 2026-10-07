@@ -18,6 +18,7 @@ import OrderStatusPill, {
   STATUS_HEADER,
 } from "./OrderStatusPill";
 import OrderProductLine from "./OrderProductLine";
+import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
 import CancelOrderModal from "./CancelOrderModal";
 import { useCancelOrder } from "./useCancelOrder";
@@ -224,6 +225,8 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
           </div>
         )}
       </section>
+
+      <OrderReviews key={_id} products={productInfo} />
 
       {cancel.isConfirmOpen && (
         <CancelOrderModal

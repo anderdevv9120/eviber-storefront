@@ -1,6 +1,6 @@
 /**
  * Contract review — khớp BE thật (x-ecommerce-backend/src/modules/review/review.interface.ts,
- * GET /reviews?productId=&page=&pageSize=&rating=). Chỉ đọc — không có API viết review.
+ * GET /reviews?productId=&page=&pageSize=&rating= and authenticated owner routes).
  */
 
 export interface IProductReviewItem {
@@ -10,6 +10,7 @@ export interface IProductReviewItem {
   title?: string;
   content?: string;
   images: string[];
+  adminReply: { content: string; repliedAt: string; isStale: boolean } | null;
   created_at: string;
 }
 
@@ -26,4 +27,30 @@ export interface IProductReviewsResponse {
   page: number;
   pageSize: number;
   summary: IReviewSummary;
+}
+
+/** Private allowlist from ReviewCustomerService.ownerRow. */
+export interface IOwnerReview {
+  _id: string;
+  productId: string;
+  rating: number;
+  title: string;
+  content: string;
+  images: string[];
+  status: "pending" | "approved" | "rejected";
+  contentRevision: number;
+  adminReply: IProductReviewItem["adminReply"];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IReviewEligibility {
+  canCreate: boolean;
+  canEdit: boolean;
+  reason:
+    | "eligible"
+    | "already_reviewed"
+    | "no_delivered_purchase"
+    | "purchase_no_longer_eligible";
+  review: IOwnerReview | null;
 }

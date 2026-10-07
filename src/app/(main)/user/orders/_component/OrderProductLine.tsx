@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { IOrderProduct } from "@/@types/Order.type";
@@ -21,12 +21,14 @@ interface OrderProductLineProps {
   /** Trang chi tiết hiện thêm SKU; card danh sách thì không, cho đỡ rối */
   showSku?: boolean;
   className?: string;
+  reviewAction?: ReactNode;
 }
 
 const OrderProductLine = ({
   product,
   showSku,
   className,
+  reviewAction,
 }: OrderProductLineProps) => {
   // Ảnh snapshot trỏ URL ngoài, link chết là chuyện thường với đơn cũ. Phải đổi qua
   // state chứ không gán e.currentTarget.src: next/image có srcSet nên đổi src trần
@@ -65,6 +67,7 @@ const OrderProductLine = ({
           {product.productNameAtOrder ?? "Sản phẩm"}
         </Link>
         {meta && <p className="mt-0.5 text-sm text-dark-400">{meta}</p>}
+        {reviewAction}
       </div>
 
       <div className="flex-none text-right">
