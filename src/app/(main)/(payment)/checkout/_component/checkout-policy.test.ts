@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/config/axios";
+import { canSubmitReviewedCheckout } from "./voucher-policy";
 import {
   canSubmitCheckout,
   getCheckoutPolicyKey,
@@ -106,4 +107,25 @@ describe("checkout policy errors", () => {
       expect(getCheckoutPolicyError(cause)).toBeUndefined();
     }
   });
+});
+
+describe("voucher review preserves guest policy", () => {
+  it.each(["disabled", "unavailable", "loading"] as const)(
+    "cannot bypass %s with a successful discounted review",
+    (status) => {
+      expect(
+        canSubmitReviewedCheckout({
+          currentKey: "current",
+          acceptedKey: "current",
+          hasPendingDraft: false,
+          reviewReady: true,
+          existingPolicyAllowed: canSubmitCheckout(false, "current", {
+            key: "current",
+            status,
+            reviewReady: true,
+          }),
+        })
+      ).toBe(false);
+    }
+  );
 });

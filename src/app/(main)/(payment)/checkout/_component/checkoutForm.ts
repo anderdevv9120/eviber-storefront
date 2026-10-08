@@ -21,6 +21,7 @@ export const FIELD_LABEL = "pb-2 text-sm font-medium normal-case text-dark-500";
 export interface CheckoutSchemaContext {
   /** true = user đăng nhập chọn địa chỉ đã lưu → bỏ validate cụm form địa chỉ */
   useSavedAddress: boolean;
+  noPaymentRequired: boolean;
 }
 
 const requiredUnlessSaved = (message: string) =>
@@ -51,7 +52,11 @@ export const checkoutSchema = yup
     // Địa giới 2 cấp không còn huyện — giữ field để payload/DTO không đổi, luôn rỗng
     district: yup.string().default(""),
     ward: requiredUnlessSaved(WARD_REQUIRED_MESSAGE),
-    paymentMethod: yup.string().required(PAYMENT_METHOD_MESSAGE),
+    paymentMethod: yup.string().when("$noPaymentRequired", {
+      is: true,
+      then: (schema) => schema.notRequired(),
+      otherwise: (schema) => schema.required(PAYMENT_METHOD_MESSAGE),
+    }),
     note: yup
       .string()
       .max(NOTE_MAX_LENGTH, NOTE_MAX_LENGTH_MESSAGE)

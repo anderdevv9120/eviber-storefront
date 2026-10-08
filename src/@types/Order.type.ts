@@ -67,6 +67,9 @@ export interface IPaymentInfoPayload {
 /** BE: MakeOrderDto — body của POST /orders */
 export interface IMakeOrderPayload {
   cartId: string;
+  couponCode?: string;
+  expectedTotalPrice?: number;
+  expectedCartItems?: { variantId: string; quantity: number }[];
   shippingInfo: IShippingInfoPayload;
   paymentInfo?: IPaymentInfoPayload;
   customerNote?: string;
@@ -95,6 +98,17 @@ export interface ICheckoutReview {
   discountAmount: number;
   totalPrice: number;
   products: ICheckoutReviewProduct[];
+  appliedCoupon?: AppliedCoupon;
+}
+
+/** BE: AppliedCoupon — public review projection, without rules or usage history. */
+export interface AppliedCoupon {
+  couponId: string;
+  couponCode: string;
+  couponName: string;
+  couponDiscountType: "percentage" | "fixed_amount";
+  couponDiscountValue: number;
+  couponDiscountPercentage?: number;
 }
 
 /** BE: CheckoutInfo embedded trong Order */
@@ -104,6 +118,10 @@ export interface IOrderCheckoutInfo {
   shippingFee?: number;
   totalPrice: number;
   couponCode?: string;
+  couponId?: string;
+  couponName?: string;
+  couponDiscountType?: "percentage" | "fixed_amount";
+  couponDiscountValue?: number;
   couponDiscountPercentage?: number;
   currency?: string;
 }

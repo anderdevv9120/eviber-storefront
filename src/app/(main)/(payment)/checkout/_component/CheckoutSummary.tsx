@@ -9,12 +9,25 @@ interface CheckoutSummaryProps {
   cart: ICartResponse;
   totalPrice: number;
   shippingFee: number;
+  discountAmount?: number;
+  couponCode?: string;
   isSubmitting: boolean;
   submitDisabled?: boolean;
 }
 
 const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
-  ({ cart, totalPrice, shippingFee, isSubmitting, submitDisabled }, ref) => {
+  (
+    {
+      cart,
+      totalPrice,
+      shippingFee,
+      discountAmount = 0,
+      couponCode,
+      isSubmitting,
+      submitDisabled,
+    },
+    ref
+  ) => {
     const isFreeShipping = shippingFee <= 0;
     return (
       <aside
@@ -47,6 +60,14 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
               <span>Tiết kiệm</span>
               <span className="font-semibold text-terracotta">
                 −{formatPrice(cart.totalSavings)}
+              </span>
+            </div>
+          )}
+          {couponCode && discountAmount > 0 && (
+            <div className="flex justify-between gap-2">
+              <span>Mã giảm giá {couponCode}</span>
+              <span className="font-semibold text-terracotta">
+                −{formatPrice(discountAmount)}
               </span>
             </div>
           )}

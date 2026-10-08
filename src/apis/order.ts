@@ -23,11 +23,13 @@ export const getCheckoutSettings = (
 export const checkoutReview = (
   cartId: string,
   signal?: AbortSignal,
-  options?: Pick<AxiosRequestConfig, "toastError">
+  options?: Pick<AxiosRequestConfig, "toastError"> & { couponCode?: string }
 ) => {
+  const { couponCode, ...requestOptions } = options ?? {};
   return axiosRequest.get(`/orders/checkout-review/${cartId}`, {
     signal,
-    ...options,
+    ...requestOptions,
+    params: couponCode === undefined ? undefined : { couponCode },
   });
 };
 
