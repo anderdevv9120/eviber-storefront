@@ -6,11 +6,10 @@ import { cn } from "@/config/utils";
 import {
   PAYMENT_METHOD_LABEL,
   PAYMENT_STATUS_LABEL,
-  PaymentMethod,
 } from "@/constants/payment";
 import BankTransferPanel from "@/components/ui/BankTransferPanel";
 import { formatAddress } from "@/utils/formatAddress";
-import { formatPrice } from "@/utils/formatPrice";
+import { formatCouponDiscountLabel, formatPrice } from "@/utils/formatPrice";
 import { formatDate, formatDateTime } from "@/utils/formatTime";
 import { getBankTransferState } from "@/utils/bankTransfer";
 import OrderStatusPill, {
@@ -63,8 +62,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
     0
   );
   const paymentLabel = paymentInfo?.method
-    ? (PAYMENT_METHOD_LABEL[paymentInfo.method as PaymentMethod] ??
-      paymentInfo.method)
+    ? (PAYMENT_METHOD_LABEL[paymentInfo.method] ?? paymentInfo.method)
     : "Chưa có thông tin thanh toán";
 
   return (
@@ -143,13 +141,16 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
             <>
               <h2 className={SECTION_TITLE}>Thanh toán</h2>
               <p className="font-semibold">{paymentLabel}</p>
-              <p className="mt-0.5 text-sm text-dark-500">
-                {PAYMENT_STATUS_LABEL[paymentStatus] ?? paymentStatus}
-                {paymentStatus === "paid" &&
-                  paidAt &&
-                  ` · ${formatDateTime(paidAt)}`}
-                {bankState === "expired" && " · hết hạn chuyển khoản"}
-              </p>
+              {/* Đơn 0đ: nhãn phương thức đã là "Không cần thanh toán", không lặp dòng trạng thái */}
+              {paymentStatus !== "not_required" && (
+                <p className="mt-0.5 text-sm text-dark-500">
+                  {PAYMENT_STATUS_LABEL[paymentStatus] ?? paymentStatus}
+                  {paymentStatus === "paid" &&
+                    paidAt &&
+                    ` · ${formatDateTime(paidAt)}`}
+                  {bankState === "expired" && " · hết hạn chuyển khoản"}
+                </p>
+              )}
             </>
           )}
 
@@ -172,8 +173,8 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
               </dd>
             </div>
             {!!checkoutInfo.discountAmount && (
-              <div className="mt-2 flex justify-between text-dark-500">
-                <dt>Giảm giá</dt>
+              <div className="mt-2 flex justify-between gap-2 text-dark-500">
+                <dt>{formatCouponDiscountLabel(checkoutInfo)}</dt>
                 <dd>−{formatPrice(checkoutInfo.discountAmount)}</dd>
               </div>
             )}

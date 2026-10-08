@@ -1,3 +1,5 @@
+import type { PaymentApiStatus } from "@/@types/Order.type";
+
 /**
  * Payment method — GIÁ TRỊ PHẢI KHỚP BE enum trong make-order.dto.ts (PaymentInfo.method).
  * FE cũ dùng "cod"/"bank"/"card" là SAI contract — dùng map này, không hardcode.
@@ -10,6 +12,9 @@ export const PAYMENT_METHODS = [
 ] as const;
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]["value"];
+
+/** Phương thức đọc từ đơn đã lưu: BE tự gán NO_PAYMENT khi tổng đơn = 0, khách không chọn được */
+export type OrderPaymentMethod = PaymentMethod | "NO_PAYMENT";
 
 /**
  * Bộ phương thức hiện trên UI checkout (chốt phase 3): COD mặc định + chuyển khoản.
@@ -34,17 +39,17 @@ export const CHECKOUT_PAYMENT_METHODS: {
 
 export const DEFAULT_PAYMENT_METHOD: PaymentMethod = "CASH";
 
-export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> =
-  Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.label])) as Record<
-    PaymentMethod,
-    string
-  >;
+export const PAYMENT_METHOD_LABEL = {
+  ...Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.label])),
+  NO_PAYMENT: "Không cần thanh toán",
+} as Record<OrderPaymentMethod, string>;
 /** Nhãn PaymentStatus BE (order.model.ts) */
-export const PAYMENT_STATUS_LABEL: Record<string, string> = {
+export const PAYMENT_STATUS_LABEL: Record<PaymentApiStatus, string> = {
   unpaid: "Chưa thanh toán",
   paid: "Đã thanh toán",
   refunded: "Đã hoàn tiền",
   failed: "Thanh toán thất bại",
+  not_required: "Không cần thanh toán",
 };
 
 /**

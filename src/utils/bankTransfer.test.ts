@@ -13,7 +13,7 @@ const iso = (offsetMs: number) =>
 const bankOrder = (
   overrides: Partial<Parameters<typeof getBankTransferState>[0]> = {}
 ) => ({
-  paymentInfo: { method: "BANK_TRANSFER" },
+  paymentInfo: { method: "BANK_TRANSFER" as const },
   paymentStatus: "unpaid" as const,
   status: "pending" as const,
   paymentDueAt: iso(HOUR),

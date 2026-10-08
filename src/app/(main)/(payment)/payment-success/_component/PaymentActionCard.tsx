@@ -1,10 +1,10 @@
 import { formatPrice } from "@/utils/formatPrice";
-import { PAYMENT_METHOD_LABEL, PaymentMethod } from "@/constants/payment";
+import { PAYMENT_METHOD_LABEL, OrderPaymentMethod } from "@/constants/payment";
 import { BankTransferState } from "@/utils/bankTransfer";
 import BankTransferPanel from "@/components/ui/BankTransferPanel";
 
 interface PaymentActionCardProps {
-  method?: string;
+  method?: OrderPaymentMethod;
   totalPrice: number;
   orderNumber: string;
   bankState: BankTransferState | null;
@@ -52,12 +52,9 @@ export default function PaymentActionCard({
     );
   }
 
-  // Enum BE có 4 giá trị (CASH/CARD/BANK_TRANSFER/E_WALLET) — chỉ COD mới có việc
-  // chuẩn bị tiền mặt, phương thức khác chỉ nêu tên để không nói sai với khách
-  const methodLabel =
-    method && method in PAYMENT_METHOD_LABEL
-      ? PAYMENT_METHOD_LABEL[method as PaymentMethod]
-      : (method ?? "—");
+  // Enum BE có 5 giá trị (CASH/CARD/BANK_TRANSFER/E_WALLET/NO_PAYMENT) — chỉ COD mới có việc
+  // chuẩn bị tiền mặt, phương thức khác (kể cả đơn 0đ không cần thanh toán) chỉ nêu tên
+  const methodLabel = method ? (PAYMENT_METHOD_LABEL[method] ?? method) : "—";
 
   return (
     <section

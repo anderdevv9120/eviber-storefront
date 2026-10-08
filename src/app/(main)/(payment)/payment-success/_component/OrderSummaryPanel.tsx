@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PATH } from "@/constants/paths";
-import { formatPrice } from "@/utils/formatPrice";
+import { formatCouponDiscountLabel, formatPrice } from "@/utils/formatPrice";
 import { IOrderCheckoutInfo, IOrderProduct } from "@/@types/Order.type";
 
 interface OrderSummaryPanelProps {
@@ -29,7 +29,7 @@ export default function OrderSummaryPanel({
     0
   );
   const shippingFee = checkoutInfo.shippingFee ?? 0;
-  // BE đang hardcode 0 (chưa có coupon); có hàng này thì ngày bật coupon cột tiền không lệch âm thầm
+  // Giảm giá của mã voucher BE đã chốt lúc đặt — tách khỏi "Tiết kiệm" (giá sale)
   const discountAmount = checkoutInfo.discountAmount ?? 0;
 
   return (
@@ -69,8 +69,8 @@ export default function OrderSummaryPanel({
           </div>
         )}
         {discountAmount > 0 && (
-          <div className="flex justify-between">
-            <span>Giảm giá</span>
+          <div className="flex justify-between gap-2">
+            <span>{formatCouponDiscountLabel(checkoutInfo)}</span>
             <span className="font-semibold text-terracotta">
               −{formatPrice(discountAmount)}
             </span>

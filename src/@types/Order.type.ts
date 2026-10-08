@@ -1,4 +1,4 @@
-import type { PaymentMethod } from "@/constants/payment";
+import type { OrderPaymentMethod, PaymentMethod } from "@/constants/payment";
 
 /**
  * Contract order — đối chiếu: x-ecommerce-backend/src/modules/order/
@@ -22,7 +22,8 @@ export interface IStatusHistoryEntry {
 }
 
 /** BE: PaymentStatus (order.model.ts) */
-export type PaymentApiStatus = "unpaid" | "paid" | "refunded" | "failed";
+export type PaymentApiStatus =
+  "unpaid" | "paid" | "refunded" | "failed" | "not_required";
 
 /**
  * BE: PaymentHistoryEntry (order.model.ts) — dấu vết đổi paymentStatus. Route khách đã lọc
@@ -131,7 +132,7 @@ export type IOrderShippingInfo = IShippingInfoPayload;
 
 /** BE: PaymentInfo embedded trong Order — token đã bị strip ở toJSON */
 export interface IOrderPaymentInfo {
-  method?: string;
+  method?: OrderPaymentMethod;
   provider?: string;
   transactionId?: string;
   brand?: string;
