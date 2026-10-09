@@ -14,6 +14,7 @@ import {
 import { IProductReviewsResponse } from "@/@types/Review.type";
 import { ApiError } from "@/config/axios";
 import { PATH } from "@/constants/paths";
+import { fetchStoreSettingsCached } from "@/apis/home.server";
 import ProductGallery from "./_component/ProductGallery";
 import ProductHeader from "./_component/ProductHeader";
 import ProductForm from "./_component/ProductForm";
@@ -151,11 +152,12 @@ export default async function Product({
 
   const isInStock = productDetail.variants.some((v) => v.inventoryCount > 0);
   const categorySlug = productDetail.categoryIds[0]?.slug;
-  const [initialReviews, relatedProducts] = await Promise.all([
+  const [initialReviews, relatedProducts, storeSettings] = await Promise.all([
     fetchInitialReviews(productDetail._id),
     categorySlug
       ? fetchRelatedProducts(categorySlug, productDetail._id)
       : Promise.resolve([]),
+    fetchStoreSettingsCached(),
   ]);
   const reviewSummary = initialReviews.summary;
 
@@ -230,7 +232,7 @@ export default async function Product({
           />
           {/* Cam kết ngay dưới CTA (chốt A-F5b) — thay band USP full-width cũ */}
           <div className="mt-6 lg:mt-8">
-            <ProductUsp />
+            <ProductUsp items={storeSettings.productPromises} />
           </div>
         </div>
       </div>

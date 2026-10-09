@@ -4,20 +4,14 @@ import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { Logo, Instagram, Facebook, Twitter } from "@/components/icons";
 import { PATH } from "@/constants/paths";
+import type { IStoreSettings } from "@/@types/StoreContent.type";
+import { policyLinks, socialLinks, type SocialKey } from "./footerLinks";
 
 const shoppingLinks = [
   { name: "Sản phẩm", link: PATH.COLLECTION },
   { name: "Đang khuyến mãi", link: PATH.COLLECTION },
   { name: "Hàng mới về", link: PATH.COLLECTION },
   { name: "Voucher", link: PATH.VOUCHER },
-];
-
-// Trang chính sách chưa tồn tại — giữ chỗ UI, bổ sung link khi có trang
-const supportLinks = [
-  { name: "Điều khoản – Điều kiện", link: PATH.DEFAULT },
-  { name: "Chính sách đổi trả", link: PATH.DEFAULT },
-  { name: "Chính sách hỗ trợ", link: PATH.DEFAULT },
-  { name: "Chính sách bảo mật", link: PATH.DEFAULT },
 ];
 
 const FooterColumn = ({
@@ -43,7 +37,19 @@ const FooterColumn = ({
   </div>
 );
 
-const Footer = () => {
+const SOCIAL_ICONS: Record<
+  SocialKey,
+  { label: string; Icon: typeof Facebook }
+> = {
+  facebook: { label: "Facebook", Icon: Facebook },
+  instagram: { label: "Instagram", Icon: Instagram },
+  twitter: { label: "Twitter", Icon: Twitter },
+};
+
+const Footer = ({ settings }: { settings: IStoreSettings }) => {
+  const supportLinks = policyLinks(settings.publishedPolicySlugs);
+  const socials = socialLinks(settings.socials);
+
   return (
     <footer className="bg-primary-800 text-white mt-16 md:mt-20">
       {/* Mobile: brand + newsletter full-width, 2 cột link đứng cạnh nhau (footer ngắn lại ~nửa) */}
@@ -62,37 +68,37 @@ const Footer = () => {
             <p className="font-semibold text-white mb-1">
               Liên hệ với chúng tôi
             </p>
-            <p>Số 8 Phạm Hùng, Mai Dịch, Cầu Giấy, Hà Nội</p>
-            <p>hotro@clothes.vn · 1900 0000</p>
+            <p>{settings.contact.address}</p>
+            <p>
+              {settings.contact.email} · {settings.contact.phone}
+            </p>
           </div>
 
-          <div className="flex gap-3 items-center">
-            <Link
-              href={PATH.DEFAULT}
-              aria-label="Facebook"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-700 text-primary-100 hover:text-white transition-colors"
-            >
-              <Facebook />
-            </Link>
-            <Link
-              href={PATH.DEFAULT}
-              aria-label="Instagram"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-700 text-primary-100 hover:text-white transition-colors"
-            >
-              <Instagram />
-            </Link>
-            <Link
-              href={PATH.DEFAULT}
-              aria-label="Twitter"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-700 text-primary-100 hover:text-white transition-colors"
-            >
-              <Twitter />
-            </Link>
-          </div>
+          {socials.length > 0 && (
+            <div className="flex gap-3 items-center">
+              {socials.map(({ key, href }) => {
+                const { label, Icon } = SOCIAL_ICONS[key];
+                return (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-700 text-primary-100 hover:text-white transition-colors"
+                  >
+                    <Icon />
+                  </a>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <FooterColumn title="Mua sắm" links={shoppingLinks} />
-        <FooterColumn title="Hỗ trợ khách hàng" links={supportLinks} />
+        {supportLinks.length > 0 && (
+          <FooterColumn title="Hỗ trợ khách hàng" links={supportLinks} />
+        )}
 
         {/* Newsletter decorative ở cột 4 (chốt theo mockup F-D) — chưa có BE, chỉ UI */}
         <div className="col-span-2 lg:col-span-1">

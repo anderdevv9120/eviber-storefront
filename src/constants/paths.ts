@@ -17,4 +17,5 @@ export const PATH = {
   ORDER: "/user/orders",
   NOTIFICATION: "/user/notification",
   VOUCHER: "/user/voucher",
+  POLICY: "/chinh-sach",
 };

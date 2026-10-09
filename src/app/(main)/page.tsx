@@ -9,6 +9,7 @@ import UspStrip from "./_component/UspStrip";
 import PromoSplitBanner from "./_component/PromoSplitBanner";
 import { PATH } from "@/constants/paths";
 import { getBanners, getFeaturedReviews } from "@/apis/home";
+import { fetchStoreSettingsCached } from "@/apis/home.server";
 import { getProducts } from "@/apis/product";
 import { IBanner, IFeaturedReview } from "@/@types/Home.type";
 import { IProductListItem } from "@/@types/Product.type";
@@ -70,12 +71,14 @@ async function fetchFeaturedReviews(): Promise<IFeaturedReview[]> {
 }
 
 export default async function Home() {
-  const [banners, saleProducts, bestSellers, reviews] = await Promise.all([
-    fetchBanners(),
-    fetchSaleProducts(),
-    fetchBestSellers(),
-    fetchFeaturedReviews(),
-  ]);
+  const [banners, saleProducts, bestSellers, reviews, storeSettings] =
+    await Promise.all([
+      fetchBanners(),
+      fetchSaleProducts(),
+      fetchBestSellers(),
+      fetchFeaturedReviews(),
+      fetchStoreSettingsCached(),
+    ]);
 
   return (
     <main>
@@ -94,7 +97,7 @@ export default async function Home() {
           </ContentSlider>
         )}
 
-        <PromoSplitBanner />
+        <PromoSplitBanner tiles={storeSettings.promoTiles} />
 
         {bestSellers.length > 0 && (
           <ContentSlider
@@ -122,7 +125,7 @@ export default async function Home() {
       )}
 
       <div className="container-base mt-16 md:mt-24">
-        <UspStrip />
+        <UspStrip items={storeSettings.homePromises} />
       </div>
     </main>
   );

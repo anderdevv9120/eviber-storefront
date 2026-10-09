@@ -2,7 +2,10 @@ import Footer from "@/layouts/Footer";
 import Header from "@/layouts/Header";
 import { ReactNode } from "react";
 import Authentication from "@/components/organisms/Authentication";
-import { fetchCategoriesCached } from "@/apis/home.server";
+import {
+  fetchCategoriesCached,
+  fetchStoreSettingsCached,
+} from "@/apis/home.server";
 
 // Mức revalidate NỀN cho mọi route con chưa tự khai báo — thiếu là route static
 // (collection/cart/user...) cache categories nav VĨNH VIỄN tại thời điểm build
@@ -13,14 +16,17 @@ export default async function MainLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const categories = await fetchCategoriesCached();
+  const [categories, storeSettings] = await Promise.all([
+    fetchCategoriesCached(),
+    fetchStoreSettingsCached(),
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header categories={categories} />
       <div className="flex flex-1 flex-col pt-12 xl:pt-[74px]">{children}</div>
       <Authentication />
-      <Footer />
+      <Footer settings={storeSettings} />
     </div>
   );
 }
