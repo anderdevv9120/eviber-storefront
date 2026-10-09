@@ -9,9 +9,9 @@ import SvgIcon from "@/components/ui/SvgIcon";
 const ProductUsp = ({ items }: { items: string[] }) => {
   return (
     <div className="flex flex-col gap-2.5">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <span
-          key={item}
+          key={index}
           className="flex items-center gap-2 text-sm text-dark-600 font-semibold"
         >
           <SvgIcon

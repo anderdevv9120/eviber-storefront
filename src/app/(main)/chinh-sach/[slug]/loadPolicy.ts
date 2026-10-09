@@ -15,3 +15,12 @@ export async function loadPolicy(slug: string): Promise<IPolicyPage | null> {
     throw error;
   }
 }
+
+// Server render chạy UTC (Docker) — ngày phải theo giờ VN, không theo TZ máy chủ
+export const formatUpdatedAt = (isoDate: string) =>
+  new Date(isoDate).toLocaleDateString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });

@@ -2,15 +2,12 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PATH } from "@/constants/paths";
-import { POLICY_SLUGS } from "@/constants/storeContent";
-import { formatDate } from "@/utils/formatTime";
-import { loadPolicy } from "./loadPolicy";
+import { formatUpdatedAt, loadPolicy } from "./loadPolicy";
 import styles from "./PolicyContent.module.scss";
 
-// 4 slug cố định — slug lạ 404 ngay, không gọi BE; revalidate 300 kế thừa (main)/layout
-export const dynamicParams = false;
-export const generateStaticParams = () =>
-  POLICY_SLUGS.map((slug) => ({ slug }));
+// Render lúc request đầu rồi ISR (revalidate 300 kế thừa (main)/layout) — KHÔNG prerender lúc
+// build: build không được phụ thuộc BE. Slug lạ vẫn 404 không gọi BE (isPolicySlug trong loadPolicy)
+export const generateStaticParams = () => [];
 
 // Dedupe giữa generateMetadata và Page trong cùng lượt render
 const fetchPolicy = cache(loadPolicy);
@@ -46,7 +43,7 @@ export default async function PolicyPage({
         </h1>
         {page.updatedAt && (
           <p className="mt-2 text-sm text-dark-500">
-            Cập nhật lần cuối: {formatDate(page.updatedAt, "DD/MM/YYYY")}
+            Cập nhật lần cuối: {formatUpdatedAt(page.updatedAt)}
           </p>
         )}
         <div

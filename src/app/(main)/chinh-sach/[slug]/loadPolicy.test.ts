@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getPolicy } from "@/apis/storeContent";
 import { ApiError } from "@/config/axios";
-import { loadPolicy } from "./loadPolicy";
+import { formatUpdatedAt, loadPolicy } from "./loadPolicy";
 
 vi.mock("@/apis/storeContent", () => ({ getPolicy: vi.fn() }));
 
@@ -41,5 +41,12 @@ describe("loadPolicy", () => {
       new ApiError("Lỗi máy chủ", 503)
     );
     await expect(loadPolicy("doi-tra")).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe("formatUpdatedAt", () => {
+  it("shows the Vietnam calendar day, not the server's UTC day", () => {
+    // 05:00 on 10/10 in Vietnam
+    expect(formatUpdatedAt("2026-10-09T22:00:00.000Z")).toBe("10/10/2026");
   });
 });
