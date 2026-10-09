@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Atelier Rosier — Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#FBEEEA}
+a{color:inherit;text-decoration:none}
+a:hover{color:#B3263A}
+button{font:inherit;color:inherit;cursor:pointer}
+.pill-rouge:hover{background:#8F1C2E;color:#FFFFFF}
+.pill-line:hover{background:#3E0F1C;color:#FBEEEA}
+.icon-btn:hover{background:#F5D6D0}
+.lift{transition:transform .35s ease}
+.card:hover .lift{transform:translateY(-6px)}
+.marquee{display:flex;width:max-content;animation:mq 40s linear infinite}
+@keyframes mq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.marquee{animation:none}}
+</style>
+</helmet>
+<div style="font-family: 'Instrument Sans', system-ui, sans-serif; color: #3E0F1C; background: #FBEEEA; min-height: 100vh; font-size: 15px; line-height: 1.55">
+
+<div style="background: #B3263A; color: #FFF4F1; text-align: center; font-size: 13px; padding: 10px 16px">The Rouge Edit is here — complimentary gift wrapping on every order</div>
+
+<header style="max-width: 1440px; margin: 0 auto; padding: 18px clamp(16px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Rosier-Home.dc.html" style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 34px; line-height: 1; color: #3E0F1C; white-space: nowrap">Atelier Rosier</a>
+<nav aria-label="Primary" style="display: flex; flex-wrap: wrap; gap: 4px; background: #F5D6D0; padding: 4px; border-radius: 999px; font-size: 14px; font-weight: 500">
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #FBEEEA">New in</a>
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px">Dresses</a>
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px">Knitwear</a>
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px">Bags</a>
+<a href="#story" style="padding: 10px 18px; border-radius: 999px">Our story</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 4px">
+<button type="button" class="icon-btn" aria-label="Search" style="width: 44px; height: 44px; border: 0; background: transparent; border-radius: 22px; display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></button>
+<button type="button" class="icon-btn" aria-label="Account" style="width: 44px; height: 44px; border: 0; background: transparent; border-radius: 22px; display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></button>
+<button type="button" class="pill-line" style="min-height: 44px; padding: 0 18px; border: 1px solid #3E0F1C; border-radius: 999px; background: transparent; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 8h14l-1 13H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>Bag ({{bag}})</button>
+</div>
+</header>
+
+<section aria-label="Campaign" style="max-width: 1440px; margin: 0 auto; padding: 16px clamp(16px, 4vw, 48px) 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: clamp(32px, 5vw, 72px); align-items: center">
+<div>
+<div style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; background: #F5D6D0; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{accent}}"></span>Autumn / Winter 2026</div>
+<h1 style="margin: 28px 0 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(64px, 9vw, 152px); line-height: 0.88; letter-spacing: -0.02em">Wear it <em style="color: {{accent}}">in bloom</em></h1>
+<p style="margin: 28px 0 0; max-width: 440px; font-size: 18px; line-height: 1.6; color: #6E3341">Silk, soft knits and tailoring dyed in every shade of rose — made in small runs, meant to be worn on repeat.</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 36px">
+<a href="Rosier-Collection.dc.html" class="pill-rouge" style="display: inline-flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; background: {{accent}}; color: #FFFFFF; font-weight: 600; font-size: 15px">Shop the collection <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+<a href="#edit" style="font-weight: 600; border-bottom: 1.5px solid currentColor; padding-bottom: 2px">Explore the Rouge Edit</a>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; margin-top: 48px; font-size: 13px; color: #6E3341">
+<span style="display: flex"><span style="width: 28px; height: 28px; border-radius: 14px; background: #B3263A; border: 2px solid #FBEEEA"></span><span style="width: 28px; height: 28px; border-radius: 14px; background: #E3A3A6; border: 2px solid #FBEEEA; margin-left: -8px"></span><span style="width: 28px; height: 28px; border-radius: 14px; background: #C8664F; border: 2px solid #FBEEEA; margin-left: -8px"></span><span style="width: 28px; height: 28px; border-radius: 14px; background: #5A1A2A; border: 2px solid #FBEEEA; margin-left: -8px"></span></span>
+Season palette: rouge, rose, terracotta, wine
+</div>
+</div>
+<div style="position: relative; display: flex; justify-content: center">
+<div style="width: 100%; max-width: 600px; aspect-ratio: 4 / 5; border-radius: 999px 999px 32px 32px; background: #E3A3A6; position: relative; overflow: hidden">
+<div style="position: absolute; inset: auto 0 0 0; height: 38%; background: #D98E92"></div>
+<span style="position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); white-space: nowrap; font-size: 12px; padding: 6px 14px; border-radius: 999px; background: #FBEEEA; color: #3E0F1C">Image · campaign portrait · 4:5</span>
+</div>
+<div style="position: absolute; left: 0; bottom: 64px; width: 148px; height: 148px; border-radius: 74px; background: #3E0F1C; color: #FBEEEA; display: grid; place-items: center; text-align: center; transform: rotate(-10deg)"><div><div style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 30px; line-height: 1">New</div><div style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 6px">season</div></div></div>
+</div>
+</section>
+
+<div aria-hidden="true" style="margin-top: clamp(56px, 7vw, 96px); background: #3E0F1C; color: #F5D6D0; overflow: hidden; padding: 22px 0">
+<div class="marquee" style="font-family: 'Instrument Serif', Georgia, serif; font-size: 40px; line-height: 1; white-space: nowrap; gap: 40px">
+<sc-for list="{{marquee}}" as="m" hint-placeholder-count="12">
+<span style="display: inline-flex; align-items: center; gap: 40px"><em>{{m}}</em><svg width="22" height="22" viewBox="0 0 24 24" fill="#E3A3A6"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"></path></svg></span>
+</sc-for>
+</div>
+</div>
+
+<section aria-labelledby="mood-h" style="max-width: 1440px; margin: 0 auto; padding: clamp(64px, 8vw, 112px) clamp(16px, 4vw, 48px) 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 36px">
+<h2 id="mood-h" style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(40px, 5vw, 72px); line-height: 1">Shop by <em>mood</em></h2>
+<p style="margin: 0; max-width: 340px; color: #6E3341">Four ways into the season — pick a feeling, we will do the rest.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px">
+<sc-for list="{{moods}}" as="m" hint-placeholder-count="4">
+<a href="Rosier-Collection.dc.html" class="card" style="{{m.cardStyle}}">
+<div class="lift" style="{{m.imgStyle}}"><span style="position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); white-space: nowrap; font-size: 11px; padding: 4px 12px; border-radius: 999px; background: rgba(251,238,234,0.9); color: #3E0F1C">Image · {{m.title}}</span></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 30px; line-height: 1.1">{{m.title}}</span>
+<span style="width: 40px; height: 40px; border-radius: 20px; border: 1px solid currentColor; display: grid; place-items: center; flex: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"></path></svg></span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section id="edit" aria-labelledby="edit-h" style="max-width: 1440px; margin: 0 auto; padding: clamp(64px, 8vw, 112px) clamp(16px, 4vw, 48px) 0">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: clamp(24px, 4vw, 56px); align-items: stretch">
+<div style="border-radius: 32px; background: #B3263A; min-height: 560px; position: relative; overflow: hidden; color: #FFF4F1; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; justify-content: space-between">
+<div style="position: absolute; right: -60px; top: -60px; width: 360px; height: 360px; border-radius: 180px; background: #C8364A"></div>
+<div style="position: relative; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase">Limited edit · 01</div>
+<div style="position: relative">
+<h2 id="edit-h" style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(56px, 7vw, 112px); line-height: 0.9">The Rouge <em>Edit</em></h2>
+<p style="margin: 20px 0 0; max-width: 380px; color: #FBD9D5">One red, dyed in-house and carried through silk, cashmere and calf leather. Small run, no restock.</p>
+<span style="display: inline-block; margin-top: 20px; font-size: 12px; padding: 6px 14px; border-radius: 999px; background: rgba(255,244,241,0.16)">Image · edit flat-lay · replaces this panel</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E8C2BE">
+<span style="font-weight: 600">{{editCount}} pieces in the edit</span>
+<a href="Rosier-Collection.dc.html" style="font-weight: 600; border-bottom: 1.5px solid currentColor">See all</a>
+</div>
+<sc-for list="{{edit}}" as="e" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 20px; padding: 18px 0; border-bottom: 1px solid #E8C2BE">
+<a href="Rosier-Product.dc.html" aria-label="{{e.name}}" style="{{e.thumb}}"></a>
+<div style="flex: 1; min-width: 0">
+<a href="Rosier-Product.dc.html" style="font-family: 'Instrument Serif', Georgia, serif; font-size: 26px; line-height: 1.1">{{e.name}}</a>
+<div style="font-size: 14px; color: #6E3341; margin-top: 4px">{{e.material}}</div>
+</div>
+<span style="font-weight: 600">{{e.price}}</span>
+<button type="button" onClick="{{e.add}}" aria-label="{{e.addLabel}}" style="{{e.btnStyle}}">{{e.btnText}}</button>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="best-h" style="max-width: 1440px; margin: 0 auto; padding: clamp(64px, 8vw, 112px) clamp(16px, 4vw, 48px) 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 36px">
+<h2 id="best-h" style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(40px, 5vw, 72px); line-height: 1">Loved <em>on repeat</em></h2>
+<a href="Rosier-Collection.dc.html" class="pill-line" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border: 1px solid #3E0F1C; border-radius: 999px; font-weight: 600; font-size: 14px">Shop bestsellers</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px 20px">
+<sc-for list="{{best}}" as="p" hint-placeholder-count="4">
+<article class="card" style="display: flex; flex-direction: column; gap: 14px">
+<div style="position: relative">
+<a href="Rosier-Product.dc.html" aria-label="{{p.name}}" class="lift" style="{{p.imgStyle}}"><span style="position: absolute; left: 16px; bottom: 16px; font-size: 11px; padding: 4px 12px; border-radius: 999px; background: rgba(251,238,234,0.9); color: #3E0F1C">Image · 4:5</span></a>
+<button type="button" onClick="{{p.toggle}}" aria-pressed="{{p.pressed}}" aria-label="Save {{p.name}}" style="position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border: 0; border-radius: 22px; background: #FBEEEA; display: grid; place-items: center; color: #B3263A"><svg width="18" height="18" viewBox="0 0 24 24" fill="{{p.heartFill}}" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></button>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 12px; align-items: baseline">
+<a href="Rosier-Product.dc.html" style="font-weight: 600">{{p.name}}</a>
+<span>{{p.price}}</span>
+</div>
+<div style="display: flex; gap: 6px; margin-top: -6px">
+<sc-for list="{{p.swatches}}" as="s" hint-placeholder-count="3">
+<span title="{{s.name}}" style="width: 14px; height: 14px; border-radius: 7px; border: 1px solid #C9A1A0; background: {{s.hex}}"></span>
+</sc-for>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+
+<section id="story" aria-labelledby="story-h" style="margin-top: clamp(64px, 8vw, 112px); background: #F5D6D0">
+<div style="max-width: 1440px; margin: 0 auto; padding: clamp(64px, 8vw, 112px) clamp(16px, 4vw, 48px); display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(32px, 5vw, 80px); align-items: center">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="aspect-ratio: 3 / 4; border-radius: 999px 999px 24px 24px; background: #C8664F"></div>
+<div style="aspect-ratio: 3 / 4; border-radius: 24px 24px 999px 999px; background: #E3A3A6; margin-top: 64px"></div>
+</div>
+<div>
+<div style="font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #8C2A3C">Our story</div>
+<h2 id="story-h" style="margin: 20px 0 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(44px, 5.5vw, 84px); line-height: 0.95">Made slowly, <em style="color: #B3263A">worn often.</em></h2>
+<p style="margin: 28px 0 0; max-width: 480px; font-size: 17px; color: #5A2533">Every piece starts as a sketch in our studio and is cut in runs small enough to know each maker by name. Fewer things, better loved.</p>
+<a href="#story" class="pill-line" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 28px; margin-top: 32px; border: 1px solid #3E0F1C; border-radius: 999px; font-weight: 600">Visit the studio</a>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="news-h" style="max-width: 1440px; margin: 0 auto; padding: clamp(64px, 8vw, 112px) clamp(16px, 4vw, 48px)">
+<div style="border-radius: 32px; border: 1px solid #E8C2BE; padding: clamp(32px, 5vw, 64px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 32px">
+<div style="max-width: 520px">
+<h2 id="news-h" style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(36px, 4vw, 56px); line-height: 1">Letters from <em>the atelier</em></h2>
+<p style="margin: 14px 0 0; color: #6E3341">New drops, studio notes and first look at limited edits.</p>
+</div>
+<form style="flex: 1 1 360px; max-width: 520px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end">
+<label style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Email address<input type="email" placeholder="you@example.com" style="min-height: 52px; padding: 0 20px; border: 1px solid #3E0F1C; border-radius: 999px; background: #FFF7F4; font: inherit; color: #3E0F1C"></label>
+<button type="submit" class="pill-rouge" style="min-height: 54px; padding: 0 28px; border: 0; border-radius: 999px; background: {{accent}}; color: #FFFFFF; font-weight: 600">Subscribe</button>
+</form>
+</div>
+</section>
+
+<footer style="background: #3E0F1C; color: #F5D6D0; overflow: hidden">
+<div style="max-width: 1440px; margin: 0 auto; padding: 72px clamp(16px, 4vw, 48px) 0">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 40px; font-size: 14px">
+<nav aria-label="Shop" style="display: flex; flex-direction: column; gap: 10px"><div style="font-weight: 600; color: #FFF4F1; margin-bottom: 4px">Shop</div><a href="Rosier-Collection.dc.html">New in</a><a href="Rosier-Collection.dc.html">Dresses</a><a href="Rosier-Collection.dc.html">Knitwear</a><a href="Rosier-Collection.dc.html">Bags</a></nav>
+<nav aria-label="Help" style="display: flex; flex-direction: column; gap: 10px"><div style="font-weight: 600; color: #FFF4F1; margin-bottom: 4px">Help</div><a href="#">Shipping</a><a href="#">Returns</a><a href="#">Size guide</a><a href="#">Contact</a></nav>
+<nav aria-label="Atelier" style="display: flex; flex-direction: column; gap: 10px"><div style="font-weight: 600; color: #FFF4F1; margin-bottom: 4px">Atelier</div><a href="#story">Our story</a><a href="#">Studio visits</a><a href="#">Care guide</a><a href="#">Stockists</a></nav>
+<div style="display: flex; flex-direction: column; gap: 10px"><div style="font-weight: 600; color: #FFF4F1; margin-bottom: 4px">Follow</div><a href="#">Instagram</a><a href="#">Pinterest</a><a href="#">TikTok</a></div>
+</div>
+<div style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: clamp(72px, 15vw, 232px); line-height: 0.8; color: #E3A3A6; margin-top: 64px; white-space: nowrap; letter-spacing: -0.02em">Atelier Rosier</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding: 28px 0; margin-top: 24px; border-top: 1px solid #6A2A3A; font-size: 13px"><span>© 2026 Atelier Rosier</span><div style="display: flex; gap: 24px"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">United States (USD)</a></div></div>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B3263A","options":["#B3263A","#C8664F","#8C2A3C","#D2556A"]},"$preview":{"width":1440,"height":5400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bag: 2, added: {}, saved: { 'Silk Slip Dress': true } };
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#B3263A';
+    const { bag, added, saved } = this.state;
+    const words = ['Rouge', 'Rose', 'Petal', 'Wine', 'Terracotta', 'Blush'];
+    const marquee = words.concat(words);
+    const moods = [
+      { title: 'Date night', bg: '#B3263A', fg: '#FFF4F1', img: '#D2556A' },
+      { title: 'Soft tailoring', bg: '#E3A3A6', fg: '#3E0F1C', img: '#F0C4C3' },
+      { title: 'Weekend knits', bg: '#F5D6D0', fg: '#3E0F1C', img: '#E8B7B0' },
+      { title: 'Party edit', bg: '#3E0F1C', fg: '#F5D6D0', img: '#6A2A3A' }
+    ].map((m) => ({
+      ...m,
+      cardStyle: 'display: flex; flex-direction: column; gap: 18px; padding: 16px 16px 20px; border-radius: 28px; background: ' + m.bg + '; color: ' + m.fg,
+      imgStyle: 'aspect-ratio: 4 / 5; border-radius: 999px 999px 18px 18px; position: relative; background: ' + m.img
+    }));
+    const editItems = [
+      { name: 'Rouge Silk Shirt', material: 'Washed silk', price: '$320', tone: '#B3263A' },
+      { name: 'Cashmere Crew', material: 'Grade-A cashmere', price: '$410', tone: '#C8364A' },
+      { name: 'Mini Crescent Bag', material: 'Calf leather', price: '$540', tone: '#8C2A3C' },
+      { name: 'Satin Hair Bow', material: 'Silk satin', price: '$85', tone: '#D2556A' }
+    ];
+    const edit = editItems.map((e) => {
+      const done = !!added[e.name];
+      return {
+        ...e,
+        thumb: 'flex: none; width: 76px; height: 92px; border-radius: 38px 38px 12px 12px; background: ' + e.tone,
+        add: () => { if (!done) this.setState({ bag: bag + 1, added: { ...added, [e.name]: true } }); },
+        addLabel: done ? e.name + ' added to bag' : 'Add ' + e.name + ' to bag',
+        btnText: done ? 'Added' : 'Add',
+        btnStyle: 'min-width: 84px; min-height: 44px; border-radius: 999px; font-size: 14px; font-weight: 600; border: 1px solid ' + (done ? accent : '#3E0F1C') + '; background: ' + (done ? accent : 'transparent') + '; color: ' + (done ? '#FFFFFF' : '#3E0F1C')
+      };
+    });
+    const best = [
+      { name: 'Silk Slip Dress', price: '$380', tone: '#E3A3A6', swatches: [{ name: 'Rose', hex: '#E3A3A6' }, { name: 'Rouge', hex: '#B3263A' }, { name: 'Wine', hex: '#5A1A2A' }] },
+      { name: 'Wrap Midi Skirt', price: '$260', tone: '#C8664F', swatches: [{ name: 'Terracotta', hex: '#C8664F' }, { name: 'Blush', hex: '#F5D6D0' }] },
+      { name: 'Mohair Cardigan', price: '$295', tone: '#F0C4C3', swatches: [{ name: 'Petal', hex: '#F0C4C3' }, { name: 'Wine', hex: '#5A1A2A' }] },
+      { name: 'Pleated Trouser', price: '$240', tone: '#6A2A3A', swatches: [{ name: 'Wine', hex: '#5A1A2A' }, { name: 'Rouge', hex: '#B3263A' }, { name: 'Ecru', hex: '#F3E6DF' }] }
+    ].map((p) => {
+      const on = !!saved[p.name];
+      return {
+        ...p,
+        pressed: on ? 'true' : 'false',
+        heartFill: on ? 'currentColor' : 'none',
+        toggle: () => this.setState({ saved: { ...saved, [p.name]: !on } }),
+        imgStyle: 'display: block; aspect-ratio: 4 / 5; border-radius: 24px; position: relative; background: ' + p.tone
+      };
+    });
+    return { accent, bag, marquee, moods, edit, editCount: editItems.length, best };
+  }
+}
+</script>
+</body>
+</html>

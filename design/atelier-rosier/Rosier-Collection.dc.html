@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Atelier Rosier — Dresses</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#FBEEEA}
+a{color:inherit;text-decoration:none}
+a:hover{color:#B3263A}
+button,select{font:inherit;color:inherit;cursor:pointer}
+.pill-rouge:hover{background:#8F1C2E;color:#FFFFFF}
+.pill-line:hover{background:#3E0F1C;color:#FBEEEA}
+.icon-btn:hover{background:#F5D6D0}
+.lift{transition:transform .35s ease}
+.card:hover .lift{transform:translateY(-6px)}
+.quick{opacity:0;transition:opacity .2s ease}
+.card:hover .quick,.quick:focus{opacity:1}
+@media (hover: none){.quick{opacity:1}}
+</style>
+</helmet>
+<div style="font-family: 'Instrument Sans', system-ui, sans-serif; color: #3E0F1C; background: #FBEEEA; min-height: 100vh; font-size: 15px; line-height: 1.55">
+
+<div style="background: #B3263A; color: #FFF4F1; text-align: center; font-size: 13px; padding: 10px 16px">The Rouge Edit is here — complimentary gift wrapping on every order</div>
+
+<header style="max-width: 1440px; margin: 0 auto; padding: 18px clamp(16px, 4vw, 48px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Rosier-Home.dc.html" style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 34px; line-height: 1; color: #3E0F1C; white-space: nowrap">Atelier Rosier</a>
+<nav aria-label="Primary" style="display: flex; flex-wrap: wrap; gap: 4px; background: #F5D6D0; padding: 4px; border-radius: 999px; font-size: 14px; font-weight: 500">
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px">New in</a>
+<a href="Rosier-Collection.dc.html" aria-current="page" style="padding: 10px 18px; border-radius: 999px; background: #3E0F1C; color: #FBEEEA">Dresses</a>
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px">Knitwear</a>
+<a href="Rosier-Collection.dc.html" style="padding: 10px 18px; border-radius: 999px">Bags</a>
+<a href="Rosier-Home.dc.html#story" style="padding: 10px 18px; border-radius: 999px">Our story</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 4px">
+<button type="button" class="icon-btn" aria-label="Search" style="width: 44px; height: 44px; border: 0; background: transparent; border-radius: 22px; display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></button>
+<button type="button" class="icon-btn" aria-label="Account" style="width: 44px; height: 44px; border: 0; background: transparent; border-radius: 22px; display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></button>
+<button type="button" class="pill-line" style="min-height: 44px; padding: 0 18px; border: 1px solid #3E0F1C; border-radius: 999px; background: transparent; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 8h14l-1 13H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>Bag ({{bag}})</button>
+</div>
+</header>
+
+<section style="max-width: 1440px; margin: 0 auto; padding: 8px clamp(16px, 4vw, 48px) 0">
+<div style="border-radius: 32px; background: #E3A3A6; padding: clamp(28px, 4vw, 56px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 32px; position: relative; overflow: hidden">
+<div style="position: relative; max-width: 620px">
+<nav aria-label="Breadcrumb" style="font-size: 13px; display: flex; gap: 8px; color: #5A1A2A"><a href="Rosier-Home.dc.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Dresses</span></nav>
+<h1 style="margin: 20px 0 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(72px, 10vw, 168px); line-height: 0.85; letter-spacing: -0.02em">Dresses <em style="font-size: 0.4em; vertical-align: top; color: #8C1F31">({{total}})</em></h1>
+<p style="margin: 20px 0 0; max-width: 460px; color: #4A1424; font-size: 17px">Silk slips, bias midis and knitted columns — cut to move, dyed in the season's reds.</p>
+</div>
+<div style="position: relative; display: flex; gap: 14px; align-items: flex-end">
+<div style="width: 150px; aspect-ratio: 3 / 4; border-radius: 999px 999px 18px 18px; background: #B3263A"></div>
+<div style="width: 190px; aspect-ratio: 3 / 4; border-radius: 999px 999px 18px 18px; background: #F5D6D0"></div>
+</div>
+</div>
+</section>
+
+<div style="max-width: 1440px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 48px) 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid #E8C2BE">
+<div role="group" aria-label="Dress style" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+<button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<label style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500">Size<select style="min-height: 44px; padding: 0 14px; border: 1px solid #D9AFAC; border-radius: 999px; background: #FFF7F4"><option>All</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option></select></label>
+<label style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500">Colour<select style="min-height: 44px; padding: 0 14px; border: 1px solid #D9AFAC; border-radius: 999px; background: #FFF7F4"><option>All</option><option>Rouge</option><option>Rose</option><option>Wine</option><option>Terracotta</option></select></label>
+<label style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500">Sort<select style="min-height: 44px; padding: 0 14px; border: 1px solid #D9AFAC; border-radius: 999px; background: #FFF7F4"><option>Featured</option><option>Newest</option><option>Price: low to high</option><option>Price: high to low</option></select></label>
+<div role="group" aria-label="Grid density" style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #F5D6D0">
+<button type="button" aria-label="Three per row" aria-pressed="{{dense3}}" onClick="{{set3}}" style="{{btn3}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.5"></rect><rect x="9.5" y="4" width="5" height="16" rx="1.5"></rect><rect x="16" y="4" width="5" height="16" rx="1.5"></rect></svg></button>
+<button type="button" aria-label="Four per row" aria-pressed="{{dense4}}" onClick="{{set4}}" style="{{btn4}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.5" y="4" width="3.8" height="16" rx="1.2"></rect><rect x="7.6" y="4" width="3.8" height="16" rx="1.2"></rect><rect x="12.6" y="4" width="3.8" height="16" rx="1.2"></rect><rect x="17.7" y="4" width="3.8" height="16" rx="1.2"></rect></svg></button>
+</div>
+</div>
+</div>
+
+<div style="{{gridStyle}}">
+<sc-for list="{{items}}" as="p" hint-placeholder-count="9">
+<sc-if value="{{p.isTile}}" hint-placeholder-val="{{ false }}">
+<a href="Rosier-Home.dc.html#edit" style="grid-column: span 2; border-radius: 28px; background: #B3263A; color: #FFF4F1; padding: clamp(24px, 3vw, 40px); display: flex; flex-direction: column; justify-content: space-between; min-height: 360px; position: relative; overflow: hidden">
+<span style="position: absolute; right: -40px; bottom: -80px; width: 300px; height: 300px; border-radius: 150px; background: #C8364A"></span>
+<span style="position: relative; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase">The Rouge Edit</span>
+<span style="position: relative"><span style="display: block; font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(44px, 4.5vw, 72px); line-height: 0.95">Find <em>your</em> red</span><span style="display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-weight: 600">Shop the edit <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></span>
+</a>
+</sc-if>
+<sc-if value="{{p.isProduct}}" hint-placeholder-val="{{ true }}">
+<article class="card" style="display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative">
+<a href="Rosier-Product.dc.html" aria-label="{{p.name}}" class="lift" style="{{p.imgStyle}}"></a>
+<sc-if value="{{p.tag}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; top: 14px; left: 14px; padding: 5px 12px; border-radius: 999px; background: #FBEEEA; color: #8C1F31; font-size: 12px; font-weight: 600">{{p.tag}}</span></sc-if>
+<button type="button" class="quick pill-rouge" onClick="{{p.add}}" style="position: absolute; left: 12px; right: 12px; bottom: 12px; min-height: 44px; border: 0; border-radius: 999px; background: #3E0F1C; color: #FBEEEA; font-weight: 600; font-size: 14px">{{p.addText}}</button>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 12px; align-items: baseline">
+<a href="Rosier-Product.dc.html" style="font-weight: 600">{{p.name}}</a>
+<span>{{p.price}}</span>
+</div>
+<div style="font-size: 14px; color: #7A3E4B; margin-top: -6px">{{p.material}}</div>
+</article>
+</sc-if>
+</sc-for>
+</div>
+
+<nav aria-label="Pagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 64px">
+<sc-for list="{{pages}}" as="pg" hint-placeholder-count="3">
+<button type="button" aria-current="{{pg.current}}" onClick="{{pg.pick}}" style="{{pg.style}}">{{pg.label}}</button>
+</sc-for>
+<button type="button" class="pill-line" style="min-height: 44px; padding: 0 20px; margin-left: 8px; border: 1px solid #3E0F1C; border-radius: 999px; background: transparent; font-weight: 600; font-size: 14px">Next</button>
+</nav>
+</div>
+
+<footer style="background: #3E0F1C; color: #F5D6D0; margin-top: clamp(64px, 8vw, 112px)">
+<div style="max-width: 1440px; margin: 0 auto; padding: 48px clamp(16px, 4vw, 48px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; font-size: 14px">
+<a href="Rosier-Home.dc.html" style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 40px; line-height: 1; color: #E3A3A6">Atelier Rosier</a>
+<div style="display: flex; flex-wrap: wrap; gap: 24px"><a href="#">Shipping</a><a href="#">Returns</a><a href="#">Size guide</a><a href="#">Contact</a><span>© 2026 Atelier Rosier</span></div>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { style: 'All', cols: 4, bag: 2, added: {}, page: 1 };
+  }
+  renderVals() {
+    const { style, cols, bag, added, page } = this.state;
+    const all = [
+      { name: 'Silk Slip Dress', material: 'Washed silk · Rose', price: '$380', type: 'Slip', tag: 'Bestseller', tone: '#E3A3A6' },
+      { name: 'Rouge Wrap Midi', material: 'Crepe de chine · Rouge', price: '$420', type: 'Midi', tag: 'Rouge Edit', tone: '#B3263A' },
+      { name: 'Tiered Maxi', material: 'Cotton voile · Terracotta', price: '$460', type: 'Maxi', tag: '', tone: '#C8664F' },
+      { name: 'Satin Mini', material: 'Silk satin · Wine', price: '$290', type: 'Mini', tag: 'New', tone: '#5A1A2A' },
+      { name: 'Bias Cut Midi', material: 'Silk charmeuse · Petal', price: '$395', type: 'Midi', tag: '', tone: '#F0C4C3' },
+      { name: 'Rib Knit Column', material: 'Merino rib · Blush', price: '$340', type: 'Maxi', tag: 'New', tone: '#EBC9C3' },
+      { name: 'Puff Sleeve Mini', material: 'Cotton poplin · Rouge', price: '$310', type: 'Mini', tag: 'Low stock', tone: '#C8364A' },
+      { name: 'Halter Slip', material: 'Silk satin · Wine', price: '$360', type: 'Slip', tag: '', tone: '#6A2A3A' },
+      { name: 'Shirred Midi', material: 'Linen blend · Terracotta', price: '$330', type: 'Midi', tag: '', tone: '#D48A73' }
+    ];
+    const shown = style === 'All' ? all : all.filter((p) => p.type === style);
+    const products = shown.map((p) => {
+      const done = !!added[p.name];
+      return {
+        ...p,
+        isProduct: true,
+        isTile: false,
+        imgStyle: 'display: block; aspect-ratio: 3 / 4; border-radius: 24px; background: ' + p.tone,
+        add: () => { if (!done) this.setState({ bag: bag + 1, added: { ...added, [p.name]: true } }); },
+        addText: done ? 'Added to bag' : 'Quick add · M'
+      };
+    });
+    const items = products.slice();
+    if (style === 'All') items.splice(4, 0, { isTile: true, isProduct: false, name: 'tile' });
+    const chips = ['All', 'Slip', 'Midi', 'Mini', 'Maxi'].map((label) => {
+      const on = label === style;
+      return {
+        label,
+        pressed: on ? 'true' : 'false',
+        pick: () => this.setState({ style: label }),
+        style: 'min-height: 44px; padding: 0 20px; border-radius: 999px; font-size: 14px; font-weight: 500; border: 1px solid ' + (on ? '#3E0F1C' : '#D9AFAC') + '; background: ' + (on ? '#3E0F1C' : 'transparent') + '; color: ' + (on ? '#FBEEEA' : '#3E0F1C')
+      };
+    });
+    const seg = (on) => 'width: 44px; height: 36px; border: 0; border-radius: 999px; display: grid; place-items: center; background: ' + (on ? '#FBEEEA' : 'transparent') + '; color: #3E0F1C';
+    const gridStyle = 'margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fill, minmax(' + (cols === 3 ? '320px' : '230px') + ', 1fr)); gap: 40px 20px';
+    const pages = [1, 2, 3].map((n) => ({
+      label: String(n),
+      current: n === page ? 'page' : 'false',
+      pick: () => this.setState({ page: n }),
+      style: 'width: 44px; height: 44px; border-radius: 22px; font-weight: 600; font-size: 14px; border: 0; background: ' + (n === page ? '#B3263A' : 'transparent') + '; color: ' + (n === page ? '#FFFFFF' : '#3E0F1C')
+    }));
+    return {
+      bag, chips, items, gridStyle, pages, total: all.length,
+      dense3: cols === 3 ? 'true' : 'false', dense4: cols === 4 ? 'true' : 'false',
+      set3: () => this.setState({ cols: 3 }), set4: () => this.setState({ cols: 4 }),
+      btn3: seg(cols === 3), btn4: seg(cols === 4)
+    };
+  }
+}
+</script>
+</body>
+</html>
