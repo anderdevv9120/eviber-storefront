@@ -317,7 +317,7 @@ export default function CheckoutView() {
     setHasPendingDraft(true);
     setCurrentKey(reviewScope.invalidate());
     setReviewBusy(false);
-    setReviewError("Áp dụng mã mới hoặc gỡ mã trước khi đặt hàng.");
+    setReviewError(undefined);
   };
 
   const applyVoucher = async () => {
@@ -683,6 +683,7 @@ export default function CheckoutView() {
                     signedIn={isLoggedIn}
                     draftCode={draftCode}
                     busy={reviewBusy}
+                    pending={hasPendingDraft}
                     error={reviewError}
                     appliedCoupon={review?.appliedCoupon}
                     onCodeChange={handleCodeChange}
@@ -693,6 +694,7 @@ export default function CheckoutView() {
                 {isLoggedIn && !review && !reviewBusy && !hasPendingDraft && (
                   <Button
                     variant="outline"
+                    className="mt-6"
                     onClick={retryGuestReview}
                     disabled={isSubmitting}
                   >
@@ -704,7 +706,7 @@ export default function CheckoutView() {
                   hidden={!formEnabled}
                   className="min-w-0"
                 >
-                  <section className="pb-6 md:pb-8 border-b border-white-500">
+                  <section className="py-6 md:py-8 border-b border-white-500">
                     <div className="mb-5">
                       <h2 className="text-base font-bold">
                         Thông tin nhận hàng

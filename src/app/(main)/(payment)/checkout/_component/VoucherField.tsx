@@ -4,11 +4,14 @@ import Button from "@/components/ui/Button";
 import { PATH } from "@/constants/paths";
 import { errorToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { cn } from "@/config/utils";
 
 export interface VoucherFieldProps {
   signedIn: boolean;
   draftCode: string;
   busy: boolean;
+  /** Draft differs from the reviewed code: info hint, not an error. */
+  pending?: boolean;
   error?: string;
   appliedCoupon?: AppliedCoupon;
   onCodeChange(value: string): void;
@@ -20,6 +23,7 @@ export default function VoucherField({
   signedIn,
   draftCode,
   busy,
+  pending,
   error,
   appliedCoupon,
   onCodeChange,
@@ -37,7 +41,11 @@ export default function VoucherField({
             Đăng nhập để sử dụng mã giảm giá
           </Link>
         </p>
-        <p role="status" aria-live="polite" className="mt-2">
+        <p
+          role="status"
+          aria-live="polite"
+          className={cn("mt-2", error && "text-red-600")}
+        >
           {error}
         </p>
       </div>
@@ -78,7 +86,7 @@ export default function VoucherField({
         >
           Áp dụng
         </Button>
-        {(draftCode || appliedCoupon || error) && (
+        {(draftCode || appliedCoupon || error || pending) && (
           <Button
             type="button"
             variant="secondary"
@@ -92,14 +100,16 @@ export default function VoucherField({
         id="checkout-voucher-feedback"
         role="status"
         aria-live="polite"
-        className="mt-2 text-sm"
+        className={cn("mt-2 text-sm", error && "text-red-600")}
       >
         {error ||
           (busy
             ? "Đang kiểm tra mã giảm giá..."
-            : appliedCoupon
-              ? `Đã áp dụng mã ${appliedCoupon.couponCode}`
-              : "")}
+            : pending
+              ? "Áp dụng mã mới hoặc gỡ mã trước khi đặt hàng."
+              : appliedCoupon
+                ? `Đã áp dụng mã ${appliedCoupon.couponCode}`
+                : "")}
       </p>
     </section>
   );

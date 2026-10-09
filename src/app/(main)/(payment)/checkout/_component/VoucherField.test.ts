@@ -37,9 +37,13 @@ describe("voucher checkout controls (SSR)", () => {
       createElement(VoucherField, {
         ...props,
         draftCode: "",
-        error: "Áp dụng mã mới hoặc gỡ mã trước khi đặt hàng.",
+        pending: true,
       })
     );
+    expect(html).toContain("Áp dụng mã mới hoặc gỡ mã trước khi đặt hàng.");
+    // Info hint, not an error: no red text and the input is not marked invalid.
+    expect(html).not.toContain("text-red-600");
+    expect(html).toContain('aria-invalid="false"');
     expect(html).toMatch(/<button(?![^>]*\sdisabled=)[^>]*>Gỡ mã<\/button>/);
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>[\s\S]*?Áp dụng/);
   });
@@ -64,6 +68,7 @@ describe("voucher checkout controls (SSR)", () => {
     expect(html).toContain('aria-live="polite"');
     expect(html).toContain('aria-describedby="checkout-voucher-feedback"');
     expect(html).toContain("Mã đã hết hạn");
+    expect(html).toContain("text-red-600");
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>[\s\S]*?Áp dụng/);
     expect(html).toMatch(/<button(?![^>]*\sdisabled=)[^>]*>Gỡ mã<\/button>/);
   });
