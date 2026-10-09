@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { fetchStoreSettingsCached } from "@/apis/home.server";
 import { getProducts } from "@/apis/product";
 import { PATH } from "@/constants/paths";
 
@@ -40,7 +41,10 @@ async function fetchAllProductSlugs(): Promise<string[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const slugs = await fetchAllProductSlugs();
+  const [slugs, storeSettings] = await Promise.all([
+    fetchAllProductSlugs(),
+    fetchStoreSettingsCached(),
+  ]);
   const now = new Date();
 
   return [
@@ -54,6 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}${PATH.PRODUCT}/${slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    // Chỉ trang đã xuất bản; BE lỗi → fallback rỗng, không thêm URL nào
+    ...storeSettings.publishedPolicySlugs.map((slug) => ({
+      url: `${SITE_URL}${PATH.POLICY}/${slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
     })),
   ];
 }

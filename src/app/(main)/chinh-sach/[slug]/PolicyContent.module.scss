@@ -1,0 +1,97 @@
+/* Rich text trang chính sách (HTML đã sanitize ở BE: h2-h4 / p / ul / ol / a / blockquote).
+   SCSS module vì markup đến từ dangerouslySetInnerHTML, không gắn class Tailwind được. */
+.prose {
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 28px 0 12px;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 24px 0 10px;
+  }
+
+  h4 {
+    font-weight: 700;
+    margin: 20px 0 8px;
+  }
+
+  p {
+    margin-bottom: 12px;
+  }
+
+  ul,
+  ol {
+    margin-bottom: 12px;
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 2px;
+  }
+
+  ul > li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+
+    /* top theo em để dot tự khớp tâm dòng đầu ở mọi cỡ chữ */
+    &::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: calc(0.75em - 3px);
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-primary);
+    }
+  }
+
+  ol {
+    list-style: decimal;
+    padding-left: 22px;
+  }
+
+  ol > li {
+    margin-bottom: 8px;
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  blockquote {
+    border-left: 3px solid var(--color-primary);
+    padding-left: 12px;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  u {
+    text-decoration: underline;
+  }
+
+  s {
+    text-decoration: line-through;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
