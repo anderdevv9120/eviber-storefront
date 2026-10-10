@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import { cn } from "@/config/utils";
 import { formatPrice } from "@/utils/formatPrice";
 import { ICartItem, ICartResponse } from "@/@types/Cart.type";
+import { unavailableReason } from "@/utils/cartAvailability";
 
 interface CheckoutSummaryProps {
   cart: ICartResponse;
@@ -143,7 +144,9 @@ function SummaryItem({ item }: { item: ICartItem }) {
           {[attributeLabel, `×${item.quantity}`].filter(Boolean).join(" · ")}
         </p>
         {!item.isAvailable && (
-          <p className="text-xs text-red mt-0.5">Tạm hết hàng — không tính</p>
+          <p className="text-xs text-red mt-0.5">
+            {unavailableReason(item)} — không tính
+          </p>
         )}
       </div>
       <div

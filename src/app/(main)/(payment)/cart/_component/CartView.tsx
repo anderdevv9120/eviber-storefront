@@ -186,7 +186,7 @@ export default function CartView() {
           {isInitialLoading
             ? "Đang tải giỏ hàng..."
             : isAllOutOfStock
-              ? "Tất cả sản phẩm trong giỏ đã tạm hết hàng"
+              ? "Tất cả sản phẩm trong giỏ hiện không mua được"
               : `${totalQuantity} sản phẩm trong giỏ`}
         </p>
       )}

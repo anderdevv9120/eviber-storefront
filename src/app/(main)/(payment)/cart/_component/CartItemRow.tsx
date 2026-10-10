@@ -6,6 +6,7 @@ import { cn } from "@/config/utils";
 import { formatPrice } from "@/utils/formatPrice";
 import { ICartItem } from "@/@types/Cart.type";
 import { PATH } from "@/constants/paths";
+import { unavailableReason } from "@/utils/cartAvailability";
 
 interface CartItemRowProps {
   item: ICartItem;
@@ -91,7 +92,7 @@ const CartItemRow = ({
         )}
         {!item.isAvailable && (
           <p className="text-sm text-red">
-            Sản phẩm tạm hết hàng — không tính vào tổng tiền
+            {unavailableReason(item)} — không tính vào tổng tiền
           </p>
         )}
       </div>

@@ -884,12 +884,12 @@ function CheckoutEmptyState({ hasItems }: { hasItems: boolean }) {
       <EmptyCartIllustration className="w-40 md:w-52 mb-5" />
       <h2 className="text-xl font-bold mb-1">
         {hasItems
-          ? "Sản phẩm trong giỏ đã tạm hết hàng"
+          ? "Sản phẩm trong giỏ hiện không mua được"
           : "Chưa có gì để thanh toán"}
       </h2>
       <p className="text-sm text-dark-500 mb-6 max-w-xs">
         {hasItems
-          ? "Quay lại giỏ để bỏ sản phẩm hết hàng hoặc chờ có hàng trở lại."
+          ? "Quay lại giỏ để bỏ các sản phẩm này hoặc chờ có hàng trở lại."
           : "Giỏ hàng đang trống. Chọn sản phẩm rồi quay lại bước này."}
       </p>
       <Button
