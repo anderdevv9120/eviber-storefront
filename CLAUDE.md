@@ -55,7 +55,7 @@ src/
 
 ## Conventions
 
-- **Code style = `.prettierrc` + `.eslintrc.json` của repo** — hooks tự format/enforce sau mỗi edit, không tự chế style khác.
+- **Code style = `.prettierrc` + `.oxlintrc.json` của repo** — hooks tự format/enforce sau mỗi edit, không tự chế style khác.
 - Rules tự load theo path: `typescript-pro`, `tailwind-v3`, `zustand-v4`, `react-performance` (xem `.claude/rules/`); `checkout-policy` khi chạm cart / checkout / payment-success, `apis/cart|order.ts`, `useCartStore` (số tiền hiển thị lấy từ response BE).
 - Component riêng của 1 route → `app/**/{route}/_component/`. Tái sử dụng ≥2 nơi → `components/ui/`.
 - Route path: LUÔN dùng `PATH.*` từ `constants/paths.ts` — không hardcode string.
@@ -63,7 +63,7 @@ src/
 - Lỗi API: interceptor (`config/axios.ts`) tự toast global qua `notifyError`. Endpoint hiển thị lỗi **inline trong form** (hoặc component tự toast message riêng) → PHẢI set `{ toastError: false }` trong `apis/` (quên là bị double display); `{ toastError: "..." }` để override message tĩnh. Component không cần catch-toast nữa — chỉ catch khi cần logic riêng (setMessage, fallback state).
 - Component nhiều variant → `cva` theo pattern `components/ui/Button.tsx`.
 - Component async: luôn render đủ 3 trạng thái **loading** (`<Spin>`/skeleton hợp layout) / **error** / **empty** — không để vùng trắng khi thiếu data.
-- Commit: pre-commit đã có husky + lint-staged (eslint --max-warnings=0 + tsc strict).
+- Commit: pre-commit đã có husky + lint-staged (prettier --write + oxlint + tsc strict; oxlint warning chưa chặn commit — để fix sau).
 - **`src/middleware.ts` là vùng nhạy cảm** (route guard toàn app) — HỎI user trước khi sửa (làm từ workspace root thì `permissions.ask` đã enforce sẵn).
 
 ## Common Commands
@@ -71,7 +71,7 @@ src/
 ```bash
 npm run dev          # dev server → http://localhost:3030
 npm run build        # build (sitemap/robots là route, không có postbuild)
-npm run lint         # next lint --max-warnings 0 — cùng ngưỡng với Stop hook và pre-commit (lint:write để auto-fix)
+npm run lint         # oxlint . — warning chưa fail, để fix sau (lint:write để auto-fix)
 npx prettier --write src e2e   # format — Stop hook chạy đúng lệnh này trước tsc
 npx tsc --noEmit     # type check nhanh
 npm test             # vitest: logic thuần, co-located (src/utils/, src/constants/, app/**/_component/), ~0.2s
