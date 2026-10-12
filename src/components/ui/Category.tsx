@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchCategoriesCached } from "@/apis/home.server";
 import { ICategoryItem } from "@/@types/Home.type";
 import { PATH } from "@/constants/paths";
+import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 export default async function Category() {
   const categories = await fetchCategoriesCached();
@@ -49,7 +50,7 @@ const CategoryItem = ({ name, imageUrl, slug }: ICategoryItem) => {
       <div className="flex flex-col items-center text-center">
         <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white ring-2 ring-primary-200 ring-offset-4 shadow-sm group-hover/cat:ring-primary group-hover/cat:shadow-md transition-all duration-300">
           <Image
-            src={imageUrl || ""}
+            src={resolveImageUrl(imageUrl || "")}
             alt={name}
             width={128}
             height={128}
