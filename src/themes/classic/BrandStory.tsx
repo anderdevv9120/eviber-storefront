@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import type { IBrandStory } from "@/@types/StoreContent.type";
+import type { ThemeBrandStoryProps } from "@/themes/types";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 // Nội dung CMS là text thuần — xuống dòng bằng whitespace-pre-line, KHÔNG render HTML
-const BrandStory = ({ story }: { story: IBrandStory }) => {
+const BrandStorySection = ({ story }: ThemeBrandStoryProps) => {
   return (
     <section
       aria-labelledby="brand-story-title"
@@ -28,6 +28,7 @@ const BrandStory = ({ story }: { story: IBrandStory }) => {
           className="type-display-section font-display text-left text-deep break-words"
         >
           {story.title}
+          {story.titleAccent && ` ${story.titleAccent}`}
         </h2>
         <p className="mt-4 md:mt-6 whitespace-pre-line break-words text-dark-500">
           {story.body}
@@ -43,5 +44,12 @@ const BrandStory = ({ story }: { story: IBrandStory }) => {
     </section>
   );
 };
+
+// Page render section ngoài container (Rosier là band full-bleed) → classic tự bọc container-base
+const BrandStory = (props: ThemeBrandStoryProps) => (
+  <div className="container-base">
+    <BrandStorySection {...props} />
+  </div>
+);
 
 export default BrandStory;

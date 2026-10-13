@@ -23,8 +23,12 @@ export interface IHomePromise {
 // CTA chỉ có khi đủ cặp ctaLabel + href (BE validate)
 export interface IBrandStory {
   title: string;
+  /** Phần cuối tiêu đề — Rosier in nghiêng màu nhấn, classic nối liền tiêu đề */
+  titleAccent?: string;
   body: string;
   image: string;
+  /** Ảnh thứ 2 — chỉ Rosier dùng (2 khung vòm so le) */
+  image2?: string;
   ctaLabel?: string;
   href?: string;
 }
