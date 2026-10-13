@@ -1,0 +1,71 @@
+/* Theme classic — giữ nguyên look Pine trước khi tách theme.
+   Chỉ khai báo biến :root (không @layer/@apply). Màu = kênh RGB để Tailwind
+   giữ opacity modifier: rgb(var(--color-…) / <alpha-value>). */
+:root {
+  --color-primary-50: 240 250 247; /* #F0FAF7 */
+  --color-primary-100: 215 240 232; /* #D7F0E8 */
+  --color-primary-200: 174 224 211; /* #AEE0D3 */
+  --color-primary-300: 121 203 182; /* #79CBB6 */
+  --color-primary-400: 69 177 151; /* #45B197 */
+  --color-primary-500: 31 153 126; /* #1F997E */
+  --color-primary-600: 14 124 102; /* #0E7C66 */
+  --color-primary-700: 11 99 83; /* #0B6353 */
+  --color-primary-800: 12 79 68; /* #0C4F44 */
+  --color-primary-900: 11 63 55; /* #0B3F37 */
+  --color-dark-50: 211 205 199; /* #D3CDC7 */
+  --color-dark-100: 204 204 204; /* #CCCCCC */
+  --color-dark-200: 185 185 185; /* #B9B9B9 */
+  --color-dark-300: 147 156 171; /* #939CAB */
+  --color-dark-400: 128 128 128; /* #808080 */
+  --color-dark-500: 98 98 98; /* #626262 */
+  --color-dark-600: 68 68 68; /* #444444 */
+  --color-dark-700: 56 56 56; /* #383838 */
+  --color-dark-800: 36 36 36; /* #242424 */
+  --color-dark-900: 34 34 34; /* #222222 */
+  --color-white-50: 249 249 249; /* #F9F9F9 */
+  --color-white-100: 245 245 245; /* #F5F5F5 */
+  --color-white-200: 242 242 242; /* #F2F2F2 */
+  --color-white-300: 235 235 235; /* #EBEBEB */
+  --color-white-400: 232 231 231; /* #E8E7E7 */
+  --color-white-500: 231 231 231; /* #E7E7E7 */
+  --color-white-600: 217 217 217; /* #D9D9D9 */
+  --color-terracotta: 196 71 43; /* #C4472B */
+  --color-page: 255 255 255; /* #FFFFFF */
+
+  /* Radius = mặc định Tailwind v3 */
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-btn: 0.375rem;
+  --radius-btn-lg: 0.75rem;
+
+  --shadow-card:
+    0 1px 2px rgba(36, 36, 36, 0.04), 0 10px 28px -14px rgba(36, 36, 36, 0.12);
+  --shadow-card-hover:
+    0 2px 4px rgba(36, 36, 36, 0.06), 0 18px 44px -16px rgba(36, 36, 36, 0.18);
+  --shadow-auth-card:
+    0 24px 60px -12px rgba(36, 36, 36, 0.14), 0 4px 14px rgba(36, 36, 36, 0.05);
+
+  /* --font-body do next/font gắn (fonts.ts); classic dùng chung Manrope */
+  --font-display: var(--font-body);
+
+  /* Vai trò chữ — tái hiện text-2xl md:text-3xl font-bold.
+     leading: 2em/3 + 1rem = 2rem @1.5rem, 2.25rem @1.875rem (đúng line-height Tailwind) */
+  --display-section-size: 1.5rem;
+  --display-section-size-md: 1.875rem;
+  --display-section-weight: 700;
+  --display-section-transform: uppercase;
+  --display-section-tracking: 0.025em;
+  --display-section-leading: calc(2em / 3 + 1rem);
+  --display-page-size: 1.5rem;
+  --display-page-size-md: 1.875rem;
+  --display-page-weight: 700;
+  --display-page-transform: none;
+  --display-page-tracking: normal;
+  --display-page-leading: calc(2em / 3 + 1rem);
+  --section-head-align: center;
+}

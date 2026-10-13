@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.scss";
 import { ReactNode } from "react";
 import { PATH } from "@/constants/paths";
 import { SEARCH_PARAM } from "@/constants/search";
-
-// Subset "vietnamese" bắt buộc — thiếu là dấu tiếng Việt render font fallback
-const manrope = Manrope({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
+import theme from "@active-theme";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3030";
 
@@ -59,10 +52,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="vi">
-      <body
-        className={`${manrope.className} text-sm md:text-base antialiased leading-normal bg-white text-gray-900`}
-      >
+    <html lang="vi" className={theme.fontClassName}>
+      {/* Font body qua preflight (fontFamily.sans = var(--font-body)), nền theo token page */}
+      <body className="text-sm md:text-base antialiased leading-normal bg-page text-gray-900">
         {children}
         <ToastContainer hideProgressBar />
         <div id="portal" />

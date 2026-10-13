@@ -1,10 +1,10 @@
 import { Metadata } from "next";
+import theme from "@active-theme";
 import ContentSlider from "@/components/ui/ContentSlider";
 import CardItemGrid from "@/components/ui/CardItemGrid";
 import CardItemSlider from "@/components/ui/CardItemSlider";
 import Category from "@/components/ui/Category";
 import CustomerReview from "@/components/ui/CustomerReview";
-import HeroBanner from "./_component/HeroBanner";
 import UspStrip from "./_component/UspStrip";
 import PromoSplitBanner from "./_component/PromoSplitBanner";
 import { PATH } from "@/constants/paths";
@@ -86,7 +86,7 @@ export default async function Home() {
       <h1 className="sr-only">
         CLOTHES — Thời trang tối giản, mặc bền nhiều mùa
       </h1>
-      <HeroBanner banners={banners} />
+      <theme.Hero banners={banners} />
 
       <div className="container-base">
         <Category />

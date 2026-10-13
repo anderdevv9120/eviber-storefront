@@ -1,11 +1,9 @@
 :root {
-  /* Token màu theme cho SCSS (đồng bộ tailwind.config.ts — palette Pine) */
-  --color-primary: #0e7c66;
-  --color-primary-700: #0b6353;
-  --color-primary-100: #d7f0e8; /* focus ring */
-  --color-primary-300: #79cbb6; /* dot logo trên nền Pine đậm */
-  --color-text-disabled: #9ca3af; /* = gray-400 */
-  --color-white-600: #d9d9d9; /* viền control trạng thái nghỉ */
+  /* Màu cho SCSS — đọc kênh RGB của theme active (src/themes/<theme>/tokens.css).
+     Nấc khác (primary-100 focus ring, primary-300, white-600 viền...) dùng thẳng
+     rgb(var(--color-<nấc>)) — trùng tên biến kênh nên không khai alias ở đây */
+  --color-primary: rgb(var(--color-primary-600));
+  --color-text-disabled: #9ca3af; /* = gray-400, cố định */
 }
 
 body {
@@ -67,6 +65,34 @@ body {
       width: 1260px;
     }
   }
+
+  /* Vai trò chữ theo theme (tokens.css): tiêu đề section và H1 trang */
+  .type-display-section {
+    font-family: var(--font-display);
+    font-size: var(--display-section-size);
+    font-weight: var(--display-section-weight);
+    text-transform: var(--display-section-transform);
+    letter-spacing: var(--display-section-tracking);
+    line-height: var(--display-section-leading);
+    text-align: var(--section-head-align);
+
+    @media (min-width: 768px) {
+      font-size: var(--display-section-size-md);
+    }
+  }
+
+  .type-display-page {
+    font-family: var(--font-display);
+    font-size: var(--display-page-size);
+    font-weight: var(--display-page-weight);
+    text-transform: var(--display-page-transform);
+    letter-spacing: var(--display-page-tracking);
+    line-height: var(--display-page-leading);
+
+    @media (min-width: 768px) {
+      font-size: var(--display-page-size-md);
+    }
+  }
 }
 
 @keyframes fadeUp {
@@ -115,7 +141,7 @@ body {
     height: 1.125rem;
     appearance: none;
     border-radius: 4px;
-    border: 1.5px solid var(--color-white-600);
+    border: 1.5px solid rgb(var(--color-white-600));
     background-color: #fff;
     transition:
       background-color 0.15s ease,

@@ -12,7 +12,6 @@ import FilterPrice from "@/components/ui/FilterPrice";
 import Pagination from "@/components/ui/Pagination";
 import Filter from "../../components/ui/Filter";
 import Image from "next/image";
-import Header from "@/layouts/Header";
 import Footer from "@/layouts/Footer";
 import Carousel from "@/components/ui/Carousel";
 import Counter from "@/components/ui/Counter";

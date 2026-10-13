@@ -7,6 +7,9 @@ RUN yarn
 
 FROM dependencies AS build
 COPY . ./
+# Theme theo khách (thư mục trong src/themes) — next.config.mjs đọc lúc build
+ARG THEME=rosier
+ENV THEME=$THEME
 RUN yarn build
 RUN ls -la /app  # Add this line
 

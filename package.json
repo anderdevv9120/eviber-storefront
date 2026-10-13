@@ -17,8 +17,8 @@
     "build-storybook": "storybook build -c storybook -o storybook/.out"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,css}": [
-      "eslint --max-warnings=0"
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --max-warnings=0 --no-warn-ignored"
     ],
     "*.{ts,tsx}": "bash -c 'tsc --skipLibCheck --strict --noEmit'"
   },

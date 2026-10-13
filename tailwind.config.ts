@@ -5,6 +5,7 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/layouts/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/themes/**/*.{ts,tsx}",
   ],
   theme: {
     // Numbering chuẩn hóa toàn bộ: số càng to càng đậm; nấc của DEFAULT ghi cạnh từng nhóm.
@@ -12,45 +13,46 @@ const config: Config = {
       // Override toàn bộ theme.colors xóa cả bộ keyword mặc định — phải khai báo lại
       transparent: "transparent",
       black: "#000000",
-      // Pine — chốt tại tasks/phase1/audit/ui-palette.html; DEFAULT = 600
+      // primary/dark/white(50-600)/terracotta/page: giá trị nằm ở src/themes/*/tokens.css
+      // (classic = Pine, chốt tại tasks/phase1/audit/ui-palette.html); DEFAULT = 600
       primary: {
-        DEFAULT: "#0E7C66",
-        50: "#F0FAF7",
-        100: "#D7F0E8",
-        200: "#AEE0D3",
-        300: "#79CBB6",
-        400: "#45B197",
-        500: "#1F997E",
-        600: "#0E7C66",
-        700: "#0B6353",
-        800: "#0C4F44",
-        900: "#0B3F37",
+        DEFAULT: "rgb(var(--color-primary-600) / <alpha-value>)",
+        50: "rgb(var(--color-primary-50) / <alpha-value>)",
+        100: "rgb(var(--color-primary-100) / <alpha-value>)",
+        200: "rgb(var(--color-primary-200) / <alpha-value>)",
+        300: "rgb(var(--color-primary-300) / <alpha-value>)",
+        400: "rgb(var(--color-primary-400) / <alpha-value>)",
+        500: "rgb(var(--color-primary-500) / <alpha-value>)",
+        600: "rgb(var(--color-primary-600) / <alpha-value>)",
+        700: "rgb(var(--color-primary-700) / <alpha-value>)",
+        800: "rgb(var(--color-primary-800) / <alpha-value>)",
+        900: "rgb(var(--color-primary-900) / <alpha-value>)",
       },
       // DEFAULT = 800; overlay là scrim có alpha, không thuộc thang đậm/nhạt
       dark: {
-        DEFAULT: "#242424",
-        50: "#D3CDC7",
-        100: "#CCCCCC",
-        200: "#B9B9B9",
-        300: "#939CAB",
-        400: "#808080",
-        500: "#626262",
-        600: "#444444",
-        700: "#383838",
-        800: "#242424",
-        900: "#222222",
+        DEFAULT: "rgb(var(--color-dark-800) / <alpha-value>)",
+        50: "rgb(var(--color-dark-50) / <alpha-value>)",
+        100: "rgb(var(--color-dark-100) / <alpha-value>)",
+        200: "rgb(var(--color-dark-200) / <alpha-value>)",
+        300: "rgb(var(--color-dark-300) / <alpha-value>)",
+        400: "rgb(var(--color-dark-400) / <alpha-value>)",
+        500: "rgb(var(--color-dark-500) / <alpha-value>)",
+        600: "rgb(var(--color-dark-600) / <alpha-value>)",
+        700: "rgb(var(--color-dark-700) / <alpha-value>)",
+        800: "rgb(var(--color-dark-800) / <alpha-value>)",
+        900: "rgb(var(--color-dark-900) / <alpha-value>)",
         overlay: "#00000080",
       },
       // Thang xám sáng cho nền/viền; DEFAULT = #FFF đứng ngoài thang
       white: {
         DEFAULT: "#FFFFFF",
-        50: "#F9F9F9",
-        100: "#F5F5F5",
-        200: "#F2F2F2",
-        300: "#EBEBEB",
-        400: "#E8E7E7",
-        500: "#E7E7E7",
-        600: "#D9D9D9",
+        50: "rgb(var(--color-white-50) / <alpha-value>)",
+        100: "rgb(var(--color-white-100) / <alpha-value>)",
+        200: "rgb(var(--color-white-200) / <alpha-value>)",
+        300: "rgb(var(--color-white-300) / <alpha-value>)",
+        400: "rgb(var(--color-white-400) / <alpha-value>)",
+        500: "rgb(var(--color-white-500) / <alpha-value>)",
+        600: "rgb(var(--color-white-600) / <alpha-value>)",
       },
       // DEFAULT = 500
       yellow: {
@@ -67,7 +69,9 @@ const config: Config = {
         900: "#713F12",
       },
       // Terracotta — accent sale (badge % + giá đang giảm), chốt tại mockup card-look vòng 4
-      terracotta: "#C4472B",
+      terracotta: "rgb(var(--color-terracotta) / <alpha-value>)",
+      // Nền trang (body) — classic trắng, theme khác có thể ngả màu
+      page: "rgb(var(--color-page) / <alpha-value>)",
       // DEFAULT = 600
       red: {
         DEFAULT: "#FC2B2B",
@@ -125,18 +129,34 @@ const config: Config = {
         900: "#14532D",
       },
     },
+    // Override toàn bộ: none/full cố định, còn lại đọc token theme; btn/btn-lg chỉ cho Button
+    borderRadius: {
+      none: "0px",
+      sm: "var(--radius-sm)",
+      DEFAULT: "var(--radius-default)",
+      md: "var(--radius-md)",
+      lg: "var(--radius-lg)",
+      xl: "var(--radius-xl)",
+      "2xl": "var(--radius-2xl)",
+      "3xl": "var(--radius-3xl)",
+      full: "9999px",
+      btn: "var(--radius-btn)",
+      "btn-lg": "var(--radius-btn-lg)",
+    },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
       },
       boxShadow: {
         // Shadow card cụm auth — neutral tỏa rộng theo bản tham khảo user chốt
-        "auth-card":
-          "0 24px 60px -12px rgba(36, 36, 36, 0.14), 0 4px 14px rgba(36, 36, 36, 0.05)",
+        "auth-card": "var(--shadow-auth-card)",
         // Elevation card sản phẩm (thay border) — chốt tại mockup card-look V2
-        card: "0 1px 2px rgba(36, 36, 36, 0.04), 0 10px 28px -14px rgba(36, 36, 36, 0.12)",
-        "card-hover":
-          "0 2px 4px rgba(36, 36, 36, 0.06), 0 18px 44px -16px rgba(36, 36, 36, 0.18)",
+        card: "var(--shadow-card)",
+        "card-hover": "var(--shadow-card-hover)",
       },
       fill: {
         hover: {

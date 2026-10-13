@@ -59,7 +59,9 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
             <Logo
               className="text-white"
               style={
-                { "--logo-dot": "var(--color-primary-300)" } as CSSProperties
+                {
+                  "--logo-dot": "rgb(var(--color-primary-300))",
+                } as CSSProperties
               }
             />
           </Link>

@@ -6,17 +6,13 @@ import Link from "next/link";
 import ButtonChevron from "@/components/ui/ButtonChevron";
 import useCustomSwipeable from "@/hooks/useCustomSwipeable";
 import { cn } from "@/config/utils";
-import { IBanner } from "@/@types/Home.type";
+import type { ThemeHeroProps } from "@/themes/types";
 import { PATH } from "@/constants/paths";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 const AUTO_SLIDE_MS = 5000;
 
-interface HeroBannerProps {
-  banners: IBanner[];
-}
-
-const HeroBanner = ({ banners }: HeroBannerProps) => {
+const HeroBanner = ({ banners }: ThemeHeroProps) => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
