@@ -13,10 +13,10 @@ export default async function Category() {
 
   return (
     <div className="my-16 md:my-24">
-      <h2 className="text-2xl md:text-3xl text-primary-800 text-center uppercase font-bold tracking-wide">
+      <h2 className="type-display-section font-display text-deep">
         Danh mục nổi bật
       </h2>
-      <p className="text-center text-sm text-dark-500 mt-1 mb-6">
+      <p className="[text-align:var(--section-head-align)] text-sm text-dark-500 mt-1 mb-6">
         Xem những sản phẩm đang thịnh hành ngay bây giờ
       </p>
 

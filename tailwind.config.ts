@@ -72,6 +72,9 @@ const config: Config = {
       terracotta: "rgb(var(--color-terracotta) / <alpha-value>)",
       // Nền trang (body) — classic trắng, theme khác có thể ngả màu
       page: "rgb(var(--color-page) / <alpha-value>)",
+      // Chữ body (classic = gray-900) và tông sâu nhất của brand: tiêu đề section, nền footer (classic = primary-800)
+      ink: "rgb(var(--color-ink) / <alpha-value>)",
+      deep: "rgb(var(--color-deep) / <alpha-value>)",
       // DEFAULT = 600
       red: {
         DEFAULT: "#FC2B2B",

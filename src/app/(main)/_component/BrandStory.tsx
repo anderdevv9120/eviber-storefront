@@ -25,7 +25,7 @@ const BrandStory = ({ story }: { story: IBrandStory }) => {
         {/* Cột chữ luôn canh trái — --section-head-align dành cho tiêu đề section full-width */}
         <h2
           id="brand-story-title"
-          className="type-display-section font-display text-left text-primary-800 break-words"
+          className="type-display-section font-display text-left text-deep break-words"
         >
           {story.title}
         </h2>

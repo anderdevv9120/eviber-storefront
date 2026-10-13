@@ -54,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={theme.fontClassName}>
       {/* Font body qua preflight (fontFamily.sans = var(--font-body)), nền theo token page */}
-      <body className="text-sm md:text-base antialiased leading-normal bg-page text-gray-900">
+      <body className="text-sm md:text-base antialiased leading-normal bg-page text-ink">
         {children}
         <ToastContainer hideProgressBar />
         <div id="portal" />

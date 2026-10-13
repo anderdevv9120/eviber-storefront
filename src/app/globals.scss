@@ -93,6 +93,19 @@ body {
       font-size: var(--display-page-size-md);
     }
   }
+
+  /* Tiêu đề khối con trong trang (mô tả, đánh giá, sản phẩm liên quan) */
+  .type-display-sub {
+    font-family: var(--font-display);
+    font-size: var(--display-sub-size);
+    font-weight: var(--display-sub-weight);
+    letter-spacing: var(--display-sub-tracking);
+    line-height: var(--display-sub-leading);
+
+    @media (min-width: 768px) {
+      font-size: var(--display-sub-size-md);
+    }
+  }
 }
 
 @keyframes fadeUp {

@@ -19,9 +19,7 @@ const ContentSlider = ({
     // KHÔNG đặt overflow-hidden ở section — shadow-card của card con sẽ bị xén;
     // clipping ngang do từng rail tự quản trong container riêng của nó
     <section className="my-16 md:my-24">
-      <h2 className="type-display-section font-display text-primary-800">
-        {title}
-      </h2>
+      <h2 className="type-display-section font-display text-deep">{title}</h2>
       {subtitle && (
         <p className="[text-align:var(--section-head-align)] text-sm text-dark-500 mt-1">
           {subtitle}

@@ -31,6 +31,8 @@
   --color-white-600: 217 217 217; /* #D9D9D9 */
   --color-terracotta: 196 71 43; /* #C4472B */
   --color-page: 255 255 255; /* #FFFFFF */
+  --color-ink: 17 24 39; /* #111827 = gray-900 (chữ body cũ) */
+  --color-deep: 12 79 68; /* #0C4F44 = primary-800 (tiêu đề section, nền footer) */
 
   /* Radius = mặc định Tailwind v3 */
   --radius-sm: 0.125rem;
@@ -67,5 +69,11 @@
   --display-page-transform: none;
   --display-page-tracking: normal;
   --display-page-leading: calc(2em / 3 + 1rem);
+  /* text-xl md:text-2xl font-bold — leading 1em + 0.5rem = 1.75rem @1.25rem, 2rem @1.5rem */
+  --display-sub-size: 1.25rem;
+  --display-sub-size-md: 1.5rem;
+  --display-sub-weight: 700;
+  --display-sub-tracking: normal;
+  --display-sub-leading: calc(1em + 0.5rem);
   --section-head-align: center;
 }

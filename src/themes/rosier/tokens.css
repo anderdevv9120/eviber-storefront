@@ -15,7 +15,7 @@
   --color-dark-50: 227 181 177; /* #E3B5B1 */
   --color-dark-100: 217 175 172; /* #D9AFAC */
   --color-dark-200: 201 161 160; /* #C9A1A0 */
-  --color-dark-300: 165 122 128; /* #A57A80 */
+  --color-dark-300: 140 97 104; /* #8C6168 — tối hơn mockup #A57A80 để chữ phụ đạt 4.5:1 trên nền page */
   --color-dark-400: 122 62 75; /* #7A3E4B */
   --color-dark-500: 110 51 65; /* #6E3341 */
   --color-dark-600: 90 37 51; /* #5A2533 */
@@ -29,8 +29,10 @@
   --color-white-400: 235 201 195; /* #EBC9C3 */
   --color-white-500: 232 194 190; /* #E8C2BE */
   --color-white-600: 217 175 172; /* #D9AFAC */
-  --color-terracotta: 200 102 79; /* #C8664F */
+  --color-terracotta: 168 78 58; /* #A84E3A — tối hơn mockup #C8664F để giá sale đạt 4.5:1 trên page/white */
   --color-page: 251 238 234; /* #FBEEEA */
+  --color-ink: 62 15 28; /* #3E0F1C — chữ thân trang */
+  --color-deep: 62 15 28; /* #3E0F1C — tiêu đề section + nền footer */
 
   --radius-sm: 7px;
   --radius-default: 10px;
@@ -65,5 +67,10 @@
   --display-page-transform: none;
   --display-page-tracking: -0.01em;
   --display-page-leading: 0.95;
+  --display-sub-size: clamp(28px, 3vw, 40px);
+  --display-sub-size-md: clamp(28px, 3vw, 40px);
+  --display-sub-weight: 400;
+  --display-sub-tracking: -0.01em;
+  --display-sub-leading: 1.1;
   --section-head-align: left;
 }
