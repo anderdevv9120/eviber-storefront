@@ -73,6 +73,12 @@
   --display-sub-tracking: -0.01em;
   --display-sub-leading: 1.1;
   --section-head-align: left;
+  /* Mô tả section cạnh tiêu đề như head "Shop by mood" của mockup (index.html:85-87) */
+  --section-head-display: flex;
+  --section-sub-size: 15px;
+  --section-sub-leading: 1.55;
+  --section-sub-mt: 0;
+  --section-sub-max-w: 340px;
   /* scroll-margin cho anchor/scrollIntoView: header sticky luôn hiện (2 hàng < lg) + 16px */
   --header-offset: 160px;
 }

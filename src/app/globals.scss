@@ -81,6 +81,24 @@ body {
     }
   }
 
+  /* Cụm tiêu đề + mô tả section: classic xếp dọc (block → flex/gap không áp dụng),
+     rosier cùng hàng, mô tả canh đáy bên phải, wrap xuống dưới khi hẹp */
+  .section-head {
+    display: var(--section-head-display);
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  .type-section-sub {
+    font-size: var(--section-sub-size);
+    line-height: var(--section-sub-leading);
+    margin-top: var(--section-sub-mt);
+    max-width: var(--section-sub-max-w);
+    text-align: var(--section-head-align);
+  }
+
   .type-display-page {
     font-family: var(--font-display);
     font-size: var(--display-page-size);

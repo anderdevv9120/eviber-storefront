@@ -76,5 +76,11 @@
   --display-sub-tracking: normal;
   --display-sub-leading: calc(1em + 0.5rem);
   --section-head-align: center;
+  /* Mô tả dưới tiêu đề section: text-sm mt-1 */
+  --section-head-display: block;
+  --section-sub-size: 0.875rem;
+  --section-sub-leading: 1.25rem;
+  --section-sub-mt: 0.25rem;
+  --section-sub-max-w: none;
   --header-offset: 6rem; /* scroll-margin anchor (header classic ẩn khi cuộn xuống) */
 }

@@ -114,9 +114,11 @@ export default async function Home() {
       )}
 
       {/* Band màu CHỈ bọc Review — py-px chặn margin-collapse
-          để margin của ContentSlider tự làm đệm trong band */}
+          để margin của ContentSlider tự làm đệm trong band.
+          Không mt: khoảng cách phía trên do margin-bottom của khối trước lo
+          (rosier BrandStory là band → 2 band liền nhau) */}
       {reviews.length > 0 && (
-        <section className="bg-primary-50 mt-16 md:mt-24 py-px">
+        <section className="bg-primary-50 py-px">
           <div className="container-base">
             <ContentSlider
               title="Phản hồi từ khách hàng"
