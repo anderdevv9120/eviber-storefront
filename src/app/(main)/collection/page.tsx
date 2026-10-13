@@ -43,7 +43,7 @@ const Collection = async ({ searchParams }: CollectionPageProps) => {
   return (
     <div className="container-base">
       <div className="pt-8 pb-10">
-        <h1 className="text-2xl md:text-3xl font-bold mb-6">Tất cả sản phẩm</h1>
+        <h1 className="type-display-page font-display mb-6">Tất cả sản phẩm</h1>
 
         <CollectionContent
           categories={categories}

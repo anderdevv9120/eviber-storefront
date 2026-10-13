@@ -23,9 +23,9 @@ const buttonVariants = cva(
       },
       size: {
         // sm: hành động phụ nhẹ trong khối nội dung (vd Xem thêm mô tả)
-        sm: "h-10 rounded-md text-sm",
-        md: "h-12 rounded-md",
-        lg: "h-14 rounded-xl text-base",
+        sm: "h-10 rounded-btn text-sm",
+        md: "h-12 rounded-btn",
+        lg: "h-14 rounded-btn-lg text-base",
       },
     },
     // Weight là thuộc tính dẫn xuất theo (variant, size) — không expose thành prop riêng
