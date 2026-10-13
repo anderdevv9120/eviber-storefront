@@ -20,6 +20,15 @@ export interface IHomePromise {
   description: string;
 }
 
+// CTA chỉ có khi đủ cặp ctaLabel + href (BE validate)
+export interface IBrandStory {
+  title: string;
+  body: string;
+  image: string;
+  ctaLabel?: string;
+  href?: string;
+}
+
 export interface IStoreSettings {
   contact: { address: string; email: string; phone: string };
   socials: { facebook: string; instagram: string; twitter: string };
@@ -27,6 +36,8 @@ export interface IStoreSettings {
   homePromises: IHomePromise[];
   productPromises: string[];
   publishedPolicySlugs: PolicySlug[];
+  // null = ẩn section trên home
+  brandStory: IBrandStory | null;
 }
 
 export interface IPolicyPage {

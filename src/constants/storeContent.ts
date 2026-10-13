@@ -59,4 +59,5 @@ export const STORE_SETTINGS_FALLBACK: IStoreSettings = {
     "Thanh toán khi nhận (COD)",
   ],
   publishedPolicySlugs: [],
+  brandStory: null,
 };

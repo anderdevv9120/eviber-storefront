@@ -7,6 +7,7 @@ import Category from "@/components/ui/Category";
 import CustomerReview from "@/components/ui/CustomerReview";
 import UspStrip from "./_component/UspStrip";
 import PromoSplitBanner from "./_component/PromoSplitBanner";
+import BrandStory from "./_component/BrandStory";
 import { PATH } from "@/constants/paths";
 import { getBanners, getFeaturedReviews } from "@/apis/home";
 import { fetchStoreSettingsCached } from "@/apis/home.server";
@@ -106,6 +107,10 @@ export default async function Home() {
           >
             <CardItemSlider dataProduct={bestSellers} />
           </ContentSlider>
+        )}
+
+        {storeSettings.brandStory && (
+          <BrandStory story={storeSettings.brandStory} />
         )}
       </div>
 

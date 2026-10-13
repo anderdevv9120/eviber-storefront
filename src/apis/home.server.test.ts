@@ -16,3 +16,39 @@ describe("fetchStoreSettingsCached", () => {
     expect(settings.publishedPolicySlugs).toEqual([]);
   });
 });
+
+describe("fetchStoreSettingsCached brand story", () => {
+  const story = {
+    title: "Câu chuyện của chúng tôi",
+    body: "Dòng 1\nDòng 2",
+    image: "/images/story.jpg",
+    ctaLabel: "Tìm hiểu",
+    href: "/collection",
+  };
+
+  it("falls back to no brand story when settings fail to load", async () => {
+    vi.mocked(getStoreSettings).mockRejectedValueOnce(
+      new Error("ECONNREFUSED")
+    );
+    const settings = await fetchStoreSettingsCached();
+    expect(settings.brandStory).toBeNull();
+  });
+
+  it("passes the API brand story through", async () => {
+    vi.mocked(getStoreSettings).mockResolvedValueOnce({
+      data: { ...STORE_SETTINGS_FALLBACK, brandStory: story },
+    } as never);
+    const settings = await fetchStoreSettingsCached();
+    expect(settings.brandStory).toEqual(story);
+  });
+
+  it("reads a missing brand story as none", async () => {
+    const { brandStory: _omit, ...older } = {
+      ...STORE_SETTINGS_FALLBACK,
+      brandStory: story,
+    };
+    vi.mocked(getStoreSettings).mockResolvedValueOnce({ data: older } as never);
+    const settings = await fetchStoreSettingsCached();
+    expect(settings.brandStory).toBeNull();
+  });
+});
