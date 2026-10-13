@@ -66,11 +66,18 @@
   --display-page-weight: 400;
   --display-page-transform: none;
   --display-page-tracking: -0.01em;
-  --display-page-leading: 0.95;
+  --display-page-leading: 1; /* 0.95 của mockup: dấu chồng tiếng Việt (ể, ấ) đè chân chữ g/p khi tiêu đề xuống dòng */
   --display-sub-size: clamp(28px, 3vw, 40px);
   --display-sub-size-md: clamp(28px, 3vw, 40px);
   --display-sub-weight: 400;
   --display-sub-tracking: -0.01em;
   --display-sub-leading: 1.1;
   --section-head-align: left;
+  /* scroll-margin cho anchor/scrollIntoView: header sticky luôn hiện (2 hàng < lg) + 16px */
+  --header-offset: 160px;
+}
+@media (min-width: 1024px) {
+  :root {
+    --header-offset: 104px;
+  }
 }

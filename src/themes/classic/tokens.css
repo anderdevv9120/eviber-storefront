@@ -76,4 +76,5 @@
   --display-sub-tracking: normal;
   --display-sub-leading: calc(1em + 0.5rem);
   --section-head-align: center;
+  --header-offset: 6rem; /* scroll-margin anchor (header classic ẩn khi cuộn xuống) */
 }

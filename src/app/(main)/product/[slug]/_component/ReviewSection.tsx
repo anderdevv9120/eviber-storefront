@@ -77,7 +77,7 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
 
   return (
     // scroll-mt bù header fixed khi nhảy anchor từ meta "N đánh giá"
-    <section id="danh-gia" className="scroll-mt-24">
+    <section id="danh-gia" className="scroll-mt-[var(--header-offset)]">
       <h2 className="type-display-sub font-display mb-5">Đánh giá sản phẩm</h2>
       <ReviewForm
         productId={productId}

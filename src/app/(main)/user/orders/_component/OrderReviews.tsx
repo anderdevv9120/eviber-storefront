@@ -25,7 +25,7 @@ export default function OrderReviews({
         <div
           key={product.productId}
           id={`review-${product.productId}`}
-          className="mt-5 scroll-mt-24"
+          className="mt-5 scroll-mt-[var(--header-offset)]"
         >
           <h3 className="font-semibold">
             {product.productNameAtOrder ?? "Sản phẩm"}

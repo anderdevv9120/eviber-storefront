@@ -62,7 +62,7 @@ function NavPills({
             })
           }
           className={cn(
-            "px-[18px] py-2.5 rounded-full whitespace-nowrap text-dark-800 transition-colors hover:bg-page/60",
+            "px-[18px] min-h-11 flex items-center rounded-full whitespace-nowrap text-dark-800 transition-colors hover:bg-page/60",
             FOCUS_RING,
             item.active && "bg-page hover:bg-page"
           )}

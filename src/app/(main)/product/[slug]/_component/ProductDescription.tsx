@@ -44,7 +44,7 @@ const ProductDescription = ({ descriptionHtml }: ProductDescriptionProps) => {
   return (
     // V2 (chốt section-rhythm): mô tả TRẦN — hairline dưới heading làm neo,
     // nền nhường cho khối Đánh giá (nhịp trang trắng → trắng → xám → trắng)
-    <section ref={rootRef} className="scroll-mt-24">
+    <section ref={rootRef} className="scroll-mt-[var(--header-offset)]">
       <h2 className="type-display-sub font-display pb-4 border-b border-white-300 mb-5">
         Mô tả sản phẩm
       </h2>

@@ -15,17 +15,19 @@ const FOCUS_RING =
 
 const Hero = ({ banners }: ThemeHeroProps) => {
   const [current, setCurrent] = useState(0);
+  // Focus trong hero (CTA/dot) → dừng tự chuyển: slide cũ thành inert sẽ cướp focus bàn phím
+  const [paused, setPaused] = useState(false);
   const count = banners.length;
 
   useEffect(() => {
-    if (count <= 1) return;
+    if (count <= 1 || paused) return;
     // ponytail: đọc reduced-motion mỗi lần đổi slide, không lắng nghe "change" — đổi setting giữa chừng có hiệu lực từ slide sau
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % count);
     }, AUTO_SLIDE_MS);
     return () => clearInterval(timer);
-  }, [count, current]);
+  }, [count, current, paused]);
 
   // Hook phải gọi trước early-return (rules of hooks)
   const swipeHandlers = useCustomSwipeable({
@@ -39,6 +41,10 @@ const Hero = ({ banners }: ThemeHeroProps) => {
   return (
     <section
       aria-label="Banner khuyến mãi"
+      onFocus={() => setPaused(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false);
+      }}
       className="max-w-[1440px] mx-auto px-[clamp(16px,4vw,48px)] pt-4 grid grid-cols-1 md:grid-cols-2 items-center gap-[clamp(32px,5vw,72px)]"
     >
       {/* Các slide chữ chồng cùng ô grid → cột cao theo slide dài nhất, đổi slide không nhảy layout.

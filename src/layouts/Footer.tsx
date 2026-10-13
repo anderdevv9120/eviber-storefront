@@ -66,7 +66,10 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
             />
           </Link>
 
-          <div id="lien-he" className="text-sm text-primary-200 scroll-mt-24">
+          <div
+            id="lien-he"
+            className="text-sm text-primary-200 scroll-mt-[var(--header-offset)]"
+          >
             <p className="font-semibold text-white mb-1">
               Liên hệ với chúng tôi
             </p>
