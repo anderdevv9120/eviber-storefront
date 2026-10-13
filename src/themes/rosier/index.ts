@@ -1,8 +1,8 @@
 import "./tokens.css";
 import type { ThemeModule } from "@/themes/types";
 import { bodyFont, displayFont } from "./fonts";
-// Tạm dùng Header/Hero của classic (thay ở Task 8-9)
-import Header from "../classic/Header";
+import Header from "./Header";
+// Tạm dùng Hero của classic (thay ở Task 9)
 import Hero from "../classic/Hero";
 
 const theme = {

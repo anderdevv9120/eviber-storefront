@@ -97,9 +97,12 @@ export default function SearchBox({
   }, []);
   useClickOutside(rootRef, close);
 
-  useEffect(() => {
+  // Term đổi → bỏ highlight; reset ngay lúc render thay vì effect (tránh render dây chuyền)
+  const [prevQueryTerm, setPrevQueryTerm] = useState(queryTerm);
+  if (queryTerm !== prevQueryTerm) {
+    setPrevQueryTerm(queryTerm);
     setActiveIndex(-1);
-  }, [queryTerm]);
+  }
 
   useEffect(() => {
     onOpenChange?.(showPanel);
@@ -142,7 +145,8 @@ export default function SearchBox({
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") {
-      if (isOpen) close();
+      // isOpen bật ngay khi focus dù panel chưa hiện — Escape đầu tiên không được nuốt im lặng
+      if (showPanel) close();
       else onEscape?.();
       return;
     }
