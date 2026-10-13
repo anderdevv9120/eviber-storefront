@@ -10,6 +10,16 @@ import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 const AUTO_SLIDE_MS = 5000;
 
+// Cỡ tiêu đề theo độ dài (CMS cho tới 200 ký tự) và chặn theo chiều cao màn hình (vh)
+// để cả hero vừa một màn hình; tiêu đề ngắn mới được cỡ lớn kiểu mockup.
+// leading đứng SAU cỡ chữ: cn() (tailwind-merge) bỏ leading-* nằm trước text-[...]
+const titleClass = (title: string) =>
+  title.length <= 30
+    ? "text-[clamp(40px,min(7vw,10vh),112px)] leading-none"
+    : title.length <= 70
+      ? "text-[clamp(34px,min(5vw,7.5vh),80px)] leading-none"
+      : "text-[clamp(26px,min(3vw,4.5vh),48px)] leading-[1.1]";
+
 const FOCUS_RING =
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
@@ -63,11 +73,16 @@ const Hero = ({ banners }: ThemeHeroProps) => {
               inert={!active}
             >
               {/* leading 1 thay 0.88 của mockup: dấu chồng tiếng Việt (ể, ấ) đè chân chữ g/p dòng trên */}
-              <h2 className="font-display text-dark-800 leading-none tracking-[-0.02em] text-[clamp(64px,9vw,152px)] break-words">
+              <h2
+                className={cn(
+                  "font-display text-dark-800 tracking-[-0.02em] break-words",
+                  titleClass(banner.title)
+                )}
+              >
                 {banner.title}
               </h2>
               {banner.subtitle && (
-                <p className="mt-7 text-lg leading-relaxed text-dark-500 max-w-[440px]">
+                <p className="mt-5 md:mt-7 text-base md:text-lg leading-relaxed text-dark-500 max-w-[440px]">
                   {banner.subtitle}
                 </p>
               )}
@@ -101,7 +116,8 @@ const Hero = ({ banners }: ThemeHeroProps) => {
       <div className="flex flex-col items-center">
         <div
           {...swipeHandlers}
-          className="relative w-full max-w-[600px] aspect-[4/5] rounded-[999px_999px_32px_32px] overflow-hidden bg-primary-200"
+          // Rộng tối đa theo chiều cao còn lại dưới header → khung 4/5 không cao quá màn hình
+          className="relative w-full max-w-[min(600px,calc((100svh_-_var(--header-offset)_-_4rem)*0.8))] aspect-[4/5] rounded-[999px_999px_32px_32px] overflow-hidden bg-primary-200"
         >
           {banners.map((banner, index) => (
             <Image
