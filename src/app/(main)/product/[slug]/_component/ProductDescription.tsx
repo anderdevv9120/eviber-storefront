@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Button from "@/components/ui/Button";
+import { ChevronDown } from "@/components/icons";
+import { cn } from "@/config/utils";
 import styles from "./ProductDescription.module.scss";
 
 /** Chiều cao khung thu gọn — hằng dùng chung cho style lẫn phép đo overflow */
@@ -58,23 +59,31 @@ const ProductDescription = ({ descriptionHtml }: ProductDescriptionProps) => {
           className={styles.prose}
           dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         />
-        {/* Fade cho "Xem thêm" lý do thị giác (chốt D1) — from trùng nền trang */}
+        {/* Fade cho "Xem thêm" lý do thị giác (chốt D1) — from trùng nền trang qua
+            token page (body bg-page), không hardcode white: rosier nền blush lộ dải trắng */}
         {!expanded && isOverflow && (
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-page via-page/80 to-page/0" />
         )}
       </div>
       {isOverflow && (
         <div className="flex justify-center mt-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="px-4"
+          {/* Text link + chevron (cùng pattern SavedAddressList) thay pill outline —
+              hợp hairline dưới heading; hit-area 40px qua after: */}
+          <button
+            type="button"
             aria-expanded={expanded}
             aria-controls="product-description-content"
             onClick={handleToggle}
+            className="relative inline-flex items-center gap-1.5 h-8 px-2 text-sm font-semibold text-primary-700 underline underline-offset-4 decoration-primary-200 hover:decoration-primary-700 transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 after:absolute after:-inset-y-1 after:-inset-x-2"
           >
             {expanded ? "Thu gọn" : "Xem thêm"}
-          </Button>
+            <ChevronDown
+              className={cn(
+                "w-3 h-3 mt-px transition-transform",
+                expanded && "rotate-180"
+              )}
+            />
+          </button>
         </div>
       )}
     </section>

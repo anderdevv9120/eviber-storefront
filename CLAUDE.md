@@ -126,3 +126,13 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 - **Font của theme bắt buộc có subset `vietnamese`** — thiếu là dấu tiếng Việt render font fallback. Check trước khi chọn font: `node_modules/next/dist/compiled/@next/font/dist/google/font-data.json` (Instrument Serif/Sans, Bodoni Moda KHÔNG có). Chỉ load weight đang dùng (rosier Playfair chỉ 400) → không gắn `font-bold` lên tiêu đề display (trình duyệt tự đậm giả); đổi cỡ/đậm tiêu đề qua role `.type-display-section/-page/-sub` (biến `--display-*` trong tokens.css).
 - **`tokens.css` chỉ khai biến trên `:root`** (không `@layer`/`@apply`/selector khác). Màu = kênh RGB `R G B` (không `#hex`/`rgb()`) để Tailwind opacity modifier `rgb(var(--color-x) / <alpha-value>)` chạy. SCSS dùng thẳng `rgb(var(--color-…))` — KHÔNG tạo alias trùng tên kiểu `--color-primary-700: rgb(var(--color-primary-700))` (vòng lặp trên `:root`, màu mất im lặng).
 - **Thêm theme mới:** copy `src/themes/classic/` → `src/themes/<tên>/` (tên thư mục = giá trị THEME). `tokens.css` giữ ĐỦ danh sách biến như classic (thiếu biến = class rỗng im lặng); `fonts.ts` dùng next/font với `variable: "--font-body"` (+ `"--font-display"` nếu có font tiêu đề riêng, không thì `--font-display: var(--font-body)` trong tokens.css); `Header.tsx`/`Hero.tsx` giữ props `ThemeHeaderProps`/`ThemeHeroProps` hoặc re-export bản classic; kiểm `THEME=<tên> npm run build` + `THEME=<tên> npm run test:e2e`. E2e viết theo markup header rosier (theme mặc định) — header khác markup thì sửa selector, giữ intent.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

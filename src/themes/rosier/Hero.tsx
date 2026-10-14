@@ -15,9 +15,9 @@ const AUTO_SLIDE_MS = 5000;
 // leading đứng SAU cỡ chữ: cn() (tailwind-merge) bỏ leading-* nằm trước text-[...]
 const titleClass = (title: string) =>
   title.length <= 30
-    ? "text-[clamp(40px,min(7vw,10vh),112px)] leading-none"
+    ? "text-[clamp(40px,min(7vw,10vh),70px)] leading-none"
     : title.length <= 70
-      ? "text-[clamp(34px,min(5vw,7.5vh),80px)] leading-none"
+      ? "text-[clamp(34px,min(5vw,7.5vh),70px)] leading-none"
       : "text-[clamp(26px,min(3vw,4.5vh),48px)] leading-[1.1]";
 
 const FOCUS_RING =
