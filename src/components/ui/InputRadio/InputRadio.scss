@@ -23,7 +23,7 @@
 }
 
 .custom-radio input[type="radio"]:focus-visible + .radio-circle {
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  box-shadow: 0 0 0 3px rgb(var(--color-primary-100));
 }
 
 .custom-radio input[type="radio"]:checked + .radio-circle::after {

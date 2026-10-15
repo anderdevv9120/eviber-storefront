@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Search, Logo } from "@/components/icons";
-import HeaderNav from "./HeaderNav";
-import UserAction from "./UserAction";
-import CategoryDropdown from "./CategoryDropdown";
-import SearchBox from "./SearchBox";
+import HeaderNav from "@/layouts/Header/HeaderNav";
+import UserAction from "@/layouts/Header/UserAction";
+import CategoryDropdown from "@/layouts/Header/CategoryDropdown";
+import SearchBox from "@/layouts/Header/SearchBox";
 import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
-import { ICategoryItem } from "@/@types/Home.type";
+import type { ThemeHeaderProps } from "@/themes/types";
 
 // "Liên hệ" chưa có trang riêng — neo xuống khối liên hệ ở Footer (id="lien-he")
 const CONTACT_ANCHOR = `${PATH.HOME}#lien-he`;
@@ -24,11 +24,7 @@ const SHOW_DELTA = -6;
 const HIDE_DELTA = 6;
 const PIN_AT_TOP = 64;
 
-interface HeaderProps {
-  categories: ICategoryItem[];
-}
-
-export default function Header({ categories }: HeaderProps) {
+function HeaderBar({ categories }: ThemeHeaderProps) {
   const lastY = useRef(0);
   const ticking = useRef(false);
 
@@ -157,5 +153,15 @@ export default function Header({ categories }: HeaderProps) {
         </div>
       )}
     </header>
+  );
+}
+
+// Header fixed — spacer giữ chỗ trong flow để nội dung không chui dưới header
+export default function Header(props: ThemeHeaderProps) {
+  return (
+    <>
+      <HeaderBar {...props} />
+      <div aria-hidden className="h-12 xl:h-[74px]" />
+    </>
   );
 }

@@ -1,10 +1,10 @@
 import { Metadata } from "next";
+import theme from "@active-theme";
 import ContentSlider from "@/components/ui/ContentSlider";
 import CardItemGrid from "@/components/ui/CardItemGrid";
 import CardItemSlider from "@/components/ui/CardItemSlider";
 import Category from "@/components/ui/Category";
 import CustomerReview from "@/components/ui/CustomerReview";
-import HeroBanner from "./_component/HeroBanner";
 import UspStrip from "./_component/UspStrip";
 import PromoSplitBanner from "./_component/PromoSplitBanner";
 import { PATH } from "@/constants/paths";
@@ -86,7 +86,7 @@ export default async function Home() {
       <h1 className="sr-only">
         CLOTHES — Thời trang tối giản, mặc bền nhiều mùa
       </h1>
-      <HeroBanner banners={banners} />
+      <theme.Hero banners={banners} />
 
       <div className="container-base">
         <Category />
@@ -109,10 +109,16 @@ export default async function Home() {
         )}
       </div>
 
+      {storeSettings.brandStory && (
+        <theme.BrandStory story={storeSettings.brandStory} />
+      )}
+
       {/* Band màu CHỈ bọc Review — py-px chặn margin-collapse
-          để margin của ContentSlider tự làm đệm trong band */}
+          để margin của ContentSlider tự làm đệm trong band.
+          Không mt: khoảng cách phía trên do margin-bottom của khối trước lo
+          (rosier BrandStory là band → 2 band liền nhau) */}
       {reviews.length > 0 && (
-        <section className="bg-primary-50 mt-16 md:mt-24 py-px">
+        <section className="bg-primary-50 py-px">
           <div className="container-base">
             <ContentSlider
               title="Phản hồi từ khách hàng"

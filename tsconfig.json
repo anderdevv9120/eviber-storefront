@@ -24,6 +24,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@active-theme": [
+        "./src/themes/classic"
       ]
     },
     "target": "ES2017"

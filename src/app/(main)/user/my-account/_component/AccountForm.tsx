@@ -2,7 +2,7 @@
 
 import Input from "@/components/ui/Input";
 import { FORM_LABEL_CLASS } from "@/components/ui/FieldController";
-import Button from "@/components/ui/Button";
+import Button, { buttonVariants } from "@/components/ui/Button";
 import { RadioGroup } from "@/components/ui/InputRadio/Radio";
 import { cn } from "@/config/utils";
 import Image from "next/image";
@@ -21,7 +21,7 @@ import {
 } from "@/constants/validate";
 
 type TAcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, useWatch, FormProvider } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
 import { REGEX_PHONE_NUMBER } from "@/constants";
 import { uploadImage, updateUserInfo, getUser, TGender } from "@/apis/profile";
@@ -65,7 +65,7 @@ const AccountForm = () => {
       phone: profile.phone || "",
     },
   });
-  const { setValue, watch, handleSubmit, reset } = methods;
+  const { setValue, control, handleSubmit, reset } = methods;
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -74,8 +74,8 @@ const AccountForm = () => {
   const [hasFetchError, setHasFetchError] = useState<boolean>(false);
   const [email, setEmail] = useState<string>(profile.email || "");
 
-  const imgUrl = watch("imgUrl");
-  const gender = watch("gender");
+  const imgUrl = useWatch({ control, name: "imgUrl" });
+  const gender = useWatch({ control, name: "gender" });
   const filledFromCache = useRef(false);
 
   // Chunk chứa store có thể eval sau khi form mount (defaultValues khi đó chưa thấy
@@ -228,7 +228,9 @@ const AccountForm = () => {
               <label
                 htmlFor="avatar"
                 className={cn(
-                  "inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-primary bg-white px-4 text-sm font-medium text-primary-700 transition hover:bg-primary-50",
+                  // <label> của input file nên không dùng được <Button>: mượn class variant outline
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "cursor-pointer",
                   (isUploading || isSubmitting) &&
                     "pointer-events-none opacity-50"
                 )}

@@ -260,7 +260,10 @@ export default function CollectionContent({
         onClearAll={handleClearAll}
       />
 
-      <div ref={gridTopRef} className="flex-1 min-w-0 scroll-mt-24">
+      <div
+        ref={gridTopRef}
+        className="flex-1 min-w-0 scroll-mt-[var(--header-offset)]"
+      >
         <CollectionToolbar
           total={result.total}
           chips={chips}

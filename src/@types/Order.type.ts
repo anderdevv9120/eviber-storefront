@@ -35,12 +35,20 @@ export interface IPaymentHistoryEntry {
   changedBy?: { actorType: "admin" | "system" | "webhook" };
 }
 
-/** BE: BankTransferAccountResponse (payment.interface.ts) — shape VietQR, FE ghép URL ảnh QR */
-export interface IBankTransferAccount {
+/** BE: PaymentLinkResponse (payment.interface.ts) — một mã QR payOS của đơn chuyển khoản */
+export interface IPaymentLink {
+  /** Chuỗi EMVCo (VietQR), KHÔNG phải URL ảnh — FE tự vẽ QR */
+  qrCode: string;
   bankBin: string;
-  bankName: string;
   accountNumber: string;
   accountName: string;
+  amount: number;
+  /** Nội dung chuyển khoản payOS cấp cho link này — khách chuyển tay phải gõ đúng */
+  description: string;
+  /** ISO — hạn của MÃ QR (15 phút), khác paymentDueAt của đơn (mặc định 1h) */
+  expiresAt: string;
+  /** Số giây còn lại theo đồng hồ server tại lúc trả response — hẹn giờ hết hạn theo đây, không so expiresAt với đồng hồ máy khách (lệch giờ là QR tự hết hạn oan) */
+  expiresInSeconds: number;
 }
 
 /** BE: ShippingInfo trong MakeOrderDto — LƯU Ý tên field: name (không phải fullName), city (không phải province), specificAddress (không phải address), email BẮT BUỘC */

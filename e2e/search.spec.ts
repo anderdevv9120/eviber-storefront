@@ -1,17 +1,23 @@
 import { test, expect, Page } from "@playwright/test";
 import { HOODIE } from "./helpers/shop";
 
-// Ô search Header render 2 bản (desktop + thanh mobile) — desktop là bản duy nhất
-// visible ở viewport mặc định; thanh mobile chỉ mount sau khi bấm kính lúp
-const desktopSearchInput = (page: Page) =>
-  page.getByRole("combobox", { name: "Tìm kiếm sản phẩm" });
+// Header Rosier (theme mặc định) không có ô search inline ở desktop: mọi breakpoint
+// đều bấm kính lúp mở thanh search; submit đóng thanh, mở lại thì ô giữ từ khóa từ URL
+const openSearch = async (page: Page) => {
+  await page.getByRole("button", { name: "Tìm kiếm", exact: true }).click();
+  return page
+    .getByTestId("mobile-search-bar")
+    .getByRole("combobox", { name: "Tìm kiếm sản phẩm" });
+};
+const closeSearch = (page: Page) =>
+  page.getByRole("button", { name: "Đóng tìm kiếm" }).click();
 
 test("search desktop: gợi ý typeahead → Enter về collection có chip từ khóa", async ({
   page,
 }) => {
   await page.goto("/");
 
-  const input = desktopSearchInput(page);
+  const input = await openSearch(page);
   await input.fill("hood");
   // Panel gợi ý hiện sản phẩm seed có "hood" trong tên, phần khớp được highlight
   const listbox = page.getByRole("listbox", { name: "Gợi ý sản phẩm" });
@@ -29,7 +35,8 @@ test("search desktop: gợi ý typeahead → Enter về collection có chip từ
   await expect(
     page.getByRole("button", { name: "Bỏ lọc Từ khóa: hood" })
   ).toBeVisible();
-  await expect(input).toHaveValue("hood");
+  await expect(await openSearch(page)).toHaveValue("hood");
+  await closeSearch(page);
   await expect(page.getByRole("heading", { name: HOODIE.name })).toBeVisible();
 
   // Đổi sort vẫn giữ từ khóa trên URL
@@ -40,14 +47,14 @@ test("search desktop: gợi ý typeahead → Enter về collection có chip từ
   // Bỏ chip → URL sạch, ô search trống
   await page.getByRole("button", { name: "Bỏ lọc Từ khóa: hood" }).click();
   await expect(page).not.toHaveURL(/search=/);
-  await expect(input).toHaveValue("");
+  await expect(await openSearch(page)).toHaveValue("");
 });
 
 test("search desktop: từ khóa không khớp → empty state nêu từ khóa", async ({
   page,
 }) => {
   await page.goto("/");
-  const input = desktopSearchInput(page);
+  const input = await openSearch(page);
   await input.fill("zzzz-khong-co");
   await expect(
     page.getByText("Không có sản phẩm nào cho “zzzz-khong-co”")

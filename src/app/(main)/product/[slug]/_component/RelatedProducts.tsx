@@ -11,7 +11,7 @@ const RelatedProducts = ({ products }: RelatedProductsProps) => {
 
   return (
     <section>
-      <h2 className="text-xl md:text-2xl font-bold mb-5">
+      <h2 className="type-display-sub font-display mb-5">
         Sản phẩm cùng danh mục
       </h2>
       <CardItemSlider dataProduct={products} />

@@ -1,5 +1,5 @@
 import Footer from "@/layouts/Footer";
-import Header from "@/layouts/Header";
+import theme from "@active-theme";
 import { ReactNode } from "react";
 import Authentication from "@/components/organisms/Authentication";
 import {
@@ -23,8 +23,8 @@ export default async function MainLayout({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header categories={categories} />
-      <div className="flex flex-1 flex-col pt-12 xl:pt-[74px]">{children}</div>
+      <theme.Header categories={categories} />
+      <div className="flex flex-1 flex-col">{children}</div>
       <Authentication />
       <Footer settings={storeSettings} />
     </div>

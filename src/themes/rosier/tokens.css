@@ -1,0 +1,89 @@
+/* Theme rosier — Atelier Rosier (design-showcase/site/atelier-rosier).
+   Chỉ khai báo biến :root (không @layer/@apply). Màu = kênh RGB để Tailwind
+   giữ opacity modifier: rgb(var(--color-…) / <alpha-value>). */
+:root {
+  --color-primary-50: 255 244 241; /* #FFF4F1 */
+  --color-primary-100: 251 217 213; /* #FBD9D5 */
+  --color-primary-200: 240 196 195; /* #F0C4C3 */
+  --color-primary-300: 217 142 146; /* #D98E92 */
+  --color-primary-400: 210 85 106; /* #D2556A */
+  --color-primary-500: 200 54 74; /* #C8364A */
+  --color-primary-600: 179 38 58; /* #B3263A */
+  --color-primary-700: 158 32 50; /* #9E2032 */
+  --color-primary-800: 143 28 46; /* #8F1C2E */
+  --color-primary-900: 90 26 42; /* #5A1A2A */
+  --color-dark-50: 227 181 177; /* #E3B5B1 */
+  --color-dark-100: 217 175 172; /* #D9AFAC */
+  --color-dark-200: 201 161 160; /* #C9A1A0 */
+  --color-dark-300: 140 97 104; /* #8C6168 — tối hơn mockup #A57A80 để chữ phụ đạt 4.5:1 trên nền page */
+  --color-dark-400: 122 62 75; /* #7A3E4B */
+  --color-dark-500: 110 51 65; /* #6E3341 */
+  --color-dark-600: 90 37 51; /* #5A2533 */
+  --color-dark-700: 74 20 36; /* #4A1424 */
+  --color-dark-800: 62 15 28; /* #3E0F1C */
+  --color-dark-900: 46 10 20; /* #2E0A14 */
+  --color-white-50: 255 247 244; /* #FFF7F4 */
+  --color-white-100: 251 238 234; /* #FBEEEA */
+  --color-white-200: 243 230 223; /* #F3E6DF */
+  --color-white-300: 245 214 208; /* #F5D6D0 */
+  --color-white-400: 235 201 195; /* #EBC9C3 */
+  --color-white-500: 232 194 190; /* #E8C2BE */
+  --color-white-600: 217 175 172; /* #D9AFAC */
+  --color-terracotta: 168 78 58; /* #A84E3A — tối hơn mockup #C8664F để giá sale đạt 4.5:1 trên page/white */
+  --color-page: 253 243 240; /* #FDF3F0 — sáng hơn mockup #FBEEEA */
+  --color-ink: 62 15 28; /* #3E0F1C — chữ thân trang */
+  --color-deep: 62 15 28; /* #3E0F1C — tiêu đề section + nền footer */
+
+  --radius-sm: 7px;
+  --radius-default: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
+  --radius-btn: 9999px;
+  --radius-btn-lg: 9999px;
+
+  /* Cùng offset/blur với classic, tông rượu vang (dark-800) */
+  --shadow-card:
+    0 1px 2px rgba(62, 15, 28, 0.04), 0 10px 28px -14px rgba(62, 15, 28, 0.12);
+  --shadow-card-hover:
+    0 2px 4px rgba(62, 15, 28, 0.06), 0 18px 44px -16px rgba(62, 15, 28, 0.18);
+  --shadow-auth-card:
+    0 24px 60px -12px rgba(62, 15, 28, 0.14), 0 4px 14px rgba(62, 15, 28, 0.05);
+
+  /* --font-body / --font-display do next/font gắn (fonts.ts) */
+
+  /* Vai trò chữ — serif lớn, không in hoa; clamp tự co giãn nên size = size-md */
+  --display-section-size: clamp(40px, 5vw, 72px);
+  --display-section-size-md: clamp(40px, 5vw, 72px);
+  --display-section-weight: 400;
+  --display-section-transform: none;
+  --display-section-tracking: -0.01em;
+  --display-section-leading: 1;
+  --display-page-size: clamp(44px, 4.5vw, 64px);
+  --display-page-size-md: clamp(44px, 4.5vw, 64px);
+  --display-page-weight: 400;
+  --display-page-transform: none;
+  --display-page-tracking: -0.01em;
+  --display-page-leading: 1; /* 0.95 của mockup: dấu chồng tiếng Việt (ể, ấ) đè chân chữ g/p khi tiêu đề xuống dòng */
+  --display-sub-size: clamp(28px, 3vw, 40px);
+  --display-sub-size-md: clamp(28px, 3vw, 40px);
+  --display-sub-weight: 400;
+  --display-sub-tracking: -0.01em;
+  --display-sub-leading: 1.1;
+  --section-head-align: left;
+  /* Mô tả section cạnh tiêu đề như head "Shop by mood" của mockup (index.html:85-87) */
+  --section-head-display: flex;
+  --section-sub-size: 15px;
+  --section-sub-leading: 1.55;
+  --section-sub-mt: 0;
+  --section-sub-max-w: 340px;
+  /* scroll-margin cho anchor/scrollIntoView: header sticky luôn hiện (2 hàng < lg) + 16px */
+  --header-offset: 160px;
+}
+@media (min-width: 1024px) {
+  :root {
+    --header-offset: 104px;
+  }
+}

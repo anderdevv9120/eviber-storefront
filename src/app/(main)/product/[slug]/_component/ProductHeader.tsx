@@ -22,7 +22,9 @@ const ProductHeader = ({
 
   return (
     <>
-      <h1 className="text-2xl md:text-3xl font-bold leading-snug">{title}</h1>
+      <h1 className="type-display-page font-display max-md:leading-snug">
+        {title}
+      </h1>
 
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 mt-2 text-sm text-dark-500">
         {hasRating && (

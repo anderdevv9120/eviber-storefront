@@ -4,19 +4,16 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ButtonChevron from "@/components/ui/ButtonChevron";
+import { buttonVariants } from "@/components/ui/Button";
 import useCustomSwipeable from "@/hooks/useCustomSwipeable";
 import { cn } from "@/config/utils";
-import { IBanner } from "@/@types/Home.type";
+import type { ThemeHeroProps } from "@/themes/types";
 import { PATH } from "@/constants/paths";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 const AUTO_SLIDE_MS = 5000;
 
-interface HeroBannerProps {
-  banners: IBanner[];
-}
-
-const HeroBanner = ({ banners }: HeroBannerProps) => {
+const HeroBanner = ({ banners }: ThemeHeroProps) => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -87,7 +84,10 @@ const HeroBanner = ({ banners }: HeroBannerProps) => {
                       <Link
                         href={banner.ctaHref || PATH.COLLECTION}
                         tabIndex={index === current ? undefined : -1}
-                        className="inline-flex items-center mt-5 h-11 md:h-12 px-7 rounded-xl bg-primary text-white font-semibold text-sm md:text-base hover:bg-primary-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+                        className={cn(
+                          buttonVariants({ variant: "primary" }),
+                          "mt-5 h-11 md:h-12 px-7 rounded-xl font-semibold text-sm md:text-base"
+                        )}
                       >
                         {banner.ctaLabel}
                       </Link>

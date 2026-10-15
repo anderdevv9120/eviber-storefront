@@ -92,7 +92,7 @@ const Counter = ({
               // tràn ra đè viền trên/dưới của pill (InputNumber bọc input trong
               // div nên self-stretch không với tới); py-0 đè py-3 của cva gốc
               cn(
-                "border-0 text-sm font-semibold focus-visible:ring-inset py-0",
+                "border-0 bg-transparent text-sm font-semibold focus-visible:ring-inset py-0",
                 sizeCls(
                   "h-[30px] w-7",
                   "h-[38px] w-8",

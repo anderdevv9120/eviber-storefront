@@ -20,6 +20,19 @@ export interface IHomePromise {
   description: string;
 }
 
+// CTA chỉ có khi đủ cặp ctaLabel + href (BE validate)
+export interface IBrandStory {
+  title: string;
+  /** Phần cuối tiêu đề — Rosier in nghiêng màu nhấn, classic nối liền tiêu đề */
+  titleAccent?: string;
+  body: string;
+  image: string;
+  /** Ảnh thứ 2 — chỉ Rosier dùng (2 khung vòm so le) */
+  image2?: string;
+  ctaLabel?: string;
+  href?: string;
+}
+
 export interface IStoreSettings {
   contact: { address: string; email: string; phone: string };
   socials: { facebook: string; instagram: string; twitter: string };
@@ -27,6 +40,8 @@ export interface IStoreSettings {
   homePromises: IHomePromise[];
   productPromises: string[];
   publishedPolicySlugs: PolicySlug[];
+  // null = ẩn section trên home
+  brandStory: IBrandStory | null;
 }
 
 export interface IPolicyPage {

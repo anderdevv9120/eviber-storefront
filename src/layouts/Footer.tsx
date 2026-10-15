@@ -51,7 +51,7 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
   const socials = socialLinks(settings.socials);
 
   return (
-    <footer className="bg-primary-800 text-white mt-16 md:mt-20">
+    <footer className="bg-deep text-white mt-16 md:mt-20">
       {/* Mobile: brand + newsletter full-width, 2 cột link đứng cạnh nhau (footer ngắn lại ~nửa) */}
       <div className="container-base pt-12 pb-8 grid grid-cols-2 gap-x-6 gap-y-10 lg:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div className="flex flex-col gap-4 items-start col-span-2 lg:col-span-1">
@@ -59,12 +59,17 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
             <Logo
               className="text-white"
               style={
-                { "--logo-dot": "var(--color-primary-300)" } as CSSProperties
+                {
+                  "--logo-dot": "rgb(var(--color-primary-300))",
+                } as CSSProperties
               }
             />
           </Link>
 
-          <div id="lien-he" className="text-sm text-primary-200 scroll-mt-24">
+          <div
+            id="lien-he"
+            className="text-sm text-primary-200 scroll-mt-[var(--header-offset)]"
+          >
             <p className="font-semibold text-white mb-1">
               Liên hệ với chúng tôi
             </p>

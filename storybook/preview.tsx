@@ -1,5 +1,6 @@
 import React from "react";
 import type { Preview, Decorator } from "@storybook/nextjs-vite";
+import theme from "@active-theme";
 
 // CSS toàn cục của dự án (Tailwind + SCSS) + toastify
 import "../src/app/globals.scss";
@@ -22,8 +23,20 @@ const withPortalRoot: Decorator = (Story) => {
   return <Story />;
 };
 
+/**
+ * Global decorator: gắn class font của theme active lên <html> như app/layout.tsx
+ * (tokens.css đã nạp qua import theme; --font-display đọc --font-body tại :root).
+ */
+const withThemeFont: Decorator = (Story) => {
+  React.useEffect(() => {
+    document.documentElement.classList.add(...theme.fontClassName.split(" "));
+  }, []);
+
+  return <Story />;
+};
+
 const preview: Preview = {
-  decorators: [withPortalRoot],
+  decorators: [withPortalRoot, withThemeFont],
   parameters: {
     controls: {
       matchers: {

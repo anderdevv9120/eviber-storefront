@@ -20,12 +20,19 @@ const buttonVariants = cva(
           "bg-white border border-primary text-primary-700 hover:bg-primary-50 disabled:border-white-600 disabled:bg-white-100 disabled:text-dark-400",
         // hành động phá hủy trong confirm (xóa địa chỉ) — màu chỉ nằm ở nút, không tô dialog
         danger: "bg-red-800 text-white hover:bg-red-900",
+        // lối ra phụ dạng chữ đứng dưới nút chính (vd "Tiếp tục mua sắm" dưới "Đặt lại")
+        ghost:
+          "bg-transparent text-dark-500 font-semibold hover:text-primary-700",
+        // lối hủy cấp thấp nhất đứng dưới nút chính (hủy đơn ở màn chờ): xám khi nghỉ, hover mới
+        // báo nghĩa phá hủy; bước xác nhận nằm ở dialog nên nút không cần màu cảnh báo sẵn
+        "subtle-danger":
+          "bg-transparent text-dark-400 font-semibold hover:text-terracotta",
       },
       size: {
         // sm: hành động phụ nhẹ trong khối nội dung (vd Xem thêm mô tả)
-        sm: "h-10 rounded-md text-sm",
-        md: "h-12 rounded-md",
-        lg: "h-14 rounded-xl text-base",
+        sm: "h-10 rounded-btn text-sm",
+        md: "h-12 rounded-btn",
+        lg: "h-14 rounded-btn-lg text-base",
       },
     },
     // Weight là thuộc tính dẫn xuất theo (variant, size) — không expose thành prop riêng
@@ -77,4 +84,5 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button";
 
+export { buttonVariants };
 export default Button;

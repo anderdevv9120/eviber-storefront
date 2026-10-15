@@ -29,7 +29,9 @@ export const fetchStoreSettingsCached = cache(
   async (): Promise<IStoreSettings> => {
     try {
       const response = await getStoreSettings();
-      return response?.data ?? STORE_SETTINGS_FALLBACK;
+      if (!response?.data) return STORE_SETTINGS_FALLBACK;
+      // BE cũ chưa có field → coi như không có câu chuyện
+      return { ...response.data, brandStory: response.data.brandStory ?? null };
     } catch {
       return STORE_SETTINGS_FALLBACK;
     }

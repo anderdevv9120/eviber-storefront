@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { IOrderResponse } from "@/@types/Order.type";
@@ -22,6 +22,9 @@ const OrderDetailPage = () => {
   // Next đã decode dynamic param trước khi đưa vào `params` — decode lần hai vừa thừa
   // vừa ném URIError với input hợp lệ (vd `/user/orders/ORD%25`), mà app không có error boundary
   const { orderNumber } = useParams<{ orderNumber: string }>();
+  // Ba đường cùng ghi `order` (nạp đầu, nạp lại sau hủy, polling nền) có thể về lệch thứ tự —
+  // chỉ request gửi sau cùng được ghi, không thì poll cũ đè đơn vừa hủy thành pending
+  const fetchSeq = useRef(0);
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
   // notFound: BE trả 404 chung cho "mã sai" lẫn "đơn của tài khoản khác"; failed: mạng/máy chủ
@@ -30,20 +33,27 @@ const OrderDetailPage = () => {
     message: string;
   }>();
 
-  // silent: nạp lại sau khi hủy đơn — giữ nội dung đang hiện thay vì nháy skeleton
+  // silent: nạp lại sau khi hủy đơn — giữ nội dung đang hiện thay vì nháy skeleton;
+  // quiet: lượt polling nền lúc chờ chuyển khoản — lỗi mạng thoáng qua không được toast mỗi 5s
   const fetchOrder = useCallback(
-    async (options?: { silent?: boolean; signal?: AbortSignal }) => {
+    async (options?: {
+      silent?: boolean;
+      quiet?: boolean;
+      signal?: AbortSignal;
+    }) => {
       if (!options?.silent) setIsLoading(true);
       setLoadError(undefined);
+      const seq = ++fetchSeq.current;
       try {
         const res = await getMyOrderDetail(orderNumber, options?.signal);
+        if (seq !== fetchSeq.current) return;
         setOrder(res.data);
       } catch (error: unknown) {
-        if (options?.signal?.aborted) return;
+        if (options?.signal?.aborted || seq !== fetchSeq.current) return;
         // Nạp lại nền (sau khi hủy đơn) mà lỗi: giữ nguyên đơn đang hiện thay vì thay cả
         // trang bằng khối lỗi. Endpoint này tắt toast global nên phải tự báo một tiếng.
         if (options?.silent) {
-          errorToast(getErrorMessage(error));
+          if (!options.quiet) errorToast(getErrorMessage(error));
           return;
         }
         setLoadError(
@@ -61,6 +71,8 @@ const OrderDetailPage = () => {
   useEffect(() => {
     // Đổi nhanh giữa 2 mã đơn: response cũ về sau không được đè đơn đang xem
     const controller = new AbortController();
+    // Nạp dữ liệu theo mã đơn trên URL; bật skeleton trước request là chủ đích
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrder({ signal: controller.signal });
 
     return () => controller.abort();
@@ -152,7 +164,9 @@ const OrderDetailPage = () => {
       {!isLoading && !loadError && order && (
         <OrderDetailView
           order={order}
-          onRefresh={() => fetchOrder({ silent: true })}
+          onRefresh={(options) =>
+            fetchOrder({ silent: true, quiet: options?.quiet })
+          }
         />
       )}
     </div>

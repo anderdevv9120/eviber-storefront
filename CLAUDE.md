@@ -39,7 +39,9 @@ src/
 │   ├── ui/                 # 30+ primitives (Button cva, Modal, Input*, Selector, Carousel...)
 │   ├── organisms/          # khối lớn (Authentication, PageNotFound)
 │   └── icons/              # icon components — check ở đây trước khi thêm icon mới
-├── layouts/                # Header/, Footer
+├── layouts/                # Header/ (phần dùng chung: SearchBox, UserAction...), Footer
+├── themes/                 # theme chọn lúc build qua env THEME (mặc định rosier): classic/ (Pine cũ), rosier/ (Atelier Rosier)
+│                           #   mỗi theme: index.ts (ThemeModule — types.ts), tokens.css, fonts.ts, Header.tsx, Hero.tsx
 ├── store/                  # Zustand v4: use{Name}Store theo domain (useAppStore, useCartStore, ...)
 ├── hooks/                  # useDebounce, useClickOutside, useMediaQuery, useWindowSize, usePrevious, useIgnoreFirstEffect...
 ├── constants/              # paths.ts (PATH.*), orderStatus, validate (message constants + regex), payment, service,
@@ -98,8 +100,13 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
   thiếu thì globalSetup fail sớm kèm hướng dẫn. Seed tự chạy mỗi run (idempotent).
   Máy mới lần đầu: `npx playwright install chromium` (tải browser binary).
 - FE/BE đang chạy sẵn thì dùng luôn (`reuseExistingServer`), chưa chạy thì tự start.
-  BE tự start được cấp `AUTH_THROTTLE_LIMIT=100` (nới rate limit auth khi test dồn dập —
-  BE chạy tay muốn vậy thì export biến này trước `npm run start:dev`).
+  BE do Playwright tự start được cấp `AUTH_THROTTLE_LIMIT=100` + `ORDER_LOOKUP_THROTTLE_LIMIT=200`
+  (nới throttle login/tra cứu đơn khi test dồn dập) và `PAYOS_*` giả + `PAYOS_BASE_URL` cổng chết
+  (không bao giờ gọi payOS thật). BE chạy tay muốn chạy cả suite thì export 2 biến throttle trước
+  `npm run start:dev`, không là dính 429 "Tra cứu quá nhanh" giữa chừng.
+- Spec mở màn chờ chuyển khoản (`/payment-success?orderNumber=`, chi tiết đơn chuyển khoản) PHẢI
+  mock route link bằng `mockPaymentLink` (`e2e/helpers/payment-link.ts`) — BE chạy tay với key thật
+  mà không mock là tạo link payOS thật cho đơn seed.
 - Verify email không có mailbox: test tự ký JWT verification y hệt BE
   (`e2e/helpers/verification-token.ts`, secret đọc runtime từ `.env` backend).
 - Data: bám fixture seed cố định (hoodie `07…0003`); order/account test TÍCH LŨY trong DB dev
@@ -116,6 +123,21 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 - **Tailwind content chỉ scan `src/app`, `src/components`, `src/layouts`** — class viết trong `hooks/`, `utils/`, `constants/` sẽ KHÔNG được generate (im lặng mất style).
 - **`middleware.ts` matcher chỉ cover `/login`, `/register`, `/user/*`** — `/cart` và `/checkout` KHÔNG qua middleware (guest cart/checkout là chủ đích, e2e guest checkout đã ghim hành vi này).
 - `services/` chỉ còn `todo.ts` gọi jsonplaceholder — boilerplate sót lại, KHÔNG theo pattern này; API layer thật là `apis/`.
-- Palette Tailwind bị override toàn bộ trong `tailwind.config.ts` (primary Pine `#0E7C66`) — màu mặc định Tailwind ngoài danh sách không tồn tại. Numbering đã chuẩn hóa: mọi nhóm số càng to càng đậm, nấc DEFAULT ghi comment cạnh từng nhóm (chi tiết + typography scale → rule `tailwind-v3`).
+- Palette Tailwind bị override toàn bộ trong `tailwind.config.ts` — màu mặc định Tailwind ngoài danh sách không tồn tại. `primary/dark/white/terracotta/page/ink/deep` lấy giá trị từ `src/themes/<theme>/tokens.css` (classic = Pine `#0E7C66`); status scale (red/green/yellow...) + gray cố định, KHÔNG theo theme. Numbering đã chuẩn hóa: mọi nhóm số càng to càng đậm, nấc DEFAULT ghi comment cạnh từng nhóm (chi tiết + typography scale → rule `tailwind-v3`).
 - **Đổi symbol trong `public/sprites.svg` phải bump `?v=` trong `SvgIcon.tsx`** — sprite load qua URL có query version, không bump là browser giữ bản icon CŨ im lặng (đã cắn khi đổi icon-filter).
 - **Đổi `tailwind.config.ts` phải RESTART dev server** — Next dev KHÔNG hot-reload file này; thêm token mới (màu/shadow...) lúc server đang chạy sẽ không được generate (class ra `none`/rỗng, im lặng). Sửa xong `tailwind.config.ts` → kill + `npm run dev` lại.
+- **Theme = alias build-time `@active-theme` → `src/themes/${THEME}`** (`turbopack.resolveAlias` trong `next.config.mjs`; Storybook mirror trong `storybook/main.ts`; `Dockerfile` có `ARG THEME=rosier`). THEME không có thư mục → config throw `Unknown THEME "x". Valid: classic, rosier` (dev/build fail ngay). `tsconfig.json` paths `@active-theme` → classic CHỈ để type-check (mọi theme cùng `ThemeModule`) — không quyết định runtime; `next dev --webpack` bỏ qua `turbopack.resolveAlias` nên rơi về tsconfig paths (= classic).
+- **Đổi `THEME` (shell hoặc `.env.local`) phải RESTART dev server** — `next.config.mjs` chỉ đọc env lúc load. Shell env thắng `.env.local`. Chạy Storybook theme khác: `THEME=classic npm run storybook`.
+- **Font của theme bắt buộc có subset `vietnamese`** — thiếu là dấu tiếng Việt render font fallback. Check trước khi chọn font: `node_modules/next/dist/compiled/@next/font/dist/google/font-data.json` (Instrument Serif/Sans, Bodoni Moda KHÔNG có). Chỉ load weight đang dùng (rosier Playfair chỉ 400) → không gắn `font-bold` lên tiêu đề display (trình duyệt tự đậm giả); đổi cỡ/đậm tiêu đề qua role `.type-display-section/-page/-sub` (biến `--display-*` trong tokens.css).
+- **`tokens.css` chỉ khai biến trên `:root`** (không `@layer`/`@apply`/selector khác). Màu = kênh RGB `R G B` (không `#hex`/`rgb()`) để Tailwind opacity modifier `rgb(var(--color-x) / <alpha-value>)` chạy. SCSS dùng thẳng `rgb(var(--color-…))` — KHÔNG tạo alias trùng tên kiểu `--color-primary-700: rgb(var(--color-primary-700))` (vòng lặp trên `:root`, màu mất im lặng).
+- **Thêm theme mới:** copy `src/themes/classic/` → `src/themes/<tên>/` (tên thư mục = giá trị THEME). `tokens.css` giữ ĐỦ danh sách biến như classic (thiếu biến = class rỗng im lặng); `fonts.ts` dùng next/font với `variable: "--font-body"` (+ `"--font-display"` nếu có font tiêu đề riêng, không thì `--font-display: var(--font-body)` trong tokens.css); `Header.tsx`/`Hero.tsx` giữ props `ThemeHeaderProps`/`ThemeHeroProps` hoặc re-export bản classic; kiểm `THEME=<tên> npm run build` + `THEME=<tên> npm run test:e2e`. E2e viết theo markup header rosier (theme mặc định) — header khác markup thì sửa selector, giữ intent.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
