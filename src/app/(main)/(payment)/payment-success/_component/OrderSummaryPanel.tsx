@@ -35,7 +35,7 @@ export default function OrderSummaryPanel({
   return (
     <aside
       data-testid="success-summary"
-      className="w-full shrink-0 rounded-xl border border-white-200 bg-white p-6 shadow-card lg:sticky lg:top-24 lg:w-[400px]"
+      className="w-full shrink-0 rounded-xl border border-white-200 bg-white p-6 pb-4 shadow-card lg:sticky lg:top-24 lg:w-[400px]"
     >
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h2 className="text-base font-bold">

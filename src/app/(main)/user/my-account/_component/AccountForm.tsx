@@ -2,7 +2,7 @@
 
 import Input from "@/components/ui/Input";
 import { FORM_LABEL_CLASS } from "@/components/ui/FieldController";
-import Button from "@/components/ui/Button";
+import Button, { buttonVariants } from "@/components/ui/Button";
 import { RadioGroup } from "@/components/ui/InputRadio/Radio";
 import { cn } from "@/config/utils";
 import Image from "next/image";
@@ -228,7 +228,9 @@ const AccountForm = () => {
               <label
                 htmlFor="avatar"
                 className={cn(
-                  "inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-primary bg-white px-4 text-sm font-medium text-primary-700 transition hover:bg-primary-50",
+                  // <label> của input file nên không dùng được <Button>: mượn class variant outline
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "cursor-pointer",
                   (isUploading || isSubmitting) &&
                     "pointer-events-none opacity-50"
                 )}

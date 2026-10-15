@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within, userEvent, fn } from "storybook/test";
 import Button from "@/components/ui/Button";
+import { XMark } from "@/components/icons";
 
 const meta = {
   title: "UI/Button",
@@ -13,7 +14,15 @@ const meta = {
   argTypes: {
     variant: {
       control: "inline-radio",
-      options: ["primary", "outlined", "secondary", "outline", "danger"],
+      options: [
+        "primary",
+        "outlined",
+        "secondary",
+        "outline",
+        "danger",
+        "ghost",
+        "subtle-danger",
+      ],
     },
     size: {
       control: "inline-radio",
@@ -59,6 +68,29 @@ export const Outline: Story = {
  */
 export const Danger: Story = {
   args: { variant: "danger", children: "Xóa địa chỉ" },
+};
+
+/**
+ * Lối ra phụ dạng chữ dưới nút chính (vd "Tiếp tục mua sắm" dưới "Đặt lại các sản phẩm này").
+ */
+export const Ghost: Story = {
+  args: { variant: "ghost", size: "sm", children: "Tiếp tục mua sắm" },
+};
+
+/**
+ * Lối hủy cấp thấp nhất dưới nút chính (hủy đơn ở màn chờ chuyển khoản): xám, hover terracotta.
+ */
+export const SubtleDanger: Story = {
+  args: {
+    variant: "subtle-danger",
+    size: "sm",
+    children: (
+      <>
+        <XMark className="h-3.5 w-3.5" />
+        Hủy đơn hàng
+      </>
+    ),
+  },
 };
 
 /**

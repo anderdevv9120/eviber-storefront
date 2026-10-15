@@ -89,6 +89,8 @@ test("guest đặt đơn Chuyển khoản → màn chờ đủ QR payOS / STK / 
   const leaveHint = page.getByTestId("awaiting-leave-hint");
   await expect(leaveHint).toContainText("Đơn được giữ tới");
   await expect(leaveHint).not.toContainText("Đơn hàng của tôi");
+  // Guest không có đường hủy (endpoint hủy đòi chủ đơn đăng nhập) — đơn tự hết hạn
+  await expect(page.getByTestId("awaiting-cancel-order")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Tiếp tục mua sắm" })
   ).toBeVisible();
@@ -100,7 +102,7 @@ test("guest đặt đơn Chuyển khoản → màn chờ đủ QR payOS / STK / 
   await expect(page.getByTestId("copy-account-number")).toBeVisible();
   await expect(page.getByTestId("copy-transfer-content")).toBeVisible();
   await expect(page.getByTestId("bank-transfer-due")).toHaveText(
-    /Còn 2[34] giờ/
+    /Còn 5[89] phút/
   );
   await expect(page.getByText("Chờ thanh toán")).toBeVisible();
 
@@ -110,7 +112,7 @@ test("guest đặt đơn Chuyển khoản → màn chờ đủ QR payOS / STK / 
   const dueMs =
     new Date(order.paymentDueAt).getTime() -
     new Date(order.created_at).getTime();
-  expect(Math.abs(dueMs - 24 * 60 * 60 * 1000)).toBeLessThan(5_000);
+  expect(Math.abs(dueMs - 60 * 60 * 1000)).toBeLessThan(5_000);
 
   // Mã QR hết hạn mà đơn còn hạn: ô QR + STK nhường chỗ cho nút tạo mã mới
   await expect(page.getByTestId("payment-link-expired")).toBeVisible();
@@ -261,6 +263,30 @@ test("user đăng nhập đặt đơn Chuyển khoản → hint có link sổ đ
   });
   await expect(page.getByTestId("order-bank-transfer")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Hủy đơn" })).toHaveCount(0);
+});
+
+test("chủ đơn đăng nhập hủy ngay trên màn chờ → hero đơn đã hủy + Đặt lại, polling dừng", async ({
+  page,
+}) => {
+  await mockPaymentLink(page);
+  await loginViaUi(page, SEED_CUSTOMER.email, SEED_CUSTOMER.password);
+  await page.goto(HOODIE.url);
+  await selectHoodieVariantAndAddToCart(page);
+  await goToCheckoutFromCart(page);
+  await expectSavedAddressSelected(page, "Nguyễn Thị Lan", SEED_CUSTOMER.email);
+  await page.getByTestId("payment-BANK_TRANSFER").click();
+  await page.getByRole("button", { name: "Đặt hàng" }).click();
+  await page.waitForURL(/\/payment-success/);
+
+  await page.getByTestId("awaiting-cancel-order").click();
+  await page.getByRole("button", { name: "Hủy đơn", exact: true }).click();
+
+  await expect(page.getByTestId("success-hero-title")).toHaveText(
+    "Đơn này đã hủy"
+  );
+  await expect(page.getByTestId("bank-transfer-guide")).toHaveCount(0);
+  await expect(page.getByTestId("reorder-products")).toBeVisible();
+  await expect(page.getByTestId("awaiting-cancel-order")).toHaveCount(0);
 });
 
 test("tiền về đúng lúc mã QR vừa hết hạn → trang vẫn tự đổi paid trong cửa sổ grace, không kẹt ở Tạo mã QR mới", async ({

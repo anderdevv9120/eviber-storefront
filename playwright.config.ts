@@ -38,6 +38,8 @@ export default defineConfig({
       env: {
         AUTH_THROTTLE_LIMIT: "100",
         ORDER_LOOKUP_THROTTLE_LIMIT: "200",
+        // Spec bank-transfer kiểm hạn đơn = 1h; ghim để .env máy dev đặt khác không làm lệch
+        ORDER_PAYMENT_DUE_HOURS: "1",
         ...PAYOS_E2E_ENV,
       },
     },

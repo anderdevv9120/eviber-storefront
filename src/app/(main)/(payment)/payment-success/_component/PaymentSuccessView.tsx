@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Clock, RightArrow } from "@/components/icons";
+import { Check, Clock, RightArrow, XMark } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
-import { getOrderByNumber } from "@/apis/order";
+import { getMyOrderDetail, getOrderByNumber } from "@/apis/order";
 import { ApiError } from "@/config/axios";
 import { useAppStore } from "@/store/useAppStore";
 import { useCartStore } from "@/store/useCartStore";
@@ -17,6 +17,8 @@ import { getBankTransferState } from "@/utils/bankTransfer";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
 import { usePaymentPolling } from "@/hooks/usePaymentPolling";
+import { useCancelOrder } from "@/hooks/useCancelOrder";
+import CancelOrderModal from "@/components/ui/CancelOrderModal";
 import { PATH } from "@/constants/paths";
 import { DELIVERY_ESTIMATE_DAYS } from "@/constants/payment";
 import { statusStyles } from "@/constants/orderStatus";
@@ -25,9 +27,6 @@ import { cn } from "@/config/utils";
 import CopyButton from "@/components/ui/CopyButton";
 import OrderSummaryPanel from "./OrderSummaryPanel";
 import PaymentActionCard from "./PaymentActionCard";
-
-const TEXT_LINK_BUTTON =
-  "mt-3 w-full rounded text-center text-sm font-semibold text-dark-500 transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2";
 
 const PaymentSuccessContent = () => {
   const router = useRouter();
@@ -76,14 +75,38 @@ const PaymentSuccessContent = () => {
     fetchOrder();
   }, [orderNumber]);
 
+  // Polling và nạp lại sau khi hủy cùng ghi `order`: chỉ request gửi sau cùng được ghi,
+  // không thì lượt poll gửi trước khi hủy về muộn kéo đơn đã hủy về lại "chờ thanh toán"
+  const refreshSeq = useRef(0);
+  const refreshOrder = useCallback(async () => {
+    const seq = ++refreshSeq.current;
+    const res = await getOrderByNumber(orderNumber);
+    if (seq === refreshSeq.current && res?.data) setOrder(res.data);
+  }, [orderNumber]);
+
   // Tiền về (webhook payOS hoặc admin duyệt) → trang tự đổi sang "Đã nhận thanh toán" chừng nào mã QR còn sống
   usePaymentPolling(
     bankState === "awaiting" && isQrActive && Boolean(orderNumber),
-    async () => {
-      const res = await getOrderByNumber(orderNumber);
-      if (res?.data) setOrder(res.data);
-    }
+    refreshOrder
   );
+
+  // Response tra cứu công khai không mang chủ đơn — hỏi route chỉ chủ đơn gọi được (404 với người khác)
+  // để chỉ chủ đơn thấy nút Hủy; khách vãng lai không có đường hủy (đơn tự hết hạn)
+  const isAwaiting = bankState === "awaiting";
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn || !isAwaiting || !orderNumber) return;
+    const controller = new AbortController();
+    getMyOrderDetail(orderNumber, controller.signal)
+      .then(() => setIsOwner(true))
+      .catch(() => setIsOwner(false));
+    return () => controller.abort();
+  }, [isLoggedIn, isAwaiting, orderNumber]);
+
+  const cancel = useCancelOrder(order?._id ?? "", () => {
+    refreshOrder().catch(() => undefined);
+  });
 
   if (isLoading) return <PaymentSuccessSkeleton />;
 
@@ -282,13 +305,14 @@ const PaymentSuccessContent = () => {
             >
               Đặt lại các sản phẩm này
             </Button>
-            <button
-              type="button"
+            <Button
+              size="sm"
+              variant="ghost"
+              className="mt-1 w-full"
               onClick={() => router.push(PATH.HOME)}
-              className={TEXT_LINK_BUTTON}
             >
               Tiếp tục mua sắm
-            </button>
+            </Button>
           </>
         ) : bankState === "awaiting" ? (
           // Việc chính là mã QR bên trái — lối ra chỉ là link chữ, kèm cách quay lại để rời trang không bị hiểu là mất đơn
@@ -319,13 +343,30 @@ const PaymentSuccessContent = () => {
               ) : null}{" "}
               để thanh toán sau.
             </p>
-            <button
-              type="button"
+            {/* Nút viền, không đặc: nút đặc dành cho trạng thái đã trả — lúc này mã QR mới là việc chính */}
+            <Button
+              size="lg"
+              variant="outline"
+              className="mt-4 w-full"
               onClick={() => router.push(PATH.HOME)}
-              className={TEXT_LINK_BUTTON}
             >
               Tiếp tục mua sắm
-            </button>
+            </Button>
+            {isOwner && (
+              // Hủy là thao tác không hoàn tác: tách khỏi lối ra mua sắm bằng hairline + khoảng cách,
+              // giữ ở cấp thấp nhất panel (mã QR mới là việc chính)
+              <div className="mt-5 flex justify-center border-t border-white-500 pt-2">
+                <Button
+                  size="sm"
+                  variant="subtle-danger"
+                  data-testid="awaiting-cancel-order"
+                  onClick={cancel.openConfirm}
+                >
+                  <XMark className="h-3.5 w-3.5" />
+                  Hủy đơn hàng
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <Button
@@ -337,6 +378,16 @@ const PaymentSuccessContent = () => {
           </Button>
         )}
       </OrderSummaryPanel>
+
+      {cancel.isConfirmOpen && (
+        <CancelOrderModal
+          isOpen={cancel.isConfirmOpen}
+          orderNumber={order.orderNumber}
+          isCancelling={cancel.isCancelling}
+          onClose={cancel.closeConfirm}
+          onConfirm={cancel.confirmCancel}
+        />
+      )}
     </div>
   );
 };

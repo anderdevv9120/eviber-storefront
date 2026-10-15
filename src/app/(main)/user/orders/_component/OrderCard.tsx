@@ -12,8 +12,8 @@ import OrderStatusPill, {
   STATUS_HEADER,
 } from "./OrderStatusPill";
 import OrderProductLine from "./OrderProductLine";
-import CancelOrderModal from "./CancelOrderModal";
-import { useCancelOrder } from "./useCancelOrder";
+import CancelOrderModal from "@/components/ui/CancelOrderModal";
+import { useCancelOrder } from "@/hooks/useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
 
 /** Số dòng sản phẩm hiện trên card — phần còn lại gộp thành một dòng đếm */

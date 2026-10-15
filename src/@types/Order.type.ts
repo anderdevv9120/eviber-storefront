@@ -44,7 +44,7 @@ export interface IPaymentLink {
   amount: number;
   /** Nội dung chuyển khoản payOS cấp cho link này — khách chuyển tay phải gõ đúng */
   description: string;
-  /** ISO — hạn của MÃ QR (15 phút), khác paymentDueAt của đơn (24h) */
+  /** ISO — hạn của MÃ QR (15 phút), khác paymentDueAt của đơn (mặc định 1h) */
   expiresAt: string;
   /** Số giây còn lại theo đồng hồ server tại lúc trả response — hẹn giờ hết hạn theo đây, không so expiresAt với đồng hồ máy khách (lệch giờ là QR tự hết hạn oan) */
   expiresInSeconds: number;

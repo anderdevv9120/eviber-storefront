@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, CartPlus } from "@/components/icons";
+import { Search, CartPlus, XMark } from "@/components/icons";
 import { cn } from "@/config/utils";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -215,6 +215,12 @@ export default function UIKits() {
               <Button variant="secondary">Secondary</Button>
               <Button variant="outline">Outline</Button>
               <Button variant="danger">Danger</Button>
+              <Button size="sm" variant="ghost">
+                Ghost
+              </Button>
+              <Button size="sm" variant="subtle-danger">
+                <XMark className="h-3.5 w-3.5" /> Subtle danger
+              </Button>
               <Button loading>Đang xử lý</Button>
             </div>
             <h3 className="text-sm font-medium text-dark-500">
@@ -562,18 +568,20 @@ export default function UIKits() {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">Progress Stepper</h2>
             <div className="flex gap-4 items-center mb-4">
-              <button
-                className="px-3 py-1 bg-blue-800 text-white rounded hover:bg-blue-600"
+              <Button
+                size="sm"
+                variant="secondary"
                 onClick={() => setCount(Math.max(1, count - 1))}
               >
                 Previous
-              </button>
-              <button
-                className="px-3 py-1 bg-blue-800 text-white rounded hover:bg-blue-600"
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
                 onClick={() => setCount(Math.min(4, count + 1))}
               >
                 Next
-              </button>
+              </Button>
               <span>Current Step: {count}</span>
             </div>
             <ProgressStepper

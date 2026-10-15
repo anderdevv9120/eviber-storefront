@@ -20,8 +20,8 @@ import OrderStatusPill, {
 } from "./OrderStatusPill";
 import OrderProductLine from "./OrderProductLine";
 import OrderTimeline from "./OrderTimeline";
-import CancelOrderModal from "./CancelOrderModal";
-import { useCancelOrder } from "./useCancelOrder";
+import CancelOrderModal from "@/components/ui/CancelOrderModal";
+import { useCancelOrder } from "@/hooks/useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
 import { usePaymentPolling } from "@/hooks/usePaymentPolling";
