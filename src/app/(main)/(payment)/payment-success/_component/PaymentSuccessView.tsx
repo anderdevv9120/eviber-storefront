@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Clock, RightArrow } from "@/components/icons";
+import { Check, Clock, RightArrow, XMark } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
-import { getOrderByNumber } from "@/apis/order";
+import { getMyOrderDetail, getOrderByNumber } from "@/apis/order";
 import { ApiError } from "@/config/axios";
 import { useAppStore } from "@/store/useAppStore";
 import { useCartStore } from "@/store/useCartStore";
@@ -15,11 +16,11 @@ import { formatDeliveryEstimate, formatTimeDayMonth } from "@/utils/formatTime";
 import { getBankTransferState } from "@/utils/bankTransfer";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
+import { usePaymentPolling } from "@/hooks/usePaymentPolling";
+import { useCancelOrder } from "@/hooks/useCancelOrder";
+import CancelOrderModal from "@/components/ui/CancelOrderModal";
 import { PATH } from "@/constants/paths";
-import {
-  BANK_TRANSFER_POLLING,
-  DELIVERY_ESTIMATE_DAYS,
-} from "@/constants/payment";
+import { DELIVERY_ESTIMATE_DAYS } from "@/constants/payment";
 import { statusStyles } from "@/constants/orderStatus";
 import { IOrderResponse } from "@/@types/Order.type";
 import { cn } from "@/config/utils";
@@ -36,6 +37,7 @@ const PaymentSuccessContent = () => {
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorKind, setErrorKind] = useState<"notFound" | "throttled">();
+  const [isQrActive, setIsQrActive] = useState(false);
   // Tick mỗi phút để đơn chuyển khoản tự sang "hết hạn" đúng giờ dù job BE chưa quét
   const now = useNow();
   const { reorder, reorderingId } = useReorder();
@@ -73,25 +75,38 @@ const PaymentSuccessContent = () => {
     fetchOrder();
   }, [orderNumber]);
 
-  // Polling nhẹ khi đang chờ chuyển khoản: admin duyệt → trang tự đổi sang "Đã nhận thanh toán".
-  // Dừng khi hết cửa sổ hoặc state đổi; lỗi (throttle/mạng) bỏ qua, lần sau thử lại.
+  // Polling và nạp lại sau khi hủy cùng ghi `order`: chỉ request gửi sau cùng được ghi,
+  // không thì lượt poll gửi trước khi hủy về muộn kéo đơn đã hủy về lại "chờ thanh toán"
+  const refreshSeq = useRef(0);
+  const refreshOrder = useCallback(async () => {
+    const seq = ++refreshSeq.current;
+    const res = await getOrderByNumber(orderNumber);
+    if (seq === refreshSeq.current && res?.data) setOrder(res.data);
+  }, [orderNumber]);
+
+  // Tiền về (webhook payOS hoặc admin duyệt) → trang tự đổi sang "Đã nhận thanh toán" chừng nào mã QR còn sống
+  usePaymentPolling(
+    bankState === "awaiting" && isQrActive && Boolean(orderNumber),
+    refreshOrder
+  );
+
+  // Response tra cứu công khai không mang chủ đơn — hỏi route chỉ chủ đơn gọi được (404 với người khác)
+  // để chỉ chủ đơn thấy nút Hủy; khách vãng lai không có đường hủy (đơn tự hết hạn)
+  const isAwaiting = bankState === "awaiting";
+  const [isOwner, setIsOwner] = useState(false);
+
   useEffect(() => {
-    if (bankState !== "awaiting" || !orderNumber) return;
-    const startedAt = Date.now();
-    const timer = setInterval(async () => {
-      if (Date.now() - startedAt >= BANK_TRANSFER_POLLING.durationMs) {
-        clearInterval(timer);
-        return;
-      }
-      try {
-        const res = await getOrderByNumber(orderNumber);
-        if (res?.data) setOrder(res.data);
-      } catch {
-        // im lặng — đây là làm mới nền, không phải thao tác của khách
-      }
-    }, BANK_TRANSFER_POLLING.intervalMs);
-    return () => clearInterval(timer);
-  }, [bankState, orderNumber]);
+    if (!isLoggedIn || !isAwaiting || !orderNumber) return;
+    const controller = new AbortController();
+    getMyOrderDetail(orderNumber, controller.signal)
+      .then(() => setIsOwner(true))
+      .catch(() => setIsOwner(false));
+    return () => controller.abort();
+  }, [isLoggedIn, isAwaiting, orderNumber]);
+
+  const cancel = useCancelOrder(order?._id ?? "", () => {
+    refreshOrder().catch(() => undefined);
+  });
 
   if (isLoading) return <PaymentSuccessSkeleton />;
 
@@ -129,6 +144,9 @@ const PaymentSuccessContent = () => {
         : statusStyles.pending.label;
   const isClosed = bankState === "expired" || bankState === "cancelled";
   const hero = getHero(bankState, order, shippingInfo.email);
+  const dueLabel = order.paymentDueAt
+    ? formatTimeDayMonth(order.paymentDueAt, "long")
+    : "";
   const deliveryEstimate = formatDeliveryEstimate(
     order.created_at,
     DELIVERY_ESTIMATE_DAYS.min,
@@ -194,6 +212,7 @@ const PaymentSuccessContent = () => {
             paymentDueAt={order.paymentDueAt}
             paidAt={order.paidAt}
             paymentStatus={order.paymentStatus}
+            onQrActiveChange={setIsQrActive}
           />
 
           <section
@@ -286,13 +305,68 @@ const PaymentSuccessContent = () => {
             >
               Đặt lại các sản phẩm này
             </Button>
-            <button
-              type="button"
+            <Button
+              size="sm"
+              variant="ghost"
+              className="mt-1 w-full"
               onClick={() => router.push(PATH.HOME)}
-              className="mt-3 w-full rounded text-center text-sm font-semibold text-dark-500 transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
             >
               Tiếp tục mua sắm
-            </button>
+            </Button>
+          </>
+        ) : bankState === "awaiting" ? (
+          // Việc chính là mã QR bên trái — lối ra chỉ là link chữ, kèm cách quay lại để rời trang không bị hiểu là mất đơn
+          <>
+            <p
+              className="text-sm text-dark-500"
+              data-testid="awaiting-leave-hint"
+            >
+              {dueLabel ? (
+                <>
+                  Đơn được giữ tới{" "}
+                  <b className="font-semibold text-dark-800">{dueLabel}</b>
+                  .{" "}
+                </>
+              ) : null}
+              Mở lại từ email
+              {isLoggedIn ? (
+                <>
+                  {" "}
+                  hoặc{" "}
+                  <Link
+                    href={PATH.ORDER}
+                    className="rounded font-semibold text-primary-700 transition-colors hover:text-primary-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+                  >
+                    Đơn hàng của tôi
+                  </Link>
+                </>
+              ) : null}{" "}
+              để thanh toán sau.
+            </p>
+            {/* Nút viền, không đặc: nút đặc dành cho trạng thái đã trả — lúc này mã QR mới là việc chính */}
+            <Button
+              size="lg"
+              variant="outline"
+              className="mt-4 w-full"
+              onClick={() => router.push(PATH.HOME)}
+            >
+              Tiếp tục mua sắm
+            </Button>
+            {isOwner && (
+              // Hủy là thao tác không hoàn tác: tách khỏi lối ra mua sắm bằng hairline + khoảng cách,
+              // giữ ở cấp thấp nhất panel (mã QR mới là việc chính)
+              <div className="mt-5 flex justify-center border-t border-white-500 pt-2">
+                <Button
+                  size="sm"
+                  variant="subtle-danger"
+                  data-testid="awaiting-cancel-order"
+                  onClick={cancel.openConfirm}
+                >
+                  <XMark className="h-3.5 w-3.5" />
+                  Hủy đơn hàng
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <Button
@@ -304,6 +378,16 @@ const PaymentSuccessContent = () => {
           </Button>
         )}
       </OrderSummaryPanel>
+
+      {cancel.isConfirmOpen && (
+        <CancelOrderModal
+          isOpen={cancel.isConfirmOpen}
+          orderNumber={order.orderNumber}
+          isCancelling={cancel.isCancelling}
+          onClose={cancel.closeConfirm}
+          onConfirm={cancel.confirmCancel}
+        />
+      )}
     </div>
   );
 };
@@ -326,8 +410,8 @@ function getHero(
         tone: "pending",
         title: "Chuyển khoản để hoàn tất đơn",
         subtitle: due
-          ? `Đơn giữ chỗ tới ${due}, quá hạn sẽ tự hủy. Hướng dẫn cũng đã gửi tới ${email}`
-          : `Hướng dẫn chuyển khoản đã gửi tới ${email}`,
+          ? `Đơn giữ chỗ tới ${due}, quá hạn sẽ tự hủy. Link thanh toán cũng đã gửi tới ${email}`
+          : `Link thanh toán đã gửi tới ${email}`,
       };
     case "paid":
       return {

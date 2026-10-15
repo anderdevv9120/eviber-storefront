@@ -64,25 +64,3 @@ export function formatTimeLeft(dueAt: string, now: Date = new Date()): string {
   if (minutes > 0) return `Còn ${minutes} phút`;
   return "Còn dưới 1 phút";
 }
-
-const VIETQR_IMAGE_BASE = "https://img.vietqr.io/image";
-
-/**
- * Quick-link ảnh VietQR (NAPAS 247): app ngân hàng quét xong tự điền số tiền + nội dung.
- * Cùng công thức với BE (ảnh trong email) — sửa một bên phải sửa bên kia.
- */
-export function buildVietQrImageUrl(input: {
-  bankBin: string;
-  accountNumber: string;
-  accountName?: string;
-  amount?: number;
-  addInfo?: string;
-}): string {
-  const params = new URLSearchParams();
-  if (input.amount && input.amount > 0)
-    params.set("amount", String(Math.round(input.amount)));
-  if (input.addInfo) params.set("addInfo", input.addInfo);
-  if (input.accountName) params.set("accountName", input.accountName);
-  const query = params.toString();
-  return `${VIETQR_IMAGE_BASE}/${encodeURIComponent(input.bankBin)}-${encodeURIComponent(input.accountNumber)}-compact2.png${query ? `?${query}` : ""}`;
-}

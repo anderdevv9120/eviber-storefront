@@ -5,7 +5,7 @@ import { cancelOrder } from "@/apis/order";
 import { successToast } from "@/utils/toast";
 
 /**
- * Hủy đơn: dùng chung cho card ở danh sách và trang chi tiết.
+ * Hủy đơn: dùng chung cho card ở danh sách, trang chi tiết và màn chờ chuyển khoản (chỉ chủ đơn).
  *
  * Lỗi (vd đơn vừa được admin xác nhận nên không hủy được nữa) do interceptor toast; ở đây
  * vẫn gọi `onDone` để phía gọi nạp lại và user thấy trạng thái thật thay vì nút Hủy còn nguyên.

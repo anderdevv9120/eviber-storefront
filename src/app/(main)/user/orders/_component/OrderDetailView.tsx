@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { IOrderResponse } from "@/@types/Order.type";
 import Button from "@/components/ui/Button";
 import { cn } from "@/config/utils";
@@ -19,10 +20,11 @@ import OrderStatusPill, {
 import OrderProductLine from "./OrderProductLine";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
-import CancelOrderModal from "./CancelOrderModal";
-import { useCancelOrder } from "./useCancelOrder";
+import CancelOrderModal from "@/components/ui/CancelOrderModal";
+import { useCancelOrder } from "@/hooks/useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
+import { usePaymentPolling } from "@/hooks/usePaymentPolling";
 
 const SECTION = "border-t border-white-300 p-4 sm:p-5";
 const SECTION_TITLE =
@@ -30,8 +32,11 @@ const SECTION_TITLE =
 
 interface OrderDetailViewProps {
   order: IOrderResponse;
-  /** Gọi sau khi hủy đơn để nạp lại chi tiết — timeline phải có thêm mốc Đã hủy */
-  onRefresh?: () => void;
+  /**
+   * Nạp lại chi tiết: sau khi hủy đơn (timeline thêm mốc Đã hủy) và theo nhịp polling lúc chờ
+   * chuyển khoản. `quiet` = lượt nền, lỗi không toast.
+   */
+  onRefresh?: (options?: { quiet?: boolean }) => Promise<void> | void;
 }
 
 const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
@@ -55,6 +60,14 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
   const now = useNow();
   const bankState = getBankTransferState(order, now);
   const isAwaitingTransfer = bankState === "awaiting";
+  const [isQrActive, setIsQrActive] = useState(false);
+
+  usePaymentPolling(
+    isAwaitingTransfer && isQrActive && Boolean(onRefresh),
+    async () => {
+      await onRefresh?.({ quiet: true });
+    }
+  );
   // Đơn đã trả tiền: khách không tự hủy (BE 400 + hướng liên hệ) → ẩn nút, không để bấm rồi lỗi
   const canCancel = status === "pending" && paymentStatus !== "paid";
   const totalQuantity = productInfo.reduce(
@@ -194,10 +207,10 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
           <BankTransferPanel
             state="awaiting"
             orderNumber={orderNumber}
-            totalPrice={checkoutInfo.totalPrice}
             now={now}
             paymentDueAt={order.paymentDueAt}
             eyebrow={`Thanh toán · ${paymentLabel}`}
+            onQrActiveChange={setIsQrActive}
           />
         </section>
       )}

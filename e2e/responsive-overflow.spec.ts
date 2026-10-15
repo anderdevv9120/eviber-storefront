@@ -1,5 +1,6 @@
 import { APIRequestContext, test } from "@playwright/test";
 import { expectNoHorizontalOverflow, SEED_CUSTOMER } from "./helpers/shop";
+import { mockPaymentLink } from "./helpers/payment-link";
 
 // Quét horizontal overflow — biến criterion "mobile/tablet/desktop không vỡ"
 // thành check máy chạy được (exit code). Màn mới khi ổn định → THÊM route vào đây.
@@ -81,6 +82,10 @@ for (const vp of VIEWPORTS) {
       await page.setViewportSize({ width: vp.width, height: vp.height });
       if (route.startsWith("/user")) {
         await page.context().addCookies(await sessionCookies(request));
+      }
+      // Màn chờ chuyển khoản gọi cổng payOS → mock như mọi spec (xem helpers/payment-link.ts)
+      if (route.includes("orderNumber=")) {
+        await mockPaymentLink(page);
       }
       await page.goto(route);
       await page.waitForLoadState("networkidle");

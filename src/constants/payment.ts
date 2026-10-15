@@ -53,13 +53,28 @@ export const PAYMENT_STATUS_LABEL: Record<PaymentApiStatus, string> = {
 };
 
 /**
- * Màn chờ chuyển khoản tự hỏi lại BE để đổi sang "Đã nhận thanh toán" khi admin duyệt.
- * 15s × 10 phút = 40 request, dưới throttle 20 req/60s của route lookup; quá 10 phút dừng hẳn
- * (khách còn email + mở lại link).
+ * Màn chờ chuyển khoản tự hỏi lại BE để đổi sang "Đã nhận thanh toán" khi webhook payOS báo tiền về.
+ * 5s = 12 request/phút, dưới throttle 20 req/60s của route lookup (3s là chạm trần, khách F5 thêm
+ * là dính 429). Chạy theo vòng đời mã QR (15 phút/mã, tạo mã mới là chạy lại) thay vì trần giờ
+ * riêng: tab bỏ quên không gọi mãi, còn khách trả lúc phút 14 vẫn thấy trang tự đổi.
  */
 export const BANK_TRANSFER_POLLING = {
-  intervalMs: 15_000,
-  durationMs: 10 * 60 * 1000,
+  intervalMs: 5_000,
+  // Khách quét đúng lúc mã sắp hết hạn: webhook payOS về sau khi FE đã đổi "expired" vài giây —
+  // poll thêm 3 nhịp nữa rồi mới nghỉ, không thì trang kẹt ở "Tạo mã QR mới" dù tiền đã về
+  expiredGraceMs: 15_000,
 } as const;
+
+/** payOS chỉ trả mã BIN — tên ngân hàng tra ở đây; BIN lạ thì ẩn dòng "Ngân hàng", STK vẫn đủ để chuyển */
+export const BANK_NAME_BY_BIN: Record<string, string> = {
+  "970422": "MB Bank",
+  "970448": "OCB",
+  "970452": "KienlongBank",
+  "970416": "ACB",
+  "970418": "BIDV",
+  "970415": "VietinBank",
+  "970436": "Vietcombank",
+  "970407": "Techcombank",
+};
 
 export const DELIVERY_ESTIMATE_DAYS = { min: 3, max: 5 } as const;
