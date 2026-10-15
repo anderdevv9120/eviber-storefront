@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Clock, RightArrow } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -15,17 +16,18 @@ import { formatDeliveryEstimate, formatTimeDayMonth } from "@/utils/formatTime";
 import { getBankTransferState } from "@/utils/bankTransfer";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
+import { usePaymentPolling } from "@/hooks/usePaymentPolling";
 import { PATH } from "@/constants/paths";
-import {
-  BANK_TRANSFER_POLLING,
-  DELIVERY_ESTIMATE_DAYS,
-} from "@/constants/payment";
+import { DELIVERY_ESTIMATE_DAYS } from "@/constants/payment";
 import { statusStyles } from "@/constants/orderStatus";
 import { IOrderResponse } from "@/@types/Order.type";
 import { cn } from "@/config/utils";
 import CopyButton from "@/components/ui/CopyButton";
 import OrderSummaryPanel from "./OrderSummaryPanel";
 import PaymentActionCard from "./PaymentActionCard";
+
+const TEXT_LINK_BUTTON =
+  "mt-3 w-full rounded text-center text-sm font-semibold text-dark-500 transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2";
 
 const PaymentSuccessContent = () => {
   const router = useRouter();
@@ -36,6 +38,7 @@ const PaymentSuccessContent = () => {
   const [order, setOrder] = useState<IOrderResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorKind, setErrorKind] = useState<"notFound" | "throttled">();
+  const [isQrActive, setIsQrActive] = useState(false);
   // Tick mỗi phút để đơn chuyển khoản tự sang "hết hạn" đúng giờ dù job BE chưa quét
   const now = useNow();
   const { reorder, reorderingId } = useReorder();
@@ -73,25 +76,14 @@ const PaymentSuccessContent = () => {
     fetchOrder();
   }, [orderNumber]);
 
-  // Polling nhẹ khi đang chờ chuyển khoản: admin duyệt → trang tự đổi sang "Đã nhận thanh toán".
-  // Dừng khi hết cửa sổ hoặc state đổi; lỗi (throttle/mạng) bỏ qua, lần sau thử lại.
-  useEffect(() => {
-    if (bankState !== "awaiting" || !orderNumber) return;
-    const startedAt = Date.now();
-    const timer = setInterval(async () => {
-      if (Date.now() - startedAt >= BANK_TRANSFER_POLLING.durationMs) {
-        clearInterval(timer);
-        return;
-      }
-      try {
-        const res = await getOrderByNumber(orderNumber);
-        if (res?.data) setOrder(res.data);
-      } catch {
-        // im lặng — đây là làm mới nền, không phải thao tác của khách
-      }
-    }, BANK_TRANSFER_POLLING.intervalMs);
-    return () => clearInterval(timer);
-  }, [bankState, orderNumber]);
+  // Tiền về (webhook payOS hoặc admin duyệt) → trang tự đổi sang "Đã nhận thanh toán" chừng nào mã QR còn sống
+  usePaymentPolling(
+    bankState === "awaiting" && isQrActive && Boolean(orderNumber),
+    async () => {
+      const res = await getOrderByNumber(orderNumber);
+      if (res?.data) setOrder(res.data);
+    }
+  );
 
   if (isLoading) return <PaymentSuccessSkeleton />;
 
@@ -129,6 +121,9 @@ const PaymentSuccessContent = () => {
         : statusStyles.pending.label;
   const isClosed = bankState === "expired" || bankState === "cancelled";
   const hero = getHero(bankState, order, shippingInfo.email);
+  const dueLabel = order.paymentDueAt
+    ? formatTimeDayMonth(order.paymentDueAt, "long")
+    : "";
   const deliveryEstimate = formatDeliveryEstimate(
     order.created_at,
     DELIVERY_ESTIMATE_DAYS.min,
@@ -194,6 +189,7 @@ const PaymentSuccessContent = () => {
             paymentDueAt={order.paymentDueAt}
             paidAt={order.paidAt}
             paymentStatus={order.paymentStatus}
+            onQrActiveChange={setIsQrActive}
           />
 
           <section
@@ -289,7 +285,44 @@ const PaymentSuccessContent = () => {
             <button
               type="button"
               onClick={() => router.push(PATH.HOME)}
-              className="mt-3 w-full rounded text-center text-sm font-semibold text-dark-500 transition-colors hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+              className={TEXT_LINK_BUTTON}
+            >
+              Tiếp tục mua sắm
+            </button>
+          </>
+        ) : bankState === "awaiting" ? (
+          // Việc chính là mã QR bên trái — lối ra chỉ là link chữ, kèm cách quay lại để rời trang không bị hiểu là mất đơn
+          <>
+            <p
+              className="text-sm text-dark-500"
+              data-testid="awaiting-leave-hint"
+            >
+              {dueLabel ? (
+                <>
+                  Đơn được giữ tới{" "}
+                  <b className="font-semibold text-dark-800">{dueLabel}</b>
+                  .{" "}
+                </>
+              ) : null}
+              Mở lại từ email
+              {isLoggedIn ? (
+                <>
+                  {" "}
+                  hoặc{" "}
+                  <Link
+                    href={PATH.ORDER}
+                    className="rounded font-semibold text-primary-700 transition-colors hover:text-primary-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+                  >
+                    Đơn hàng của tôi
+                  </Link>
+                </>
+              ) : null}{" "}
+              để thanh toán sau.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push(PATH.HOME)}
+              className={TEXT_LINK_BUTTON}
             >
               Tiếp tục mua sắm
             </button>
@@ -326,8 +359,8 @@ function getHero(
         tone: "pending",
         title: "Chuyển khoản để hoàn tất đơn",
         subtitle: due
-          ? `Đơn giữ chỗ tới ${due}, quá hạn sẽ tự hủy. Hướng dẫn cũng đã gửi tới ${email}`
-          : `Hướng dẫn chuyển khoản đã gửi tới ${email}`,
+          ? `Đơn giữ chỗ tới ${due}, quá hạn sẽ tự hủy. Link thanh toán cũng đã gửi tới ${email}`
+          : `Link thanh toán đã gửi tới ${email}`,
       };
     case "paid":
       return {

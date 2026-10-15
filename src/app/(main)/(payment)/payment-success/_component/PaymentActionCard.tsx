@@ -12,6 +12,7 @@ interface PaymentActionCardProps {
   paymentDueAt?: string;
   paidAt?: string;
   paymentStatus?: string;
+  onQrActiveChange?: (active: boolean) => void;
 }
 
 /**
@@ -28,6 +29,7 @@ export default function PaymentActionCard({
   paymentDueAt,
   paidAt,
   paymentStatus,
+  onQrActiveChange,
 }: PaymentActionCardProps) {
   if (bankState) {
     const isAwaiting = bankState === "awaiting";
@@ -42,11 +44,11 @@ export default function PaymentActionCard({
         <BankTransferPanel
           state={bankState}
           orderNumber={orderNumber}
-          totalPrice={totalPrice}
           now={now}
           paymentDueAt={paymentDueAt}
           paidAt={paidAt}
           paymentStatus={paymentStatus}
+          onQrActiveChange={onQrActiveChange}
         />
       </section>
     );

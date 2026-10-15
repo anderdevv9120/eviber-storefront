@@ -1,5 +1,15 @@
 import { defineConfig } from "@playwright/test";
 
+// BE fail-fast khi thiếu key payOS. E2e ép key giả + base URL chết (cổng discard) để BE test
+// không bao giờ gọi payOS thật: route link trả 503 ngay, spec nào cần QR thì mock ở trình duyệt.
+// Biến ở đây thắng .env của backend (dotenv không ghi đè biến đã có).
+const PAYOS_E2E_ENV = {
+  PAYOS_CLIENT_ID: "e2e-client-id",
+  PAYOS_API_KEY: "e2e-api-key",
+  PAYOS_CHECKSUM_KEY: "e2e-checksum-key",
+  PAYOS_BASE_URL: "http://127.0.0.1:9",
+};
+
 export default defineConfig({
   testDir: "./e2e",
   globalSetup: "./e2e/setup/global-setup.ts",
@@ -21,9 +31,15 @@ export default defineConfig({
       url: "http://localhost:3009/api/v1/products",
       reuseExistingServer: true,
       timeout: 120_000,
-      // Nâng rate limit auth chỉ trong process BE phục vụ test (xem auth.controller.ts);
-      // BE tự chạy tay muốn e2e dồn dập → export biến này trước npm run start:dev
-      env: { AUTH_THROTTLE_LIMIT: "100" },
+      // Nâng rate limit auth + lookup đơn chỉ trong process BE phục vụ test (share/utils/auth-throttle.ts);
+      // lookup: mỗi lần mở màn chờ chuyển khoản là 2 lookup (StrictMode) + polling 5s, suite mở
+      // hàng chục lần/phút nên 20/60s thật sẽ 429 ở test cuối. BE tự chạy tay muốn e2e dồn dập →
+      // export 2 biến này trước npm run start:dev
+      env: {
+        AUTH_THROTTLE_LIMIT: "100",
+        ORDER_LOOKUP_THROTTLE_LIMIT: "200",
+        ...PAYOS_E2E_ENV,
+      },
     },
     {
       // Admin entrypoint cho e2e bank-transfer (admin set paid qua API). Port 8011 vì 8001
@@ -33,7 +49,7 @@ export default defineConfig({
       url: "http://localhost:8011/admin-docs",
       reuseExistingServer: true,
       timeout: 120_000,
-      env: { ADMIN_PORT: "8011" },
+      env: { ADMIN_PORT: "8011", ...PAYOS_E2E_ENV },
     },
     {
       command: "npm run dev",

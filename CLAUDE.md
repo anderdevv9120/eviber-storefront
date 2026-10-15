@@ -98,8 +98,13 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
   thiếu thì globalSetup fail sớm kèm hướng dẫn. Seed tự chạy mỗi run (idempotent).
   Máy mới lần đầu: `npx playwright install chromium` (tải browser binary).
 - FE/BE đang chạy sẵn thì dùng luôn (`reuseExistingServer`), chưa chạy thì tự start.
-  BE tự start được cấp `AUTH_THROTTLE_LIMIT=100` (nới rate limit auth khi test dồn dập —
-  BE chạy tay muốn vậy thì export biến này trước `npm run start:dev`).
+  BE do Playwright tự start được cấp `AUTH_THROTTLE_LIMIT=100` + `ORDER_LOOKUP_THROTTLE_LIMIT=200`
+  (nới throttle login/tra cứu đơn khi test dồn dập) và `PAYOS_*` giả + `PAYOS_BASE_URL` cổng chết
+  (không bao giờ gọi payOS thật). BE chạy tay muốn chạy cả suite thì export 2 biến throttle trước
+  `npm run start:dev`, không là dính 429 "Tra cứu quá nhanh" giữa chừng.
+- Spec mở màn chờ chuyển khoản (`/payment-success?orderNumber=`, chi tiết đơn chuyển khoản) PHẢI
+  mock route link bằng `mockPaymentLink` (`e2e/helpers/payment-link.ts`) — BE chạy tay với key thật
+  mà không mock là tạo link payOS thật cho đơn seed.
 - Verify email không có mailbox: test tự ký JWT verification y hệt BE
   (`e2e/helpers/verification-token.ts`, secret đọc runtime từ `.env` backend).
 - Data: bám fixture seed cố định (hoodie `07…0003`); order/account test TÍCH LŨY trong DB dev

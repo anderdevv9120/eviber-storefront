@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildVietQrImageUrl,
-  formatTimeLeft,
-  getBankTransferState,
-} from "./bankTransfer";
+import { formatTimeLeft, getBankTransferState } from "./bankTransfer";
 
 const NOW = new Date("2026-09-22T10:00:00.000Z");
 const HOUR = 60 * 60 * 1000;
@@ -125,25 +121,5 @@ describe("formatTimeLeft", () => {
     expect(formatTimeLeft(iso(30_000), NOW)).toBe("Còn dưới 1 phút");
     expect(formatTimeLeft(iso(0), NOW)).toBe("Đã hết hạn");
     expect(formatTimeLeft(iso(49 * HOUR), NOW)).toBe("Còn 2 ngày");
-  });
-});
-
-describe("buildVietQrImageUrl", () => {
-  it("ghép bankBin-STK vào path, amount/addInfo/accountName vào query", () => {
-    const url = new URL(
-      buildVietQrImageUrl({
-        bankBin: "970436",
-        accountNumber: "0071000123456",
-        accountName: "NGUYEN VAN A",
-        amount: 399000,
-        addInfo: "ORD-K7WQ3FZ8HXME2NRT",
-      })
-    );
-    expect(url.origin + url.pathname).toBe(
-      "https://img.vietqr.io/image/970436-0071000123456-compact2.png"
-    );
-    expect(url.searchParams.get("amount")).toBe("399000");
-    expect(url.searchParams.get("addInfo")).toBe("ORD-K7WQ3FZ8HXME2NRT");
-    expect(url.searchParams.get("accountName")).toBe("NGUYEN VAN A");
   });
 });
