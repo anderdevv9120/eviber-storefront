@@ -11,8 +11,10 @@ import FlashSale from "./FlashSale";
 import { IProductOption, IProductVariant } from "@/@types/Product.type";
 import { PATH } from "@/constants/paths";
 import { addToCart } from "@/apis/cart";
+import { getCheckoutSettings } from "@/apis/order";
+import { useAppStore } from "@/store/useAppStore";
 import { useCartStore } from "@/store/useCartStore";
-import { successToast } from "@/utils/toast";
+import { infoToast, successToast } from "@/utils/toast";
 import { cn } from "@/config/utils";
 import useProductGalleryStore from "@/store/useProductGalleryStore";
 
@@ -90,13 +92,28 @@ const ProductForm = ({ options, variants }: ProductFormProps) => {
   };
 
   // Mua ngay = thêm giỏ rồi sang thẳng /cart (chốt buy-row) — lỗi addToCart đã có
-  // interceptor toast, không điều hướng khi thất bại
+  // interceptor toast, không điều hướng khi thất bại.
+  // Guest + CMS tắt mua không đăng nhập → sang /login (giỏ giữ nguyên, BE merge khi
+  // login); lỗi tải settings → vẫn /cart, checkout tự hiện trạng thái "unavailable"
   const handleClickBuyNow = async () => {
     if (!selectedVariant || isSubmitting) return;
     setIsSubmitting(true);
     try {
       await addToCart({ variantId: selectedVariant.id, quantity });
       useCartStore.getState().fetchCart(true);
+      const guestBlocked =
+        !useAppStore.getState().profile._id &&
+        (await getCheckoutSettings().then(
+          (res) => res?.data?.allowGuestCheckout === false,
+          () => false
+        ));
+      if (guestBlocked) {
+        infoToast(
+          "Vui lòng đăng nhập để đặt hàng. Giỏ hàng của bạn được giữ nguyên."
+        );
+        router.push(PATH.LOGIN);
+        return;
+      }
       router.push(PATH.CART);
     } catch {
     } finally {
