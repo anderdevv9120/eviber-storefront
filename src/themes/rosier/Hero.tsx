@@ -55,7 +55,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false);
       }}
-      className="max-w-[1440px] mx-auto px-[clamp(16px,4vw,48px)] pt-4 grid grid-cols-1 md:grid-cols-2 items-center gap-[clamp(32px,5vw,72px)]"
+      className="container-base pt-4 grid grid-cols-1 md:grid-cols-2 items-center gap-[clamp(32px,5vw,72px)]"
     >
       {/* Các slide chữ chồng cùng ô grid → cột cao theo slide dài nhất, đổi slide không nhảy layout.
           min-w-0 + grid-cols-1 (minmax(0,1fr)) để break-words có tác dụng — track auto co theo min-content của từ dài */}
@@ -117,7 +117,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
         <div
           {...swipeHandlers}
           // Rộng tối đa theo chiều cao còn lại dưới header → khung 4/5 không cao quá màn hình
-          className="relative w-full max-w-[min(600px,calc((100svh_-_var(--header-offset)_-_4rem)*0.8))] aspect-[4/5] rounded-[999px_999px_32px_32px] overflow-hidden bg-primary-200"
+          className="relative w-full max-w-[min(600px,calc((100svh_-_var(--hero-offset)_-_4rem)*0.8))] aspect-[4/5] rounded-[999px_999px_32px_32px] overflow-hidden bg-primary-200"
         >
           {banners.map((banner, index) => (
             <Image
@@ -139,7 +139,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
         </div>
 
         {count > 1 && (
-          <div className="mt-5 flex gap-2">
+          <div className="mt-5 flex gap-4">
             {banners.map((banner, index) => (
               <button
                 key={banner._id}
@@ -148,12 +148,12 @@ const Hero = ({ banners }: ThemeHeroProps) => {
                 aria-current={index === current}
                 onClick={() => setCurrent(index)}
                 className={cn(
-                  // Hit-area dọc 40px; ngang chỉ nới nửa gap để các dot không đè vùng bấm của nhau
-                  "relative h-2 rounded-full transition-all duration-300 after:absolute after:-inset-x-1 after:-inset-y-4 after:content-['']",
+                  // Hit-area dọc 40px; ngang nới đúng nửa gap-4 để các dot không đè vùng bấm của nhau
+                  "relative h-2 rounded-full transition-all duration-300 after:absolute after:-inset-x-2 after:-inset-y-4 after:content-['']",
                   FOCUS_RING,
                   index === current
                     ? "w-5 bg-primary-600"
-                    : "w-2 bg-dark-200 hover:bg-dark-300"
+                    : "w-2 bg-dark-300 hover:bg-dark-400"
                 )}
               />
             ))}

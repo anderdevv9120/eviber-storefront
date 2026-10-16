@@ -20,7 +20,7 @@ const BrandStory = ({ story }: ThemeBrandStoryProps) => {
       // Cỡ chữ/leading nền của mockup (15px / 1.55) — con kế thừa
       className="mt-[clamp(64px,8vw,112px)] bg-white-300 text-[15px] leading-[1.55]"
     >
-      <div className="max-w-[1440px] mx-auto py-[clamp(64px,8vw,112px)] px-[clamp(16px,4vw,48px)] grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[clamp(32px,5vw,80px)] items-center">
+      <div className="container-base py-[clamp(64px,8vw,112px)] grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[clamp(32px,5vw,80px)] items-center">
         <div
           className={cn(
             "grid gap-4",
@@ -29,7 +29,7 @@ const BrandStory = ({ story }: ThemeBrandStoryProps) => {
               : "grid-cols-1 w-full max-w-[420px] mx-auto"
           )}
         >
-          <div className="relative aspect-[3/4] rounded-[999px_999px_24px_24px] bg-[#C8664F] overflow-hidden">
+          <div className="relative aspect-[3/4] rounded-[999px_999px_24px_24px] bg-terracotta overflow-hidden">
             <Image
               src={resolveImageUrl(story.image)}
               alt={story.title}
@@ -39,7 +39,7 @@ const BrandStory = ({ story }: ThemeBrandStoryProps) => {
             />
           </div>
           {story.image2 && (
-            <div className="relative aspect-[3/4] rounded-[24px_24px_999px_999px] bg-[#E3A3A6] mt-16 overflow-hidden">
+            <div className="relative aspect-[3/4] rounded-[24px_24px_999px_999px] bg-dark-50 mt-16 overflow-hidden">
               <Image
                 src={resolveImageUrl(story.image2)}
                 alt=""
@@ -52,7 +52,7 @@ const BrandStory = ({ story }: ThemeBrandStoryProps) => {
         </div>
 
         <div className="min-w-0">
-          <div className="text-[13px] tracking-[0.16em] uppercase text-[#8C2A3C]">
+          <div className="text-[13px] tracking-[0.16em] uppercase text-primary-800">
             Câu chuyện của chúng tôi
           </div>
           <h2

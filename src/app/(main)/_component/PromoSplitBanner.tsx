@@ -13,12 +13,12 @@ export const TILE_THEME: Record<
 > = {
   light: {
     overlayClass:
-      "bg-gradient-to-r from-primary-100/95 via-primary-50/70 to-transparent",
+      "bg-gradient-to-r from-primary-100/95 via-primary-50/85 to-transparent",
     isDark: false,
   },
   dark: {
     overlayClass:
-      "bg-gradient-to-r from-dark-800/80 via-dark-800/40 to-transparent",
+      "bg-gradient-to-r from-dark-800/90 via-dark-800/70 via-40% to-transparent",
     isDark: true,
   },
 };
@@ -32,7 +32,7 @@ const PromoSplitBanner = ({ tiles }: { tiles: IPromoTile[] }) => {
           <Link
             key={index}
             href={tile.href}
-            className="relative block overflow-hidden rounded-xl group/tile aspect-[2.5/1] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+            className="relative block overflow-hidden rounded-xl group/tile aspect-[2.5/1] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
           >
             <Image
               src={resolveImageUrl(tile.image)}
@@ -43,10 +43,10 @@ const PromoSplitBanner = ({ tiles }: { tiles: IPromoTile[] }) => {
             />
             <div className={cn("absolute inset-0", overlayClass)} />
 
-            <div className="absolute inset-y-0 left-6 md:left-8 flex flex-col justify-center max-w-[260px]">
+            <div className="absolute inset-y-0 left-6 md:left-8 flex flex-col justify-center max-w-[200px] md:max-w-[260px]">
               <h3
                 className={cn(
-                  "text-lg md:text-2xl font-extrabold",
+                  "font-display [font-weight:var(--display-sub-weight)] text-xl md:text-3xl leading-tight text-balance",
                   isDark ? "text-white" : "text-dark-800"
                 )}
               >
@@ -54,15 +54,15 @@ const PromoSplitBanner = ({ tiles }: { tiles: IPromoTile[] }) => {
               </h3>
               <p
                 className={cn(
-                  "mt-1 mb-3 text-xs md:text-sm",
-                  isDark ? "text-white-300" : "text-dark-500"
+                  "mt-2 mb-3 text-xs md:text-sm text-balance",
+                  isDark ? "text-white" : "text-dark-500"
                 )}
               >
                 {tile.description}
               </p>
               <span
                 className={cn(
-                  "inline-flex items-center w-max h-9 md:h-10 px-5 rounded-xl text-sm font-bold transition-colors",
+                  "inline-flex items-center w-max h-9 md:h-10 px-5 rounded-btn text-sm font-bold transition-colors",
                   isDark
                     ? "bg-white text-dark-800 group-hover/tile:bg-white-100"
                     : "bg-primary text-white group-hover/tile:bg-primary-700"

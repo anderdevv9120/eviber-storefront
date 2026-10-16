@@ -98,7 +98,7 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
         // 2 trạng thái của section cùng một design
         <div className="bg-white-50 border border-white-300 rounded-lg px-6 py-11 text-center">
           <div className="flex justify-center">
-            <RatingStar rating={0} classStar="w-6 h-6" />
+            <RatingStar rating={0} classStar="w-6 h-6" decorative />
           </div>
           <p className="mt-3 font-bold">Chưa có đánh giá nào</p>
           <p className="mt-1 text-sm text-dark-500">
@@ -116,7 +116,11 @@ const ReviewSection = ({ productId, initialData }: ReviewSectionProps) => {
                 {summary.ratingAvg}
               </p>
               <div className="flex justify-center mt-2.5">
-                <RatingStar rating={summary.ratingAvg} classStar="w-4 h-4" />
+                <RatingStar
+                  rating={summary.ratingAvg}
+                  classStar="w-4 h-4"
+                  decorative
+                />
               </div>
               <p className="mt-1.5 text-sm text-dark-500">
                 {summary.total} đánh giá

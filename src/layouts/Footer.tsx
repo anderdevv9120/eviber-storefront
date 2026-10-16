@@ -2,7 +2,9 @@ import { CSSProperties } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { Logo, Instagram, Facebook, Twitter } from "@/components/icons";
+import { cn } from "@/config/utils";
+import theme from "@active-theme";
+import { Instagram, Facebook, Twitter } from "@/components/icons";
 import { PATH } from "@/constants/paths";
 import type { IStoreSettings } from "@/@types/StoreContent.type";
 import { policyLinks, socialLinks, type SocialKey } from "./footerLinks";
@@ -56,8 +58,8 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
       <div className="container-base pt-12 pb-8 grid grid-cols-2 gap-x-6 gap-y-10 lg:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div className="flex flex-col gap-4 items-start col-span-2 lg:col-span-1">
           <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
-            <Logo
-              className="text-white"
+            <theme.Wordmark
+              className="text-white text-[30px]"
               style={
                 {
                   "--logo-dot": "rgb(var(--color-primary-300))",
@@ -73,7 +75,7 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
             <p className="font-semibold text-white mb-1">
               Liên hệ với chúng tôi
             </p>
-            <p>{settings.contact.address}</p>
+            <p className="text-balance">{settings.contact.address}</p>
             <p>
               {settings.contact.email} · {settings.contact.phone}
             </p>
@@ -106,7 +108,12 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
         )}
 
         {/* Newsletter decorative ở cột 4 (chốt theo mockup F-D) — chưa có BE, chỉ UI */}
-        <div className="col-span-2 lg:col-span-1">
+        <div
+          className={cn(
+            "col-span-2 lg:col-span-1",
+            supportLinks.length === 0 && "lg:col-start-4"
+          )}
+        >
           <p className="font-bold mb-4 text-white">Nhận ưu đãi sớm nhất</p>
           <p className="text-sm text-primary-200 mb-4">
             Đăng ký để không bỏ lỡ deal mới và bộ sưu tập mỗi tuần.

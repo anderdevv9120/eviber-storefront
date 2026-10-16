@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { memo } from "react";
 import { cn } from "@/config/utils";
-import { Plus, Star } from "@/components/icons";
+import { Star } from "@/components/icons";
 import ItemPrice from "@/components/ui/ItemPrice";
 import { IProductListItem } from "@/@types/Product.type";
 import { PATH } from "@/constants/paths";
@@ -85,33 +85,19 @@ const CardItem = ({
           priceClass={cn("text-xs", priceClass)}
         />
 
-        {/* Hàng cuối 2 cực: social proof trái / nút điều hướng phải — lấp trục ngang */}
-        <div className="flex items-center justify-between gap-2 mt-2">
-          <span className="text-xs text-dark-500 whitespace-nowrap truncate">
-            {/* Rating chỉ từ md — card mobile 2 cột không đủ chỗ cả rating lẫn số bán */}
-            {productItem.rating != null && (
-              <>
-                <span className="font-semibold">
-                  <Star className="inline w-3 h-3 text-yellow-500 align-[-2px]" />{" "}
-                  {productItem.rating}
-                </span>
-                {productItem.soldCount != null && " · "}
-              </>
-            )}
-            {productItem.soldCount != null &&
-              `Đã bán ${formatSoldCount(productItem.soldCount)}`}
-          </span>
-
-          {/* Shortcut điều hướng — KHÔNG add-to-cart vì cart thao tác theo variant */}
-          {!isOutOfStock && (
-            <span
-              aria-hidden
-              className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-primary text-white hover:bg-primary-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-            </span>
+        <p className="mt-2.5 text-xs text-dark-500 whitespace-nowrap truncate">
+          {productItem.rating != null && (
+            <>
+              <span className="font-semibold">
+                <Star className="inline w-3 h-3 text-yellow-500 align-[-2px]" />{" "}
+                {productItem.rating}
+              </span>
+              {productItem.soldCount != null && " · "}
+            </>
           )}
-        </div>
+          {productItem.soldCount != null &&
+            `Đã bán ${formatSoldCount(productItem.soldCount)}`}
+        </p>
       </div>
     </Link>
   );

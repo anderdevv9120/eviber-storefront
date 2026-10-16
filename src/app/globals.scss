@@ -36,34 +36,21 @@ body {
    element LUÔN thắng — trước đây khai báo sau @tailwind utilities nên
    padding: 0 16px đè mất padding dọc ở <1280px, phải chữa cháy bằng !important */
 @layer components {
+  /* Trục ngang lấy từ theme (tokens.css: --container-max, --container-px) để
+     thân trang thẳng mép với Header/Hero của theme đó */
+  /* width 100%: là flex item (layout main là flex-col), margin auto tắt stretch → không có width là co theo max-content */
   .container-base {
-    @media (min-width: 1900px) {
-      width: 1530px;
-      margin: 0 auto;
-    }
-
-    @media (min-width: 1500px) and (max-width: 1900px) {
-      width: 1384px;
-      margin: 0 auto;
-    }
-
-    @media (min-width: 1280px) and (max-width: 1500px) {
-      width: 1100px;
-      margin: 0 auto;
-    }
-
-    @media (max-width: 1279px) {
-      padding: 0 16px;
-    }
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-px);
   }
 
   /* Biến thể HẸP cho màn nội dung đọc-nhiều — dùng KÈM container-base
-     (class="container-base container-narrow"): chỉ cap 2 nấc màn lớn về 1260,
-     các nấc dưới thừa hưởng nguyên container-base. Khai báo SAU để thắng cascade. */
+     (class="container-base container-narrow"); trần lấy từ theme (--container-narrow-max).
+     Khai báo SAU để thắng cascade. */
   .container-narrow {
-    @media (min-width: 1500px) {
-      width: 1260px;
-    }
+    max-width: var(--container-narrow-max);
   }
 
   /* Vai trò chữ theo theme (tokens.css): tiêu đề section và H1 trang */

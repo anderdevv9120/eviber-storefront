@@ -65,6 +65,12 @@ const CustomerReview = ({ reviews }: CustomerReviewProps) => {
     );
   };
 
+  // Chevron canh tâm ẢNH cover (pt-2 = 8px + nửa chiều cao ảnh 4/3), không phải tâm cả card — tâm card rơi đúng hàng avatar
+  const chevronStyle =
+    itemWidth > 0 && reviews.some((review) => review.productImage)
+      ? { top: 8 + (itemWidth * 3) / 8 }
+      : undefined;
+
   if (reviews.length === 0) return null;
 
   return (
@@ -121,9 +127,9 @@ const CustomerReview = ({ reviews }: CustomerReviewProps) => {
               )}
 
               {review.productName && (
-                <span className="inline-flex items-center gap-1.5 w-max mt-3 px-3 py-1 rounded-full bg-primary-50 text-xs font-bold text-primary-700">
-                  <CheckOutline className="w-3 h-3" />
-                  Đã mua: {review.productName}
+                <span className="inline-flex items-center gap-1.5 self-start max-w-full mt-3 px-3 py-1 rounded-full bg-primary-50 text-xs font-bold text-primary-700">
+                  <CheckOutline className="w-3 h-3 shrink-0" />
+                  <span className="truncate">Đã mua: {review.productName}</span>
                 </span>
               )}
             </div>
@@ -133,10 +139,12 @@ const CustomerReview = ({ reviews }: CustomerReviewProps) => {
 
       <ButtonChevron
         className="left-3 hidden shadow-xl lg:block hover:bg-white-50"
+        style={chevronStyle}
         onClick={handlePrev}
       />
       <ButtonChevron
         className="right-3 hidden shadow-xl lg:block hover:bg-white-50"
+        style={chevronStyle}
         onClick={handleNext}
         isRightButton
       />

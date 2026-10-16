@@ -21,12 +21,16 @@ const useMediaQuery = (width?: number, query?: string): boolean => {
   return matches;
 };
 
+// max-width = breakpoint - 0.02 để khớp min-width của Tailwind (md/lg) kể cả viewport lẻ
+// do zoom (767.2px): -1 nguyên để hở khe mà cả JS lẫn CSS đều không ở nhánh mobile
+const BELOW = 0.02;
+
 const useIsMobile = () => {
-  return useMediaQuery(BREAKPOINTS.SM);
+  return useMediaQuery(BREAKPOINTS.MD - BELOW);
 };
 
 const useIsTablet = () => {
-  return useMediaQuery(BREAKPOINTS.LG);
+  return useMediaQuery(BREAKPOINTS.LG - BELOW);
 };
 
 const useIsPc = () => {

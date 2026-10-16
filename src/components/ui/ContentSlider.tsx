@@ -19,25 +19,24 @@ const ContentSlider = ({
     // KHÔNG đặt overflow-hidden ở section — shadow-card của card con sẽ bị xén;
     // clipping ngang do từng rail tự quản trong container riêng của nó
     <section className="my-16 md:my-24">
-      <div className="section-head">
+      <div className="section-head mb-6">
         <h2 className="type-display-section font-display text-deep">{title}</h2>
         {subtitle && (
           <p className="type-section-sub text-dark-500">{subtitle}</p>
         )}
+        {/* ml-auto: rosier xếp cùng hàng tiêu đề, wrap xuống vẫn bám phải; classic (block) thành hàng riêng canh phải */}
+        {href && (
+          <div className="flex justify-end ml-auto">
+            <Link
+              href={href}
+              className="group/link relative flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-['']"
+            >
+              Xem tất cả
+              <RightArrow className="w-4 h-4 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
+            </Link>
+          </div>
+        )}
       </div>
-
-      {href && (
-        <div className="flex justify-end mb-6 mt-1">
-          <Link
-            href={href}
-            className="group/link relative flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-['']"
-          >
-            Xem tất cả
-            <RightArrow className="w-4 h-4 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
-          </Link>
-        </div>
-      )}
-      {!href && <div className="mb-6" />}
 
       {children}
     </section>

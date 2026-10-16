@@ -50,7 +50,7 @@ const CategoryItem = ({ name, imageUrl, slug }: ICategoryItem) => {
       className="group/cat block"
     >
       <div className="flex flex-col items-center text-center">
-        <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white ring-2 ring-primary-200 ring-offset-4 shadow-sm group-hover/cat:ring-primary group-hover/cat:shadow-md transition-all duration-300">
+        <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-white-100">
           <Image
             src={resolveImageUrl(imageUrl || "")}
             alt={name}

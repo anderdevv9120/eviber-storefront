@@ -10,6 +10,7 @@ import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
 import type { ICategoryItem } from "@/@types/Home.type";
 import type { ThemeHeaderProps } from "@/themes/types";
+import Wordmark from "./Wordmark";
 
 // "Liên hệ" chưa có trang riêng — neo xuống khối liên hệ ở Footer (id="lien-he")
 const CONTACT_ANCHOR = `${PATH.HOME}#lien-he`;
@@ -23,10 +24,11 @@ const categoryHref = (slug?: string) =>
     ? `${PATH.COLLECTION}?category=${encodeURIComponent(slug)}`
     : PATH.COLLECTION;
 
-function NavPills({
+function CategoryNav({
   categories,
   activeSlug,
-}: ThemeHeaderProps & { activeSlug: string | null }) {
+  className,
+}: ThemeHeaderProps & { activeSlug: string | null; className?: string }) {
   const pathname = usePathname();
   const items = [
     {
@@ -47,7 +49,10 @@ function NavPills({
   return (
     <nav
       aria-label="Danh mục"
-      className="bg-white-300 rounded-full p-1 flex gap-1 overflow-x-auto scroll-px-1 scrollbar-hide max-w-full text-sm font-medium"
+      className={cn(
+        "bg-white-300 rounded-full p-1 flex gap-1 overflow-x-auto scroll-px-1 scrollbar-hide max-w-full text-sm font-medium",
+        className
+      )}
     >
       {items.map((item) => (
         <Link
@@ -76,12 +81,40 @@ function NavPills({
 
 // Tách riêng + bọc Suspense (như SearchBox): useSearchParams ép CSR bail-out chỉ trong
 // boundary này, trang ISR chứa Header không bị kéo theo — fallback = nav không có pill active
-function NavPillsFromUrl({ categories }: ThemeHeaderProps) {
+function CategoryNavFromUrl({
+  categories,
+  className,
+}: ThemeHeaderProps & { className?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeSlug =
     pathname === PATH.COLLECTION ? searchParams.get("category") : null;
-  return <NavPills categories={categories} activeSlug={activeSlug} />;
+  return (
+    <CategoryNav
+      categories={categories}
+      activeSlug={activeSlug}
+      className={className}
+    />
+  );
+}
+
+function CategoryNavSlot({
+  categories,
+  className,
+}: ThemeHeaderProps & { className?: string }) {
+  return (
+    <Suspense
+      fallback={
+        <CategoryNav
+          categories={categories}
+          activeSlug={null}
+          className={className}
+        />
+      }
+    >
+      <CategoryNavFromUrl categories={categories} className={className} />
+    </Suspense>
+  );
 }
 
 export default function Header({ categories }: ThemeHeaderProps) {
@@ -89,71 +122,73 @@ export default function Header({ categories }: ThemeHeaderProps) {
   const closeSearch = () => setIsSearchOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-page">
-      <div className="max-w-[1440px] mx-auto px-[clamp(16px,4vw,48px)] py-[18px] flex flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
-        <Link
-          href={PATH.HOME}
-          aria-label="CLOTHES — về trang chủ"
-          className={cn(
-            "font-display italic text-[26px] sm:text-[34px] leading-none text-dark-800 whitespace-nowrap rounded-md",
-            FOCUS_RING
-          )}
-        >
-          CLOTHES
-        </Link>
-
-        {/* < lg: nav xuống hàng riêng, cuộn ngang bên trong; lg+: cột giữa co lại và cuộn */}
-        <div className="flex justify-center min-w-0 max-lg:order-last max-lg:basis-full">
-          <Suspense
-            fallback={<NavPills categories={categories} activeSlug={null} />}
+    <>
+      <header className="sticky top-0 z-50 bg-page">
+        <div className="container-base py-[18px] flex flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
+          <Link
+            href={PATH.HOME}
+            aria-label="CLOTHES — về trang chủ"
+            className={cn("inline-flex rounded-md text-dark-800", FOCUS_RING)}
           >
-            <NavPillsFromUrl categories={categories} />
-          </Suspense>
+            <Wordmark className="text-[26px] sm:text-[34px]" />
+          </Link>
+
+          <div className="hidden lg:flex justify-center min-w-0">
+            <CategoryNavSlot categories={categories} />
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm kiếm"}
+              aria-expanded={isSearchOpen}
+              onClick={() => setIsSearchOpen((open) => !open)}
+              className={cn(
+                "grid place-items-center size-11 rounded-full transition-colors hover:text-primary-700",
+                FOCUS_RING,
+                isSearchOpen ? "text-primary-700" : "text-dark-800"
+              )}
+            >
+              <Search />
+            </button>
+            <UserAction cartDisplay="pill" />
+          </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm kiếm"}
-            aria-expanded={isSearchOpen}
-            onClick={() => setIsSearchOpen((open) => !open)}
-            className={cn(
-              "grid place-items-center size-11 rounded-full transition-colors hover:text-primary-700",
-              FOCUS_RING,
-              isSearchOpen ? "text-primary-700" : "text-dark-800"
-            )}
+        {/* Thanh search: overlay dưới header (mọi breakpoint), không đẩy nội dung trang */}
+        {isSearchOpen && (
+          <div
+            data-testid="mobile-search-bar"
+            className="absolute inset-x-0 top-full flex items-center gap-3 bg-page px-[var(--container-px)] py-3 shadow-card"
           >
-            <Search />
-          </button>
-          <UserAction cartDisplay="pill" />
+            <SearchBox
+              variant="mobile"
+              autoFocus
+              className="flex-1"
+              onSubmitted={closeSearch}
+              onEscape={closeSearch}
+            />
+            <button
+              type="button"
+              onClick={closeSearch}
+              className={cn(
+                "relative whitespace-nowrap text-[15px] text-dark-500 transition-colors hover:text-dark-800 rounded-md after:absolute after:-inset-3 after:content-['']",
+                FOCUS_RING
+              )}
+            >
+              Hủy
+            </button>
+          </div>
+        )}
+      </header>
+
+      {/* < lg: hàng pill nằm NGOÀI header sticky — cuộn đi cùng trang, chỉ hàng logo/icon bám lại.
+          Không margin âm kéo lên: header sticky z-50 nền page sẽ đè mất mép trên của pill */}
+      <div className="lg:hidden">
+        <div className="container-base flex justify-center pb-[18px]">
+          <CategoryNavSlot categories={categories} />
         </div>
       </div>
-
-      {/* Thanh search: overlay dưới header (mọi breakpoint), không đẩy nội dung trang */}
-      {isSearchOpen && (
-        <div
-          data-testid="mobile-search-bar"
-          className="absolute inset-x-0 top-full flex items-center gap-3 bg-page px-[clamp(16px,4vw,48px)] py-3 shadow-card"
-        >
-          <SearchBox
-            variant="mobile"
-            autoFocus
-            className="flex-1"
-            onSubmitted={closeSearch}
-            onEscape={closeSearch}
-          />
-          <button
-            type="button"
-            onClick={closeSearch}
-            className={cn(
-              "relative whitespace-nowrap text-[15px] text-dark-500 transition-colors hover:text-dark-800 rounded-md after:absolute after:-inset-3 after:content-['']",
-              FOCUS_RING
-            )}
-          >
-            Hủy
-          </button>
-        </div>
-      )}
-    </header>
+    </>
   );
 }

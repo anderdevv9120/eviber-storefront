@@ -5,13 +5,15 @@ import ButtonChevron from "./ButtonChevron";
 import CardItem from "./CardItem";
 import { useIsMobile, useIsTablet } from "@/hooks/useMediaQuery";
 import Spin from "./Spin";
+import { cn } from "@/config/utils";
 import { IProductListItem } from "@/@types/Product.type";
 
 // Gap giữa các card (px) — dùng CHUNG cho CSS track lẫn phép tính itemWidth/transform;
 // đổi gap chỉ sửa hằng này, đừng gắn class gap-* vào track (CSS lệch JS là item cuối bị cắt)
 const CARD_GAP = 16;
-// Mobile không có chevron → grid tĩnh, giới hạn 6 card (3 hàng × 2) cho trang gọn
-const MOBILE_GRID_LIMIT = 6;
+// Chevron hiện sẵn ở mọi breakpoint (ghi đè lg:opacity-0 chờ hover của ButtonChevron) — người xem phải thấy rail còn cuộn được
+const CHEVRON_VISIBLE =
+  "lg:opacity-100 lg:pointer-events-auto lg:translate-x-0";
 
 const CardItemSlider = ({
   dataProduct,
@@ -76,47 +78,65 @@ const CardItemSlider = ({
     );
   }
 
+  if (isMobile) {
+    // Cuộn ngang full-bleed, card ~62% để card kế lộ một phần báo "còn nữa"; pb chừa shadow vì overflow-x kéo theo clip dọc
+    return (
+      <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory scroll-px-[var(--container-px)] scrollbar-hide -mx-[var(--container-px)] px-[var(--container-px)] pt-1 -mt-1 pb-4 -mb-4">
+        {dataProduct.map((item) => (
+          <div key={item._id} className="basis-[62%] shrink-0 snap-start">
+            <CardItem productItem={item} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const hasPaging = productLength > visibleItems;
+
   return (
     // Wrapper ngoài CHỈ lo clip + đệm thở cho shadow (margin âm bù nhịp layout).
     // Calibrate theo shadow-card-hover: dưới ~46px → pb-12; ngang PHẢI < CARD_GAP (16px) —
-    // đệm rộng hơn gap là lộ mép card kế tiếp của track → px-3.5 (14px, vừa khít shadow ngang tĩnh).
-    <div className="overflow-hidden group/rail px-3.5 -mx-3.5 pt-3 -mt-3 pb-12 -mb-10">
+    // đệm rộng hơn gap là lộ mép card kế tiếp của track → px-3.5 (14px). Shadow ngang tỏa ~28px > 14px
+    // nên mask fade đúng dải đệm 14px thay cho vệt cắt cứng ở mép clip.
+    <div className="overflow-hidden group/rail px-3.5 -mx-3.5 pt-3 -mt-3 pb-12 -mb-10 [mask-image:linear-gradient(to_right,transparent,black_14px,black_calc(100%-14px),transparent)]">
       {/* Lớp relative ôm SÁT content để chevron top-1/2 căn đúng giữa hàng card
           (đặt absolute theo wrapper padding lệch trên/dưới là chevron tụt tâm) */}
       <div className="relative">
         <div ref={containerRef}>{renderTrack()}</div>
 
-        {!isMobile && productLength > visibleItems && (
+        {hasPaging && (
           <>
-            <ButtonChevron className="left-1" onClick={handlePrev} />
+            <ButtonChevron
+              className={cn(CHEVRON_VISIBLE, "left-1")}
+              onClick={handlePrev}
+            />
             <ButtonChevron
               isRightButton
-              className="right-1"
+              className={cn(CHEVRON_VISIBLE, "right-1")}
               onClick={handleNext}
             />
           </>
         )}
       </div>
+
+      {hasPaging && (
+        <div
+          aria-hidden
+          className="relative h-0.5 mt-6 rounded-full bg-white-300 overflow-hidden"
+        >
+          <div
+            className="absolute inset-y-0 rounded-full bg-deep transition-[left] duration-500"
+            style={{
+              width: `${(visibleItems / productLength) * 100}%`,
+              left: `${(currentIndex / productLength) * 100}%`,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 
   function renderTrack() {
-    if (isMobile) {
-      return (
-        <div
-          className="grid gap-2"
-          style={{
-            gridTemplateColumns: "repeat(2, 1fr)",
-          }}
-        >
-          {/* Mobile cap 6 (3 hàng) — đồng quy ước rail KM: phần còn lại qua "Xem tất cả" */}
-          {dataProduct.slice(0, MOBILE_GRID_LIMIT).map((item) => (
-            <CardItem key={item._id} productItem={item} />
-          ))}
-        </div>
-      );
-    }
-
     return (
       <div
         className="flex transition-transform duration-500"

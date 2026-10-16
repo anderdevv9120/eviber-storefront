@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { CSSProperties, ComponentType } from "react";
 import { IBanner, ICategoryItem } from "@/@types/Home.type";
 import type { IBrandStory } from "@/@types/StoreContent.type";
 
@@ -22,4 +22,6 @@ export interface ThemeModule {
   Hero: ComponentType<ThemeHeroProps>;
   /** Section câu chuyện thương hiệu (home) — tự lo container/band của mình */
   BrandStory: ComponentType<ThemeBrandStoryProps>;
+  /** Logo chữ ngoài Header (Footer) — để 2 nơi cùng một nhận diện */
+  Wordmark: ComponentType<{ className?: string; style?: CSSProperties }>;
 }

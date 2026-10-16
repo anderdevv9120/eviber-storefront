@@ -83,7 +83,7 @@ export default function CollectionToolbar({
       {/* Chips hàng riêng, chỉ hiện khi có lọc — chips được nguyên bề ngang màn,
           cuộn ngang thay vì wrap (mobile bleed sát mép), không tốn dọc khi chưa lọc */}
       {chips.length > 0 && (
-        <div className="mt-3 flex items-center gap-2 flex-nowrap overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="mt-3 flex items-center gap-2 flex-nowrap overflow-x-auto scrollbar-hide -mx-[var(--container-px)] px-[var(--container-px)] md:mx-0 md:px-0">
           {chips.map((chip) => (
             // Cả chip là nút gỡ lọc — ✕ chỉ còn là hình trang trí
             <button

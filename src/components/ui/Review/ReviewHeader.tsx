@@ -41,6 +41,7 @@ const ReviewHeader = ({
             <RatingStar
               rating={averageRating}
               classStar="mx-1 w-4 h-4 md:w-5 md:h-5"
+              decorative
             />
           </div>
         </div>

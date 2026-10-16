@@ -6,21 +6,19 @@ const USP_ICONS = [Truck, Repeat, Shield, CheckOutline];
 
 const UspStrip = ({ items }: { items: IHomePromise[] }) => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6 border-y border-white-300 py-6 md:py-8">
       {items.map(({ title, description }, index) => {
         const Icon = USP_ICONS[index] ?? CheckOutline;
         return (
-          <div
-            key={index}
-            // Mobile: icon trên - text dưới căn giữa (card ~170px); md trở lên: icon trái text phải
-            className="flex flex-col items-center text-center gap-2 md:flex-row md:text-left md:gap-4 rounded-xl bg-white border border-primary-100 p-4 shadow-sm"
-          >
-            <span className="flex items-center justify-center w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-primary-50 to-primary-100 text-primary-700">
-              <Icon className="w-6 h-6" />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-dark-800">{title}</p>
-              <p className="text-xs text-dark-500 mt-0.5">{description}</p>
+          <div key={index} className="flex items-start gap-4 md:items-center">
+            <Icon className="w-6 h-6 shrink-0 text-primary-700" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-dark-800 text-balance">
+                {title}
+              </p>
+              <p className="text-xs text-dark-500 mt-0.5 text-balance">
+                {description}
+              </p>
             </div>
           </div>
         );

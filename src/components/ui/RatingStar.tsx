@@ -5,14 +5,24 @@ import { cn } from "@/config/utils";
 type RatingStarProps = {
   rating?: number;
   classStar?: string;
+  /** Số điểm đã hiển thị bằng chữ ngay cạnh → ẩn khỏi screen reader để không đọc lặp */
+  decorative?: boolean;
 };
 
-const RatingStar = ({ rating, classStar }: RatingStarProps) => {
+const RatingStar = ({ rating, classStar, decorative }: RatingStarProps) => {
   const widthPercentage = rating ? `${(rating / 5) * 100}%` : "0";
 
   // Thuần hiển thị — không hiệu ứng hover (control giả trên element đọc, /ui-audit)
   return (
-    <div className="relative w-fit">
+    <div
+      className="relative w-fit"
+      {...(decorative
+        ? { "aria-hidden": true }
+        : {
+            role: "img",
+            "aria-label": `${(rating ?? 0).toLocaleString("vi-VN")} trên 5 sao`,
+          })}
+    >
       <span
         className="flex gap-1 absolute flex-shrink-0 top-0 left-0 z-10 whitespace-nowrap overflow-hidden"
         style={{ width: widthPercentage }}
@@ -21,7 +31,10 @@ const RatingStar = ({ rating, classStar }: RatingStarProps) => {
       </span>
 
       <span className="flex gap-1">
-        <StarList colorClass="text-dark-100" className={classStar} />
+        <StarList
+          colorClass="text-[rgb(var(--color-star-empty))]"
+          className={classStar}
+        />
       </span>
     </div>
   );

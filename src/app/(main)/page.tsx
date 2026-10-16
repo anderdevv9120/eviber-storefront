@@ -18,7 +18,8 @@ import { IProductListItem } from "@/@types/Product.type";
 // khách không chờ BE mỗi request, data trễ tối đa 5 phút.
 export const revalidate = 300;
 
-// Grid KM desktop 2 hàng × 5; slider Bán chạy 5 cột × 2 trang
+// KM chỉ 1 hàng (5 card desktop) để 2 rail không thành một khối lưới liền; Bán chạy 5 cột × 2 trang
+const SALE_GRID_SIZE = 5;
 const RAIL_PAGE_SIZE = 10;
 
 /**
@@ -40,7 +41,7 @@ async function fetchSaleProducts(): Promise<IProductListItem[]> {
   try {
     const response = await getProducts({
       onSale: true,
-      pageSize: RAIL_PAGE_SIZE,
+      pageSize: SALE_GRID_SIZE,
     });
     return response?.data?.data || [];
   } catch {
@@ -113,21 +114,15 @@ export default async function Home() {
         <theme.BrandStory story={storeSettings.brandStory} />
       )}
 
-      {/* Band màu CHỈ bọc Review — py-px chặn margin-collapse
-          để margin của ContentSlider tự làm đệm trong band.
-          Không mt: khoảng cách phía trên do margin-bottom của khối trước lo
-          (rosier BrandStory là band → 2 band liền nhau) */}
       {reviews.length > 0 && (
-        <section className="bg-primary-50 py-px">
-          <div className="container-base">
-            <ContentSlider
-              title="Phản hồi từ khách hàng"
-              subtitle="Từ những đơn hàng đã xác nhận mua"
-            >
-              <CustomerReview reviews={reviews} />
-            </ContentSlider>
-          </div>
-        </section>
+        <div className="container-base">
+          <ContentSlider
+            title="Phản hồi từ khách hàng"
+            subtitle="Từ những đơn hàng đã xác nhận mua"
+          >
+            <CustomerReview reviews={reviews} />
+          </ContentSlider>
+        </div>
       )}
 
       <div className="container-base mt-16 md:mt-24">

@@ -1,14 +1,17 @@
+import type { CSSProperties } from "react";
 import { cn } from "@/config/utils";
 import { ChevronLeft } from "@/components/icons";
 
 interface ButtonChevronProps {
   isRightButton?: boolean;
   className?: string;
+  style?: CSSProperties;
   onClick?: () => void;
 }
 
 const ButtonChevron = ({
   className,
+  style,
   onClick,
   isRightButton,
 }: ButtonChevronProps) => {
@@ -16,15 +19,16 @@ const ButtonChevron = ({
     <button
       className={cn(
         // Dưới lg (touch, không có hover) chevron hiện sẵn; từ lg mới ẩn chờ hover rail
-        "absolute z-10 top-1/2 transform -translate-y-1/2 md:p-3 p-2.5 bg-white rounded-full border transition-all duration-300 lg:opacity-0 lg:pointer-events-none",
+        "absolute z-10 top-1/2 transform -translate-y-1/2 md:p-3 p-2.5 bg-white rounded-full border border-white-300 transition-all duration-300 lg:opacity-0 lg:pointer-events-none",
         isRightButton
           ? "lg:translate-x-4 group-hover/rail:translate-x-0 right-2"
           : "lg:-translate-x-4 group-hover/rail:translate-x-0 left-2",
         "group-hover/rail:opacity-100 group-hover/rail:pointer-events-auto",
-        "focus:outline-none focus-visible:opacity-100 focus-visible:pointer-events-auto focus-visible:translate-x-0 focus-visible:ring-2 focus-visible:ring-primary-100",
+        "focus:outline-none focus-visible:opacity-100 focus-visible:pointer-events-auto focus-visible:translate-x-0 focus-visible:ring-2 focus-visible:ring-primary-600",
         "hover:border-primary-500 hover:shadow-lg",
         className
       )}
+      style={style}
       aria-label={isRightButton ? "Next slide" : "Previous slide"}
       onClick={onClick}
     >
