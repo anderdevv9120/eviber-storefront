@@ -105,7 +105,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
           </div>
 
           {count > 1 && (
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8 flex gap-9">
               {banners.map((banner, index) => (
                 <button
                   key={banner._id}
@@ -114,8 +114,8 @@ const Hero = ({ banners }: ThemeHeroProps) => {
                   aria-current={index === current}
                   onClick={() => setCurrent(index)}
                   className={cn(
-                    // Hit-area dọc 40px; ngang nới đúng nửa gap-4 để các dot không đè vùng bấm của nhau
-                    "relative h-2 rounded-full motion-safe:transition-all duration-300 after:absolute after:-inset-x-2 after:-inset-y-4 after:content-['']",
+                    // Hit-area ≥ 44px: nới 18px mỗi phía (8 + 36); ngang nới đúng nửa gap-9 để các dot không đè vùng bấm của nhau
+                    "relative h-2 rounded-full motion-safe:transition-all duration-300 after:absolute after:-inset-[18px] after:content-['']",
                     FOCUS_RING,
                     index === current
                       ? "w-6 bg-[rgb(var(--theme-accent))]"

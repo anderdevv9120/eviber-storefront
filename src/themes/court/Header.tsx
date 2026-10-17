@@ -152,7 +152,7 @@ export default function Header({ categories }: ThemeHeaderProps) {
             >
               <Search />
             </button>
-            <UserAction cartDisplay="badge" />
+            <UserAction cartDisplay="pill" />
           </div>
         </div>
 
