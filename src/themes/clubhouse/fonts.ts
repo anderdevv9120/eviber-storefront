@@ -8,11 +8,11 @@ export const bodyFont = Manrope({
   variable: "--font-body",
 });
 
-// Fraunces 400/500 qua trục wght "variable": weight ["400","500"] + italic làm Turbopack (Next 16.3.8)
-// fail build "next/font/google queries have exactly one entry"; một weight tĩnh thì build được
+// Chỉ 400 (mọi tiêu đề display đều 400). Lưu ý: weight ["400","500"] + italic làm Turbopack
+// (Next 16.3.8) fail build "next/font/google queries have exactly one entry"
 export const displayFont = Fraunces({
   subsets: ["latin", "vietnamese"],
-  weight: "variable",
+  weight: "400",
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-display",
