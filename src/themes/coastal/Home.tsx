@@ -10,11 +10,11 @@ import PromoSplitBanner from "@/app/(main)/_component/PromoSplitBanner";
 import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
 import type { IFeaturedReview } from "@/@types/Home.type";
-import type { IHomePromise } from "@/@types/StoreContent.type";
 import type { ThemeHomeProps } from "@/themes/types";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
 import Hero from "./Hero";
 import BrandStory from "./BrandStory";
+import PromiseMarquee from "./PromiseMarquee";
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
@@ -26,53 +26,6 @@ const BUBBLE_BG = [
   "bg-[rgb(var(--theme-sky))]",
   "bg-[rgb(var(--theme-sand))]",
 ];
-
-// Dải cam kết chạy ngang. Mỗi nửa track = danh sách ×2 (đủ dài hơn viewport rộng), track = 2 nửa
-// giống hệt → animate-marquee (-50%) lặp liền mạch. Chỉ bản đầu tiên cho screen reader đọc;
-// reduced motion: đứng yên, chỉ còn bản đầu, xuống dòng thay vì bị cắt
-function PromiseMarquee({ items }: { items: IHomePromise[] }) {
-  const half = [...items, ...items];
-
-  return (
-    <section
-      aria-label="Cam kết của cửa hàng"
-      className="mt-6 md:mt-8 overflow-hidden border-y border-white-300"
-    >
-      <div className="flex w-max motion-safe:animate-marquee motion-safe:hover:[animation-play-state:paused] motion-reduce:w-auto">
-        {[0, 1].map((copy) => (
-          <ul
-            key={copy}
-            aria-hidden={copy === 1 || undefined}
-            className={cn(
-              "flex shrink-0 motion-reduce:shrink motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center",
-              copy === 1 && "motion-reduce:hidden"
-            )}
-          >
-            {half.map((item, index) => {
-              const repeat = index >= items.length;
-              return (
-                <li
-                  key={index}
-                  aria-hidden={(copy === 0 && repeat) || undefined}
-                  className={cn(
-                    "flex items-center gap-3 px-6 py-3 text-sm font-semibold text-dark-500 whitespace-nowrap",
-                    repeat && "motion-reduce:hidden"
-                  )}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="size-2 shrink-0 rounded-full bg-[rgb(var(--theme-sun))]"
-                  />
-                  {item.title}
-                </li>
-              );
-            })}
-          </ul>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 // Ô danh mục bo tròn có ảnh — rỗng/lỗi → ẩn
 async function CategoryTiles() {
