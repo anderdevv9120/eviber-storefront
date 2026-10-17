@@ -1,0 +1,97 @@
+:root {
+  --color-primary-50: 247 247 247;
+  --color-primary-100: 241 241 241;
+  --color-primary-200: 211 211 211;
+  --color-primary-300: 171 171 171;
+  --color-primary-400: 107 107 107;
+  --color-primary-500: 68 68 68;
+  --color-primary-600: 17 17 17;
+  --color-primary-700: 13 13 13;
+  --color-primary-800: 8 8 8;
+  --color-primary-900: 0 0 0;
+  --color-dark-50: 221 221 221;
+  --color-dark-100: 204 204 204;
+  --color-dark-200: 185 185 185;
+  --color-dark-300: 147 147 147;
+  --color-dark-400: 128 128 128;
+  --color-dark-500: 107 107 107;
+  --color-dark-600: 68 68 68;
+  --color-dark-700: 56 56 56;
+  --color-dark-800: 17 17 17;
+  --color-dark-900: 0 0 0;
+  --color-white-50: 249 249 248;
+  --color-white-100: 241 241 239;
+  --color-white-200: 235 235 233;
+  --color-white-300: 221 221 219;
+  --color-white-400: 211 211 209;
+  --color-white-500: 204 204 202;
+  --color-white-600: 185 185 183;
+  --color-terracotta: 17 17 17;
+  --color-page: 255 255 255;
+  --color-ink: 17 17 17;
+  --color-deep: 17 17 17;
+  --theme-accent: 255 91 31;
+
+  --radius-sm: 0px;
+  --radius-default: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-btn: 0px;
+  --radius-btn-lg: 0px;
+
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --shadow-auth-card: none;
+  --font-display: var(--font-body);
+
+  --display-section-size: 1.75rem;
+  --display-section-size-md: 2.5rem;
+  --display-section-weight: 700;
+  --display-section-transform: none;
+  --display-section-tracking: -0.05em;
+  --display-section-leading: 1.25;
+  --display-page-size: 2rem;
+  --display-page-size-md: 3rem;
+  --display-page-weight: 700;
+  --display-page-transform: none;
+  --display-page-tracking: -0.05em;
+  --display-page-leading: 1.25;
+  --display-sub-size: 1.5rem;
+  --display-sub-size-md: 2rem;
+  --display-sub-weight: 700;
+  --display-sub-tracking: -0.05em;
+  --display-sub-leading: 1.25;
+  --section-head-align: left;
+  --section-head-display: block;
+  --section-sub-size: 0.875rem;
+  --section-sub-leading: 1.5;
+  --section-sub-mt: 0.5rem;
+  --section-sub-max-w: 36rem;
+  --header-offset: 118px;
+  --container-max: none;
+  --container-px: 16px;
+  --container-narrow-max: var(--container-max);
+  --color-star-empty: 107 107 107;
+  --hero-offset: var(--header-offset);
+}
+@media (min-width: 1280px) {
+  :root {
+    --container-max: 1280px;
+    --container-px: 24px;
+    --header-offset: 74px;
+  }
+}
+@media (min-width: 1500px) {
+  :root {
+    --container-max: 1440px;
+    --container-narrow-max: 1260px;
+  }
+}
+@media (min-width: 1900px) {
+  :root {
+    --container-max: 1680px;
+  }
+}
