@@ -87,47 +87,13 @@ export default async function Home() {
       <h1 className="sr-only">
         CLOTHES — Thời trang tối giản, mặc bền nhiều mùa
       </h1>
-      <theme.Hero banners={banners} />
-
-      <div className="container-base">
-        <Category />
-
-        {saleProducts.length > 0 && (
-          <ContentSlider title="Đang khuyến mãi" href={PATH.COLLECTION}>
-            <CardItemGrid dataProduct={saleProducts} />
-          </ContentSlider>
-        )}
-
-        <PromoSplitBanner tiles={storeSettings.promoTiles} />
-
-        {bestSellers.length > 0 && (
-          <ContentSlider
-            title="Bán chạy"
-            href={`${PATH.COLLECTION}?sort=bestseller`}
-          >
-            <CardItemSlider dataProduct={bestSellers} />
-          </ContentSlider>
-        )}
-      </div>
-
-      {storeSettings.brandStory && (
-        <theme.BrandStory story={storeSettings.brandStory} />
-      )}
-
-      {reviews.length > 0 && (
-        <div className="container-base">
-          <ContentSlider
-            title="Phản hồi từ khách hàng"
-            subtitle="Từ những đơn hàng đã xác nhận mua"
-          >
-            <CustomerReview reviews={reviews} />
-          </ContentSlider>
-        </div>
-      )}
-
-      <div className="container-base mt-16 md:mt-24">
-        <UspStrip items={storeSettings.homePromises} />
-      </div>
+      <theme.Home
+        banners={banners}
+        saleProducts={saleProducts}
+        bestSellers={bestSellers}
+        reviews={reviews}
+        storeSettings={storeSettings}
+      />
     </main>
   );
 }

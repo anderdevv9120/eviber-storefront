@@ -26,7 +26,7 @@ export default async function MainLayout({
       <theme.Header categories={categories} />
       <div className="flex flex-1 flex-col">{children}</div>
       <Authentication />
-      <Footer settings={storeSettings} />
+      <theme.Footer settings={storeSettings} />
     </div>
   );
 }
