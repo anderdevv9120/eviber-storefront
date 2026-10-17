@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { BRAND } from "@/config/brand";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -9,6 +9,7 @@ import UserAction from "@/layouts/Header/UserAction";
 import SearchBox from "@/layouts/Header/SearchBox";
 import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
+import useClickOutside from "@/hooks/useClickOutside";
 import type { ThemeHeaderProps } from "@/themes/types";
 import Wordmark from "./Wordmark";
 
@@ -108,25 +109,38 @@ function NavSlot(
 
 export default function Header({ categories }: ThemeHeaderProps) {
   const [open, setOpen] = useState<"search" | "menu" | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
   const close = () => setOpen(null);
   const toggle = (panel: "search" | "menu") =>
     setOpen((current) => (current === panel ? null : panel));
+  // Đóng menu bằng Escape/nút toggle → trả focus về toggle (không rơi về <body>)
+  const closeMenu = () => {
+    close();
+    menuToggleRef.current?.focus();
+  };
+  useClickOutside(headerRef, () =>
+    setOpen((current) => (current === "menu" ? null : current))
+  );
 
   return (
     <header
+      ref={headerRef}
       className="sticky top-0 z-50 bg-page border-b border-ink/[.12]"
       onKeyDown={(e) => {
-        if (e.key === "Escape" && open === "menu") close();
+        if (e.key === "Escape" && open === "menu") closeMenu();
       }}
     >
-      <div className="container-base h-[72px] grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+      {/* < sm: cụm phải (tài khoản + "Giỏ (99+)") rộng hơn 1fr → bỏ căn giữa tuyệt đối, ô giữa co giãn; tìm kiếm vào menu */}
+      <div className="container-base h-[72px] grid grid-cols-[auto_1fr_auto] gap-2 sm:grid-cols-[1fr_auto_1fr] sm:gap-4 items-center">
         <div className="flex items-center gap-1 min-w-0">
           <button
             type="button"
             aria-label={open === "menu" ? "Đóng danh mục" : "Danh mục"}
             aria-expanded={open === "menu"}
             aria-controls="clubhouse-menu"
-            onClick={() => toggle("menu")}
+            ref={menuToggleRef}
+            onClick={() => (open === "menu" ? closeMenu() : toggle("menu"))}
             className={cn(ICON_BUTTON, "xl:hidden")}
           >
             {open === "menu" ? (
@@ -140,7 +154,7 @@ export default function Header({ categories }: ThemeHeaderProps) {
             aria-label={open === "search" ? "Đóng tìm kiếm" : "Tìm kiếm"}
             aria-expanded={open === "search"}
             onClick={() => toggle("search")}
-            className={ICON_BUTTON}
+            className={cn(ICON_BUTTON, "hidden sm:grid")}
           >
             <Search />
           </button>
@@ -152,9 +166,12 @@ export default function Header({ categories }: ThemeHeaderProps) {
         <Link
           href={PATH.HOME}
           aria-label={`${BRAND.name} — về trang chủ`}
-          className={cn("inline-flex rounded-sm text-ink", FOCUS_RING)}
+          className={cn(
+            "inline-flex items-center min-h-11 justify-self-center rounded-sm text-ink",
+            FOCUS_RING
+          )}
         >
-          <Wordmark className="text-[24px] sm:text-[30px]" />
+          <Wordmark className="text-[22px] sm:text-[30px]" />
         </Link>
 
         <div className="flex items-center justify-end gap-1 min-w-0">
@@ -172,6 +189,13 @@ export default function Header({ categories }: ThemeHeaderProps) {
           aria-label="Danh mục"
           className="xl:hidden absolute inset-x-0 top-full bg-page border-b border-ink/[.12] shadow-card"
         >
+          <div className="sm:hidden px-[var(--container-px)] pt-3">
+            <SearchBox
+              variant="mobile"
+              onSubmitted={close}
+              onEscape={closeMenu}
+            />
+          </div>
           <NavSlot categories={categories} part="all" onNavigate={close} />
         </nav>
       )}

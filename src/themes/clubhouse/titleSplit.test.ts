@@ -44,6 +44,13 @@ describe("titleSplit", () => {
     });
   });
 
+  it("dấu phẩy ở từ cuối → không coi là vế, quay về 2 từ cuối", () => {
+    expect(titleSplit("Một hai ba bốn,")).toEqual({
+      lead: "Một hai",
+      accent: "ba bốn,",
+    });
+  });
+
   it("gom khoảng trắng thừa", () => {
     expect(titleSplit("  Trọn   bộ \n đồ  chơi ")).toEqual({
       lead: "Trọn bộ",

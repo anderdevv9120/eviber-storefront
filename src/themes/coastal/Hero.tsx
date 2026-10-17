@@ -146,7 +146,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
                     FOCUS_RING,
                     index === current
                       ? "w-6 bg-ink"
-                      : "w-2 bg-ink/30 hover:bg-ink/60"
+                      : "w-2 bg-ink/60 hover:bg-ink/80"
                   )}
                 />
               ))}

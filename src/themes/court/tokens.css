@@ -29,7 +29,7 @@
   --color-white-400: 220 224 232; /* #DCE0E8 */
   --color-white-500: 210 215 224; /* #D2D7E0 */
   --color-white-600: 195 201 212; /* #C3C9D4 */
-  --color-terracotta: 201 58 58; /* #C93A3A — đỏ sale; #D64545 chỉ 4.38:1 trên trắng, bản này 5.06:1 */
+  --color-terracotta: 172 42 42; /* #AC2A2A — đỏ sale: 6.73:1 trên trắng, 5.73:1 trên dải bg-terracotta/10, 4.54:1 ô số đếm ngược /15 trên dải (FlashSale); #C93A3A chỉ 4.38 / 3.57 */
   --color-page: 255 255 255; /* #FFFFFF */
   --color-ink: 14 27 51; /* #0E1B33 */
   --color-deep: 14 27 51; /* #0E1B33 */

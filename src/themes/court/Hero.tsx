@@ -119,7 +119,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
                     FOCUS_RING,
                     index === current
                       ? "w-6 bg-[rgb(var(--theme-accent))]"
-                      : "w-2 bg-white/40 hover:bg-white/70"
+                      : "w-2 bg-white/60 hover:bg-white/80"
                   )}
                 />
               ))}

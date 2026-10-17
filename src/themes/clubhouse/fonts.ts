@@ -3,7 +3,7 @@ import { Fraunces, Manrope } from "next/font/google";
 // Subset "vietnamese" bắt buộc — thiếu là dấu tiếng Việt render font fallback.
 export const bodyFont = Manrope({
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
   variable: "--font-body",
 });

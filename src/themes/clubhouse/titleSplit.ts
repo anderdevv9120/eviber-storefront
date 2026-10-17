@@ -13,7 +13,7 @@ export function titleSplit(title: string): {
   const lastComma = words.findLastIndex((word) => word.endsWith(","));
   const clauseWords = words.length - 1 - lastComma;
   const accentCount =
-    lastComma >= 0 && clauseWords <= MAX_CLAUSE_WORDS
+    lastComma >= 0 && clauseWords > 0 && clauseWords <= MAX_CLAUSE_WORDS
       ? clauseWords
       : words.length >= 4
         ? 2
