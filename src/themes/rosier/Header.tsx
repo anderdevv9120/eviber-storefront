@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { BRAND } from "@/config/brand";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Search } from "@/components/icons";
@@ -127,7 +128,7 @@ export default function Header({ categories }: ThemeHeaderProps) {
         <div className="container-base py-[18px] flex flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link
             href={PATH.HOME}
-            aria-label="CLOTHES — về trang chủ"
+            aria-label={`${BRAND.name} — về trang chủ`}
             className={cn("inline-flex rounded-md text-dark-800", FOCUS_RING)}
           >
             <Wordmark className="text-[26px] sm:text-[34px]" />

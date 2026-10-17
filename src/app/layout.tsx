@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.scss";
@@ -17,13 +18,13 @@ const siteJsonLd = {
   "@graph": [
     {
       "@type": "Organization",
-      name: "CLOTHES",
+      name: BRAND.name,
       url: SITE_URL,
       logo: `${SITE_URL}/og.png`,
     },
     {
       "@type": "WebSite",
-      name: "CLOTHES",
+      name: BRAND.name,
       url: SITE_URL,
       potentialAction: {
         "@type": "SearchAction",
@@ -38,11 +39,11 @@ const siteJsonLd = {
 };
 
 export const metadata: Metadata = {
-  // Brand placeholder đồng bộ logo CLOTHES (components/icons/Logo.tsx) — đổi brand thì sửa cả hai
+  // Brand placeholder đồng bộ logo (components/icons/Logo.tsx) — đổi brand qua env NEXT_PUBLIC_BRAND_*
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "CLOTHES",
-    template: "%s | CLOTHES",
+    default: BRAND.name,
+    template: `%s | ${BRAND.name}`,
   },
   description:
     "Mua sắm trực tuyến — bộ sưu tập mới và ưu đãi dành riêng cho gen Z.",

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 import theme from "@active-theme";
 import ContentSlider from "@/components/ui/ContentSlider";
 import CardItemGrid from "@/components/ui/CardItemGrid";
@@ -85,7 +86,7 @@ export default async function Home() {
     <main>
       {/* H1 cố định cho SEO (sr-only) — hero là carousel data CMS nên title slide giữ h2 */}
       <h1 className="sr-only">
-        CLOTHES — Thời trang tối giản, mặc bền nhiều mùa
+        {BRAND.name} — {BRAND.tagline}
       </h1>
       <theme.Home
         banners={banners}
@@ -98,26 +99,25 @@ export default async function Home() {
   );
 }
 
-const HOME_DESCRIPTION =
-  "Khám phá bộ sưu tập mới và ưu đãi dành riêng cho thành viên tại CLOTHES — thời trang tối giản, phom chuẩn, giá minh bạch.";
+const HOME_DESCRIPTION = BRAND.description;
 
 export const metadata: Metadata = {
-  // absolute: homepage cần brand + USP thay vì "Trang chủ | CLOTHES" (template dành cho trang con)
-  title: { absolute: "CLOTHES — Thời trang tối giản, mặc bền nhiều mùa" },
+  // absolute: homepage cần brand + USP thay vì "Trang chủ | tên brand" (template dành cho trang con)
+  title: { absolute: `${BRAND.name} — ${BRAND.tagline}` },
   description: HOME_DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "vi_VN",
-    siteName: "CLOTHES",
-    title: "CLOTHES — Thời trang tối giản, mặc bền nhiều mùa",
+    siteName: BRAND.name,
+    title: `${BRAND.name} — ${BRAND.tagline}`,
     description: HOME_DESCRIPTION,
     url: "/",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "CLOTHES" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: BRAND.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CLOTHES — Thời trang tối giản, mặc bền nhiều mùa",
+    title: `${BRAND.name} — ${BRAND.tagline}`,
     description: HOME_DESCRIPTION,
     images: ["/og.png"],
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BRAND } from "@/config/brand";
 import Link from "next/link";
 import { Search, Logo } from "@/components/icons";
 import HeaderNav from "@/layouts/Header/HeaderNav";
@@ -94,7 +95,7 @@ function HeaderBar({ categories }: ThemeHeaderProps) {
             </Link>
           </nav>
 
-          <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
+          <Link href={PATH.HOME} aria-label={`${BRAND.name} — về trang chủ`}>
             <Logo className="text-dark-800" />
           </Link>
 
@@ -110,7 +111,7 @@ function HeaderBar({ categories }: ThemeHeaderProps) {
 
       <div className="grid grid-cols-[1fr_auto_1fr] py-5 px-4 items-center xl:hidden">
         <HeaderNav menus={mobileMenus} />
-        <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
+        <Link href={PATH.HOME} aria-label={`${BRAND.name} — về trang chủ`}>
           <Logo className="text-dark-800" />
         </Link>
         <div className="flex items-center justify-end gap-4">

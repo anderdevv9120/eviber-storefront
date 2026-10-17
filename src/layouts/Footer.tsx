@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import { BRAND } from "@/config/brand";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
@@ -57,7 +58,7 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
       {/* Mobile: brand + newsletter full-width, 2 cột link đứng cạnh nhau (footer ngắn lại ~nửa) */}
       <div className="container-base pt-12 pb-8 grid grid-cols-2 gap-x-6 gap-y-10 lg:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div className="flex flex-col gap-4 items-start col-span-2 lg:col-span-1">
-          <Link href={PATH.HOME} aria-label="CLOTHES — về trang chủ">
+          <Link href={PATH.HOME} aria-label={`${BRAND.name} — về trang chủ`}>
             <theme.Wordmark
               className="text-white text-[30px]"
               style={
@@ -133,7 +134,7 @@ const Footer = ({ settings }: { settings: IStoreSettings }) => {
 
       <div className="border-t border-white/15">
         <div className="container-base py-4 flex flex-col sm:flex-row gap-1 items-center justify-between text-sm text-primary-200">
-          <p>© 2026 CLOTHES. All rights reserved.</p>
+          <p>{`© 2026 ${BRAND.name}. All rights reserved.`}</p>
           <p>Việt Nam · VND</p>
         </div>
       </div>
