@@ -1,0 +1,90 @@
+/* Theme clubhouse — premium editorial (Third Shot, spec §5.2).
+   Chỉ khai báo biến :root (không @layer/@apply). Màu = kênh RGB để Tailwind
+   giữ opacity modifier: rgb(var(--color-…) / <alpha-value>). */
+:root {
+  --color-primary-50: 238 243 239; /* #EEF3EF */
+  --color-primary-100: 214 226 218; /* #D6E2DA */
+  --color-primary-200: 177 200 185; /* #B1C8B9 */
+  --color-primary-300: 132 166 144; /* #84A690 */
+  --color-primary-400: 87 128 104; /* #578068 */
+  --color-primary-500: 47 90 68; /* #2F5A44 */
+  --color-primary-600: 31 59 45; /* #1F3B2D — forest */
+  --color-primary-700: 26 50 38; /* #1A3226 */
+  --color-primary-800: 21 42 32; /* #152A20 */
+  --color-primary-900: 15 31 23; /* #0F1F17 */
+  --color-dark-50: 228 231 226; /* #E4E7E2 */
+  --color-dark-100: 211 216 209; /* #D3D8D1 */
+  --color-dark-200: 182 190 182; /* #B6BEB6 */
+  --color-dark-300: 94 108 98; /* #5E6C62 — 4.82:1 trên cream, chữ trắng trên nó 5.53:1 */
+  --color-dark-400: 87 102 92; /* #57665C */
+  --color-dark-500: 82 97 87; /* #526157 — muted: 5.71:1 trên cream, 5.09:1 trên #EAE2D2 */
+  --color-dark-600: 61 76 66; /* #3D4C42 */
+  --color-dark-700: 42 66 54; /* #2A4236 */
+  --color-dark-800: 31 59 45; /* #1F3B2D = ink */
+  --color-dark-900: 20 42 31; /* #142A1F */
+  --color-white-50: 249 246 239; /* #F9F6EF */
+  --color-white-100: 234 226 210; /* #EAE2D2 — surface / giếng ảnh card / band câu chuyện */
+  --color-white-200: 227 218 202; /* #E3DACA */
+  --color-white-300: 218 214 200; /* #DAD6C8 — hairline (≈ ink 12% trên cream) */
+  --color-white-400: 210 204 187; /* #D2CCBB */
+  --color-white-500: 201 194 175; /* #C9C2AF */
+  --color-white-600: 189 181 159; /* #BDB59F */
+  /* Clay: #A9542F của spec chỉ 4.58:1 trên cream, 4.08:1 trên surface #EAE2D2 và 4.03:1 trên
+     nền terracotta/10 (FlashSale) → hạ nhẹ: 5.16 cream / 4.59 surface / 4.51 tint / 5.92 trắng */
+  --color-terracotta: 158 77 43; /* #9E4D2B */
+  --color-page: 244 239 228; /* #F4EFE4 — cream */
+  --color-ink: 31 59 45; /* #1F3B2D */
+  --color-deep: 31 59 45; /* #1F3B2D */
+
+  --radius-sm: 4px;
+  --radius-default: 5px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+  --radius-3xl: 12px;
+  --radius-btn: 9999px;
+  --radius-btn-lg: 9999px;
+
+  --shadow-card:
+    0 1px 2px rgba(31, 59, 45, 0.04), 0 10px 28px -14px rgba(31, 59, 45, 0.12);
+  --shadow-card-hover:
+    0 2px 4px rgba(31, 59, 45, 0.06), 0 18px 44px -16px rgba(31, 59, 45, 0.18);
+  --shadow-auth-card:
+    0 24px 60px -12px rgba(31, 59, 45, 0.14), 0 4px 14px rgba(31, 59, 45, 0.05);
+
+  /* --font-body (Manrope) / --font-display (Fraunces) do next/font gắn (fonts.ts) */
+
+  /* Fraunces 400, leading ≥ 1.05: dấu chồng tiếng Việt (ể, ấ) không đè chân chữ dòng trên */
+  --display-section-size: clamp(30px, 3.2vw, 44px);
+  --display-section-size-md: clamp(30px, 3.2vw, 44px);
+  --display-section-weight: 400;
+  --display-section-transform: none;
+  --display-section-tracking: -0.01em;
+  --display-section-leading: 1.05;
+  --display-page-size: clamp(40px, 4.4vw, 60px);
+  --display-page-size-md: clamp(40px, 4.4vw, 60px);
+  --display-page-weight: 400;
+  --display-page-transform: none;
+  --display-page-tracking: -0.01em;
+  --display-page-leading: 1.05;
+  --display-sub-size: clamp(26px, 2.6vw, 36px);
+  --display-sub-size-md: clamp(26px, 2.6vw, 36px);
+  --display-sub-weight: 400;
+  --display-sub-tracking: -0.01em;
+  --display-sub-leading: 1.1;
+  --section-head-align: left;
+  --section-head-display: flex;
+  --section-sub-size: 15px;
+  --section-sub-leading: 1.55;
+  --section-sub-mt: 0;
+  --section-sub-max-w: 380px;
+  /* Header 1 hàng sticky (72px, menu gọn < xl) + 16px */
+  --header-offset: 88px;
+
+  --container-max: 1360px;
+  --container-px: clamp(16px, 4vw, 48px);
+  --container-narrow-max: calc(1260px + 2 * var(--container-px));
+  --color-star-empty: 218 214 200; /* = white-300 */
+  --hero-offset: var(--header-offset);
+}
