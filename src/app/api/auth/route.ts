@@ -8,6 +8,19 @@ const BASE_COOKIE = {
   path: "/",
 } as const;
 
+// Chỉ báo có cookie phiên; token vẫn được xác thực bởi API profile/refresh.
+export async function GET() {
+  const cookieStore = await cookies();
+  const hasSession =
+    Boolean(cookieStore.get(ACCESS_TOKEN)?.value) ||
+    Boolean(cookieStore.get(REFRESH_TOKEN)?.value);
+
+  return NextResponse.json(
+    { hasSession },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = await cookies();

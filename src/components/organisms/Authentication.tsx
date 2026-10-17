@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import { getProfile } from "@/apis/auth";
+import { getProfile, getSession } from "@/apis/auth";
 
 const Authentication = () => {
   const setProfile = useAppStore((state) => state.setProfile);
@@ -11,11 +11,18 @@ const Authentication = () => {
   useEffect(() => {
     let isMounted = true;
 
-    // Không check accessToken trước khi gọi: refreshToken là httpOnly (client không
-    // đọc được) — accessToken hết hạn nhưng phiên vẫn hợp lệ. Cứ gọi getProfile,
-    // interceptor tự refresh; guest thật → 401 im lặng (toastError: false) → clearProfile
+    // Đọc trạng thái cookie từ server vì refreshToken là httpOnly; guest không
+    // gọi API profile/refresh, phiên chỉ còn refreshToken vẫn được khôi phục.
     const getCustomerInfo = async () => {
       try {
+        const {
+          data: { hasSession },
+        } = await getSession();
+        if (!isMounted) return;
+        if (hasSession === false) {
+          clearProfile();
+          return;
+        }
         const res = await getProfile();
         if (!isMounted) return;
         // Guard shape: response lệch dự kiến mà setProfile(undefined) là crash Header

@@ -5,15 +5,11 @@ import { useAppStore } from "@/store/useAppStore";
 import { withStore } from "../decorators/withStore";
 
 /**
- * Authentication là component BOOTSTRAP: render <></>, side-effect khi mount:
- *   - Có cookie accessToken → gọi getProfile() (axios thật) → setProfile.
- *   - Không token → clearProfile().
- *
- * Trong Storybook KHÔNG có cookie accessToken (và không mock axios/cookie),
- * nên nhánh chạy được tin cậy là nhánh "không token → clearProfile()".
- * Story chỉ smoke render-only + panel đọc store để quan sát profile trống.
- * (Xem phần câu hỏi/ghi chú trong báo cáo: mock getProfile/cookie không đáng
- * tin trong Storybook → nên test bằng unit test.)
+ * Authentication probe GET /api/auth trước khi tải profile: guest xóa store;
+ * cookie accessToken hoặc refreshToken httpOnly giữ luồng profile/refresh.
+ * Storybook không cung cấp Next route handler này, nên story chỉ smoke render
+ * và quan sát store trống; không chứng minh guest detection hay session recovery.
+ * Cookie-state contract có unit test, bootstrap/refresh-only có Playwright e2e.
  */
 
 // Panel debug đọc store để quan sát profile.
@@ -39,7 +35,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Smoke: không có cookie → clearProfile() → profile.email rỗng.
+ * Smoke render: panel hiển thị profile rỗng sau khi decorator reset store.
  * Component tự render <></> (không có DOM riêng), panel đứng cạnh để quan sát.
  */
 export const NoToken: Story = {

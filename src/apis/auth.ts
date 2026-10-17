@@ -40,6 +40,10 @@ export const register = (data: {
   return axiosRequest.post("/auth/register", data, { toastError: false });
 };
 
+export const getSession = () => {
+  return axios.get<{ hasSession: boolean }>("/api/auth");
+};
+
 export const getProfile = () => {
   return axiosRequest.get("/auth/profile", { toastError: false });
 };
@@ -80,6 +84,7 @@ export const resetPassword = (data: { newPassword: string; token: string }) => {
 const authAPI = {
   login,
   register,
+  getSession,
   getProfile,
   resetPassword,
   forgotPassword,
