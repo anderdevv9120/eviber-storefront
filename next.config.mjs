@@ -19,7 +19,10 @@ const isProd = process.env.NODE_ENV === "production";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {
-    resolveAlias: { "@active-theme": `./src/themes/${THEME}` },
+    resolveAlias: {
+      "@active-theme/card": `./src/themes/${THEME}/card`,
+      "@active-theme": `./src/themes/${THEME}`,
+    },
   },
   async headers() {
     if (process.env.NEXT_ENV === process.env.NEXT_ENV_PROD) {

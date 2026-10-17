@@ -1,7 +1,7 @@
 import "./tokens.css";
 import type { ThemeModule } from "@/themes/types";
 import DefaultHome from "@/app/(main)/_component/DefaultHome";
-import DefaultProductCard from "@/components/ui/DefaultProductCard";
+import ProductCard from "./card";
 import Footer from "@/layouts/Footer";
 import { bodyFont, displayFont } from "./fonts";
 import Header from "./Header";
@@ -16,7 +16,7 @@ const theme = {
   BrandStory,
   Wordmark,
   Home: DefaultHome,
-  ProductCard: DefaultProductCard,
+  ProductCard,
   Footer,
 } satisfies ThemeModule;
 

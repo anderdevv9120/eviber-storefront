@@ -25,7 +25,10 @@ const config: StorybookConfig = {
   viteFinal: (viteConfig) =>
     mergeConfig(viteConfig, {
       resolve: {
-        alias: { "@active-theme": path.join(THEMES_DIR, THEME) },
+        alias: {
+          "@active-theme/card": path.join(THEMES_DIR, THEME, "card"),
+          "@active-theme": path.join(THEMES_DIR, THEME),
+        },
       },
     }),
 };

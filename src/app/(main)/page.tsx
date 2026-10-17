@@ -1,14 +1,6 @@
 import { Metadata } from "next";
 import { BRAND } from "@/config/brand";
 import theme from "@active-theme";
-import ContentSlider from "@/components/ui/ContentSlider";
-import CardItemGrid from "@/components/ui/CardItemGrid";
-import CardItemSlider from "@/components/ui/CardItemSlider";
-import Category from "@/components/ui/Category";
-import CustomerReview from "@/components/ui/CustomerReview";
-import UspStrip from "./_component/UspStrip";
-import PromoSplitBanner from "./_component/PromoSplitBanner";
-import { PATH } from "@/constants/paths";
 import { getBanners, getFeaturedReviews } from "@/apis/home";
 import { fetchStoreSettingsCached } from "@/apis/home.server";
 import { getProducts } from "@/apis/product";

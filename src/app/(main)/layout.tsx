@@ -1,4 +1,3 @@
-import Footer from "@/layouts/Footer";
 import theme from "@active-theme";
 import { ReactNode } from "react";
 import Authentication from "@/components/organisms/Authentication";
