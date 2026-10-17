@@ -1,6 +1,6 @@
 # Third Shot showcase deployment
 
-Current branch: `showcase/court` (default theme: `court`). All four showcase
+Current branch: `showcase/clubhouse` (default theme: `clubhouse`). All four showcase
 branches contain the same application and Third Shot branding; each defaults to
 its own theme in Next.js, Storybook, and Docker.
 

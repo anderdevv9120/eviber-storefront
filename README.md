@@ -45,7 +45,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## Pickleball showcase
 
-This branch, `showcase/court`, defaults to **Court** with **Third Shot** branding.
+This branch, `showcase/clubhouse`, defaults to **clubhouse** with **Third Shot** branding.
 The other deployment branches are `showcase/clubhouse`, `showcase/coastal`, and
 `showcase/index`. Each branch builds one theme; `THEME` can still override it.
 

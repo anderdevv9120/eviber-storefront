@@ -3,7 +3,7 @@ import path from "node:path";
 
 // Theme chọn lúc build (1 deploy / 1 khách) — tên thư mục trong src/themes.
 // Đổi THEME phải restart next dev.
-const THEME = process.env.THEME ?? "court";
+const THEME = process.env.THEME ?? "clubhouse";
 const THEMES_DIR = path.join(import.meta.dirname, "src/themes");
 if (!fs.existsSync(path.join(THEMES_DIR, THEME, "index.ts"))) {
   const valid = fs
