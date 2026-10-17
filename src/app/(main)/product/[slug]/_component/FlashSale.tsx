@@ -37,7 +37,7 @@ const FlashSale = () => {
     // trống (ẩn khi cột hẹp) — đồng hồ 3 Ô SỐ to bên phải (chỉnh vòng duyệt spacing).
     // flex-wrap BẮT BUỘC: 2 cụm đều nowrap, thiếu wrap là min-content banh rộng cột
     // ở mobile 390 → title bị xén, ảnh phình (bug /ui-audit header)
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 rounded-lg border border-terracotta/20 bg-terracotta/10 text-terracotta">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 rounded-lg border border-terracotta/20 bg-terracotta/10 text-ink">
       {/* Mobile rút "hôm nay" + "Kết thúc trong" để strip gọn 1 hàng (chốt F1 mobile-refine) */}
       <span className="flex items-center gap-2 text-sm font-bold whitespace-nowrap uppercase">
         <SvgIcon name="thunder-outline" className="w-4 h-4 shrink-0" />
