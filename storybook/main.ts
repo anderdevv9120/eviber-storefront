@@ -4,7 +4,7 @@ import type { StorybookConfig } from "@storybook/nextjs-vite";
 import { mergeConfig } from "vite";
 
 // Mirror alias @active-theme của next.config.mjs (đọc cùng env THEME)
-const THEME = process.env.THEME ?? "court";
+const THEME = process.env.THEME ?? "index";
 const THEMES_DIR = path.join(import.meta.dirname, "../src/themes");
 if (!fs.existsSync(path.join(THEMES_DIR, THEME, "index.ts"))) {
   const valid = fs
