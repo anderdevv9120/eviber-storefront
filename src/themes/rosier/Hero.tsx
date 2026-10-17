@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import useCustomSwipeable from "@/hooks/useCustomSwipeable";
+import { useBannerCycle } from "@/hooks/useBannerCycle";
 import { cn } from "@/config/utils";
 import type { ThemeHeroProps } from "@/themes/types";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
-
-const AUTO_SLIDE_MS = 5000;
 
 // Cỡ tiêu đề theo độ dài (CMS cho tới 200 ký tự) và chặn theo chiều cao màn hình (vh)
 // để cả hero vừa một màn hình; tiêu đề ngắn mới được cỡ lớn kiểu mockup.
@@ -24,37 +21,15 @@ const FOCUS_RING =
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
 const Hero = ({ banners }: ThemeHeroProps) => {
-  const [current, setCurrent] = useState(0);
-  // Focus trong hero (CTA/dot) → dừng tự chuyển: slide cũ thành inert sẽ cướp focus bàn phím
-  const [paused, setPaused] = useState(false);
-  const count = banners.length;
-
-  useEffect(() => {
-    if (count <= 1 || paused) return;
-    // ponytail: đọc reduced-motion mỗi lần đổi slide, không lắng nghe "change" — đổi setting giữa chừng có hiệu lực từ slide sau
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % count);
-    }, AUTO_SLIDE_MS);
-    return () => clearInterval(timer);
-  }, [count, current, paused]);
-
-  // Hook phải gọi trước early-return (rules of hooks)
-  const swipeHandlers = useCustomSwipeable({
-    onSwipedLeft: () => setCurrent((prev) => (prev + 1) % count),
-    onSwipedRight: () =>
-      setCurrent((prev) => (prev === 0 ? count - 1 : prev - 1)),
-  });
+  const { current, setCurrent, count, focusHandlers, swipeHandlers } =
+    useBannerCycle(banners.length);
 
   if (count === 0) return null;
 
   return (
     <section
       aria-label="Banner khuyến mãi"
-      onFocus={() => setPaused(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false);
-      }}
+      {...focusHandlers}
       className="container-base pt-4 grid grid-cols-1 md:grid-cols-2 items-center gap-[clamp(32px,5vw,72px)]"
     >
       {/* Các slide chữ chồng cùng ô grid → cột cao theo slide dài nhất, đổi slide không nhảy layout.

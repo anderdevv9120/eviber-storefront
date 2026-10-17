@@ -198,6 +198,34 @@ const config: Config = {
             backgroundColor: "#B4916C",
           },
         },
+        rise: {
+          from: { opacity: "0", transform: "translateY(18px)" },
+          to: { opacity: "1", transform: "none" },
+        },
+        fade: {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        drift: {
+          "0%, 100%": { transform: "translateY(0) rotate(0)" },
+          "50%": { transform: "translateY(-10px) rotate(8deg)" },
+        },
+        wipe: {
+          from: { clipPath: "inset(0 100% 0 0)" },
+          to: { clipPath: "inset(0 0 0 0)" },
+        },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+      },
+      // Luôn dùng kèm motion-safe: (vd motion-safe:animate-rise)
+      animation: {
+        rise: "rise 0.8s cubic-bezier(.2,.7,.2,1) both",
+        fade: "fade 1.2s ease both",
+        drift: "drift 6s ease-in-out infinite",
+        wipe: "wipe 1s cubic-bezier(.7,0,.2,1) both",
+        marquee: "marquee 30s linear infinite",
       },
     },
   },
