@@ -46,7 +46,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Pickleball showcase
 
 This branch, `showcase/coastal`, defaults to **coastal** with **Third Shot** branding.
-The other deployment branches are `showcase/clubhouse`, `showcase/coastal`, and
+The four deployment branches are `showcase/court`, `showcase/clubhouse`, `showcase/coastal`, and
 `showcase/index`. Each branch builds one theme; `THEME` can still override it.
 
 Follow [DEPLOYMENT.md](DEPLOYMENT.md) for the shared API/database setup, build-time
