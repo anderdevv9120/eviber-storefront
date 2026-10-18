@@ -12,19 +12,19 @@ its own theme in Next.js, Storybook, and Docker.
 | `showcase/index`     | `index`       | `https://index.thirdshot.example`     |
 
 All `.example` domains below are placeholders. Replace them with your own HTTPS
-URLs. Use one shared API such as `https://api.thirdshot.example/api/v1` and one
+URLs. Use one shared API such as `https://api.thirdshot.example/api/pickleball/v1` and one
 **dedicated pickleball MongoDB database** for all four sites. Orders and inventory
 are shared across the four demos. Keep the existing clothing database separate.
 
 ## 1. Prepare the shared API and data first
 
-In the backend repository, use branch `showcase/pickleball-api` and follow its
-`DEPLOYMENT.md`. Deploy the API using `Dockerfile.prod` (or Node.js 24), seed the
-new database with `SEED_PROFILE=pickleball`, then confirm these URLs return data:
+In the backend repository, use `develop` with `MONGO_DATABASES=pickleball:thirdshot_pb`
+(the same MongoDB cluster as `MONGO_URI`). Seed `thirdshot_pb` using
+`SEED_PROFILE=pickleball`, then confirm these URLs return data:
 
-- `https://api.thirdshot.example/api/v1/products` (35 public products)
-- `https://api.thirdshot.example/api/v1/categories` (7 categories)
-- `https://api.thirdshot.example/api/v1/banners` (3 banners)
+- `https://api.thirdshot.example/api/pickleball/v1/products` (35 public products)
+- `https://api.thirdshot.example/api/pickleball/v1/categories` (7 categories)
+- `https://api.thirdshot.example/api/pickleball/v1/banners` (3 banners)
 
 The fixture includes 36 products; one intentionally has no active variant and is
 excluded from the public catalog. The API must be reachable **during frontend
@@ -46,14 +46,15 @@ use the host's Next.js support or a Node/container service.
 For each service set these **build-time** environment variables:
 
 ```dotenv
-NEXT_PUBLIC_API_URL=https://api.thirdshot.example/api/v1
+NEXT_PUBLIC_SHOWCASE_API_URL=https://api.thirdshot.example/api/pickleball/v1
 NEXT_PUBLIC_SITE_URL=https://court.thirdshot.example
 ```
 
 Change the site URL per service. Leave `THEME` unset to use the branch default;
 remove stale hosting settings such as `THEME=rosier` or `NEXT_PUBLIC_BRAND_NAME=CLOTHES`.
 Optional branding overrides are listed in `.env.example`. `NEXT_PUBLIC_*` values
-are public and embedded into the bundle; never put secrets in them. Rebuild after
+are public and embedded into the bundle; never put secrets in them. The showcase
+URL takes precedence over `NEXT_PUBLIC_API_URL` (supported as a fallback). Rebuild after
 changing these settings. Configure the same values for build and runtime.
 
 Install: `npm ci --include=dev` (the build needs devDependencies).
@@ -71,7 +72,7 @@ real environment files out of commits and out of Docker build contexts.
 From the desired branch (example: Court), after the API is online:
 
 ```sh
-docker build -t thirdshot-court --build-arg NEXT_PUBLIC_API_URL=https://api.thirdshot.example/api/v1 --build-arg NEXT_PUBLIC_SITE_URL=https://court.thirdshot.example .
+docker build -t thirdshot-court --build-arg NEXT_PUBLIC_SHOWCASE_API_URL=https://api.thirdshot.example/api/pickleball/v1 --build-arg NEXT_PUBLIC_SITE_URL=https://court.thirdshot.example .
 docker run -d --name thirdshot-court -p 3140:3001 --restart unless-stopped thirdshot-court
 ```
 

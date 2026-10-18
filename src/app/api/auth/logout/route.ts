@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import axios from "axios";
 import { ACCESS_TOKEN, REFRESH_TOKEN, REMEMBER_ME } from "@/constants";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { API_URL } from "@/config/api-url";
 
 interface TokenPair {
   accessToken: string;

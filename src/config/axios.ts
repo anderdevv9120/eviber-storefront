@@ -10,6 +10,7 @@ import { decodeJwtExpiryMs } from "@/utils/jwt";
 import { useAppStore } from "@/store/useAppStore";
 import { errorToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { API_URL } from "@/config/api-url";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -125,7 +126,7 @@ const refreshWithCrossTabLock = async (
 };
 
 const axiosRequest = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: API_URL,
   withCredentials: true, // accept set cookies from server, send cookies to server with cross-site requests
   paramsSerializer: {
     serialize: (params) => {

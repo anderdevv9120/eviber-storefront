@@ -25,6 +25,7 @@ import { getErrorMessage } from "@/utils/getErrorMessage";
 import InputPassword from "@/components/ui/InputPassword";
 import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
+import { API_URL } from "@/config/api-url";
 
 const schema = yup
   .object({
@@ -97,7 +98,7 @@ const LoginForm = () => {
   };
 
   const handleLoginGoogle = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   return (

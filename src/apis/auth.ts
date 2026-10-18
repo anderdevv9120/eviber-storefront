@@ -1,5 +1,6 @@
 import axiosRequest, { REFRESH_LOCK_NAME } from "@/config/axios";
 import axios from "axios";
+import { API_URL } from "@/config/api-url";
 
 // Các endpoint auth hiển thị lỗi inline trong form (hoặc tự toast message riêng)
 // → toastError: false để interceptor không toast global trùng lặp
@@ -14,7 +15,7 @@ export const login = (data: { email: string; password: string }) => {
 // Response 200 vì thế cũng ở dạng thô: res.data.data = { success, message }.
 export const verifyEmail = (data: { token: string }) => {
   return axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`,
+    `${API_URL}/auth/verify-email`,
     data
   );
 };
