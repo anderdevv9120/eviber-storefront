@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import axios from "axios";
 import { ACCESS_TOKEN, REFRESH_TOKEN, REMEMBER_ME } from "@/constants";
+import { API_URL } from "@/config/api-url";
 
 // Refresh token là httpOnly cookie nên client không đọc được —
 // route này đọc cookie server-side, gọi BE refresh rồi set lại cặp cookie mới.
@@ -19,7 +20,7 @@ export async function POST() {
 
   try {
     const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+      `${API_URL}/auth/refresh-token`,
       { refreshToken }
     );
     const {
