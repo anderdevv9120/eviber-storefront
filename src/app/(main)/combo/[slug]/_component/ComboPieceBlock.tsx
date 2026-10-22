@@ -31,14 +31,12 @@ export default function ComboPieceBlock({
     (v) =>
       v.id === (item.mode === "LOCKED" ? item.variantId : selectedVariantId)
   );
+  const selectableVariants = variantsForQuantity(item.variants, item.quantity);
 
   const handleSelect = (attributeId: string, valueId: string) => {
     const next = { ...selected, [attributeId]: valueId };
     setSelected(next);
-    const matchingVariant = variantsForQuantity(
-      item.variants,
-      item.quantity
-    ).find(
+    const matchingVariant = selectableVariants.find(
       (candidate) =>
         candidate.inventoryCount > 0 &&
         item.product.options.every((option) =>
@@ -98,13 +96,19 @@ export default function ComboPieceBlock({
           Cố định: {variant ? lockedLabels(variant) : "Mặc định"}
         </p>
       ) : (
-        <div className="mt-4">
-          <VariantSelector
-            options={item.product.options}
-            variants={variantsForQuantity(item.variants, item.quantity)}
-            selected={selected}
-            onSelect={handleSelect}
-          />
+        <div className="mt-4 space-y-4">
+          {/* Keep attributes independently selectable across disjoint valid variants. */}
+          {item.product.options.map((option) => (
+            <VariantSelector
+              key={option.attributeId._id}
+              options={[option]}
+              variants={selectableVariants}
+              selected={{
+                [option.attributeId._id]: selected[option.attributeId._id],
+              }}
+              onSelect={handleSelect}
+            />
+          ))}
         </div>
       )}
     </div>
