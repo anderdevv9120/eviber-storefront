@@ -222,7 +222,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         <header className="flex items-center justify-between border-b border-white-300 bg-white-50 px-4 py-3 sm:px-5">
           <h2 className="text-sm font-bold">Sản phẩm trong đơn</h2>
           <span className="text-sm text-dark-400">
-            {totalQuantity} sản phẩm
+            {combos?.length ? totalQuantity : productInfo.length} sản phẩm
           </span>
         </header>
         <div className="px-4 sm:px-5">

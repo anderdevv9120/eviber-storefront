@@ -125,7 +125,11 @@ export default function CartView() {
         await removeFromCart({ variantId: lineToRemove.slice(8) });
       }
       await fetchCart(true);
-      successToast("Xóa khỏi giỏ hàng thành công");
+      successToast(
+        lineToRemove.startsWith("combo:")
+          ? "Xóa khỏi giỏ hàng thành công"
+          : "Xóa sản phẩm thành công"
+      );
     } catch {
       // interceptor đã toast lỗi
     } finally {
