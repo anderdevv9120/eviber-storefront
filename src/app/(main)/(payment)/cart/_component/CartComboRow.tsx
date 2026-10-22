@@ -11,6 +11,7 @@ import { comboUnavailableReason } from "@/utils/cartAvailability";
 interface CartComboRowProps {
   line: ICartComboLine;
   counterResetKey: number;
+  isQuantityLocked: boolean;
   onDeleteClick: (lineId: string) => void;
   onQuantityChange: (lineId: string, quantity: number) => void;
 }
@@ -18,6 +19,7 @@ interface CartComboRowProps {
 export default function CartComboRow({
   line,
   counterResetKey,
+  isQuantityLocked,
   onDeleteClick,
   onQuantityChange,
 }: CartComboRowProps) {
@@ -79,6 +81,7 @@ export default function CartComboRow({
               variant="pill"
               size="sm-md"
               defaultValue={line.quantity}
+              disabled={isQuantityLocked}
               onChangeCount={(quantity) =>
                 onQuantityChange(line.lineId, quantity)
               }
@@ -91,6 +94,7 @@ export default function CartComboRow({
             aria-label="Xóa combo"
             data-testid="cart-combo-remove"
             onClick={() => onDeleteClick(line.lineId)}
+            disabled={isQuantityLocked}
             className="flex items-center justify-center w-10 h-10 rounded-lg text-dark-400 hover:text-red hover:bg-white-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
           >
             <TrashOutline className="w-5 h-5" />

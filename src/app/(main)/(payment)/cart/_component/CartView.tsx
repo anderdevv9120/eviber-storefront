@@ -15,6 +15,7 @@ import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
 import { removeLocalStorage } from "@/utils/localStorage";
 import { useCartStore } from "@/store/useCartStore";
 import { formatPrice } from "@/utils/formatPrice";
+import { CartQuantityQueue } from "@/utils/cartQuantityQueue";
 import { successToast } from "@/utils/toast";
 import { cn } from "@/config/utils";
 import { PATH } from "@/constants/paths";
@@ -32,17 +33,42 @@ export default function CartView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lineToRemove, setLineToRemove] = useState("");
   const [isMutating, setIsMutating] = useState(false);
-  // Remount Counter khi PUT fail — Counter uncontrolled nên số optimistic
-  // không tự quay về giá trị server sau resync
-  const [counterResetKey, setCounterResetKey] = useState(0);
-  // Mỗi cart line có cửa sổ debounce riêng; product và combo không trùng ID.
-  const pendingRef = useRef(
-    new Map<
-      string,
-      { quantity: number; timer: ReturnType<typeof setTimeout> }
-    >()
+  // Counter uncontrolled: chỉ remount dòng PUT lỗi, giữ optimistic edit dòng khác.
+  const [counterResetKeys, setCounterResetKeys] = useState<
+    Record<string, number>
+  >({});
+  const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const checkoutSettlingRef = useRef(false);
+  const [quantityQueue] = useState(
+    () =>
+      new CartQuantityQueue(async (key, quantity) => {
+        const isCombo = key.startsWith("combo:");
+        const id = key.slice(isCombo ? 6 : 8);
+        const cartNow = useCartStore.getState().cart;
+        const current = isCombo
+          ? cartNow?.combos.find((line) => line.lineId === id)
+          : cartNow?.items.find((item) => item.variantId === id);
+        if (!current || current.quantity === quantity) return true;
+
+        try {
+          if (isCombo) {
+            await updateComboQuantity({ lineId: id, quantity });
+          } else {
+            await updateQuantity({ variantId: id, quantity });
+          }
+          await fetchCart(true);
+          successToast("Cập nhật số lượng thành công");
+          return true;
+        } catch {
+          await fetchCart(true);
+          setCounterResetKeys((keys) => ({
+            ...keys,
+            [key]: (keys[key] ?? 0) + 1,
+          }));
+          return false;
+        }
+      })
   );
-  const inflightRef = useRef(new Map<string, Promise<boolean>>());
 
   useEffect(() => {
     fetchCart();
@@ -52,82 +78,47 @@ export default function CartView() {
     removeLocalStorage(getCountdownStorageKey(PATH.CART));
   }, []);
 
-  const flushPendingUpdate = async (key: string): Promise<boolean> => {
-    // A new edit can arrive while a PUT for the same line is running.
-    const previous = inflightRef.current.get(key);
-    if (previous && !(await previous)) return false;
-
-    const pending = pendingRef.current.get(key);
-    if (!pending) return true;
-    pendingRef.current.delete(key);
-    clearTimeout(pending.timer);
-
-    const isCombo = key.startsWith("combo:");
-    const id = key.slice(isCombo ? 6 : 8);
-    const cartNow = useCartStore.getState().cart;
-    const current = isCombo
-      ? cartNow?.combos.find((line) => line.lineId === id)
-      : cartNow?.items.find((item) => item.variantId === id);
-    if (!current || current.quantity === pending.quantity) return true;
-
-    const request = (async () => {
-      try {
-        if (isCombo) {
-          await updateComboQuantity({ lineId: id, quantity: pending.quantity });
-        } else {
-          await updateQuantity({ variantId: id, quantity: pending.quantity });
-        }
-        await fetchCart(true);
-        successToast("Cập nhật số lượng thành công");
-        return true;
-      } catch {
-        await fetchCart(true);
-        setCounterResetKey((k) => k + 1);
-        return false;
-      }
-    })();
-    inflightRef.current.set(key, request);
-    try {
-      return await request;
-    } finally {
-      if (inflightRef.current.get(key) === request)
-        inflightRef.current.delete(key);
-    }
-  };
-
   const queueQuantityChange = (key: string, quantity: number) => {
-    const old = pendingRef.current.get(key);
-    if (old) clearTimeout(old.timer);
+    if (!quantityQueue.enqueue(key, quantity)) return;
+    const old = timersRef.current.get(key);
+    if (old) clearTimeout(old);
     const timer = setTimeout(() => {
-      flushPendingUpdate(key).catch(() => {});
+      timersRef.current.delete(key);
+      quantityQueue.flush(key).catch((error) => {
+        console.error("Cart quantity flush failed", error);
+      });
     }, 1000);
-    pendingRef.current.set(key, { quantity, timer });
+    timersRef.current.set(key, timer);
   };
 
-  // Unmount giữa cửa sổ debounce → update cuối bị nuốt im lặng; flush fire-and-forget
+  // Unmount giữa debounce: bắt đầu drain các thay đổi còn chờ.
   useEffect(() => {
-    const pending = pendingRef.current;
+    const timers = timersRef.current;
     return () => {
-      for (const key of pending.keys()) {
-        flushPendingUpdate(key).catch(() => {});
-      }
+      for (const timer of timers.values()) clearTimeout(timer);
+      timers.clear();
+      quantityQueue.flushAll().catch((error) => {
+        console.error("Cart unmount flush failed", error);
+      });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [quantityQueue]);
 
   const handleDeleteClick = (key: string) => {
+    if (checkoutSettlingRef.current || isMutating) return;
     setLineToRemove(key);
     setIsModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
+    if (checkoutSettlingRef.current) return;
     setIsModalOpen(false);
     setIsMutating(true);
     try {
-      const queued = pendingRef.current.get(lineToRemove);
-      if (queued) clearTimeout(queued.timer);
-      pendingRef.current.delete(lineToRemove);
-      await inflightRef.current.get(lineToRemove);
+      const queued = timersRef.current.get(lineToRemove);
+      if (queued) clearTimeout(queued);
+      timersRef.current.delete(lineToRemove);
+      quantityQueue.discard(lineToRemove);
+      await quantityQueue.flush(lineToRemove);
       if (lineToRemove.startsWith("combo:")) {
         await removeComboFromCart({ lineId: lineToRemove.slice(6) });
       } else {
@@ -143,21 +134,27 @@ export default function CartView() {
   };
 
   const handleCheckout = async () => {
+    if (checkoutSettlingRef.current || isMutating) return;
+    checkoutSettlingRef.current = true;
+    quantityQueue.freeze();
     setIsMutating(true);
-    // Checkout phải chờ cả các PUT đang chạy và những dòng còn debounce.
-    const keys = new Set([
-      ...inflightRef.current.keys(),
-      ...pendingRef.current.keys(),
-    ]);
-    const updated = await Promise.all(
-      [...keys].map((key) => flushPendingUpdate(key))
-    );
-    if (updated.some((ok) => !ok)) {
-      setIsMutating(false);
-      return;
+    for (const timer of timersRef.current.values()) clearTimeout(timer);
+    timersRef.current.clear();
+    let navigating = false;
+    try {
+      // Frozen queue + shared per-line drain guarantee latest PUT/GET before navigation.
+      if (!(await quantityQueue.flushAll())) return;
+      router.push(PATH.CHECKOUT);
+      navigating = true;
+    } catch (error) {
+      console.error("Cart checkout flush failed", error);
+    } finally {
+      if (!navigating) {
+        quantityQueue.unfreeze();
+        checkoutSettlingRef.current = false;
+        setIsMutating(false);
+      }
     }
-    if (keys.size > 0) await fetchCart(true);
-    router.push(PATH.CHECKOUT);
   };
 
   const items = cart?.items ?? [];
@@ -239,7 +236,10 @@ export default function CartView() {
               <CartItemRow
                 key={item.variantId}
                 item={item}
-                counterResetKey={counterResetKey}
+                counterResetKey={
+                  counterResetKeys[`product:${item.variantId}`] ?? 0
+                }
+                isQuantityLocked={isMutating}
                 onDeleteClick={(variantId) =>
                   handleDeleteClick(`product:${variantId}`)
                 }
@@ -252,7 +252,8 @@ export default function CartView() {
               <CartComboRow
                 key={line.lineId}
                 line={line}
-                counterResetKey={counterResetKey}
+                counterResetKey={counterResetKeys[`combo:${line.lineId}`] ?? 0}
+                isQuantityLocked={isMutating}
                 onDeleteClick={(lineId) => handleDeleteClick(`combo:${lineId}`)}
                 onQuantityChange={(lineId, qty) =>
                   queueQuantityChange(`combo:${lineId}`, qty)
