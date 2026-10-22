@@ -20,6 +20,10 @@ export interface ICollectionQuery {
   page: number;
 }
 
+export function shouldShowComboStrip(query: ICollectionQuery): boolean {
+  return query.categories.length > 0 && !query.search;
+}
+
 /** Kết quả 1 lần fetch danh sách — rút gọn từ IResponseList của BE */
 export interface ICollectionResult {
   items: IProductListItem[];

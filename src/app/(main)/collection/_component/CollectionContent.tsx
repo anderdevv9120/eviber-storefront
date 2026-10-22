@@ -13,6 +13,7 @@ import CollectionSkeleton from "./CollectionSkeleton";
 import CollectionError from "./CollectionError";
 import CollectionToolbar, { IFilterChip } from "./CollectionToolbar";
 import EmptyCollection from "./EmptyCollection";
+import ComboStrip from "./ComboStrip";
 import {
   COLLECTION_GRID_CLASS,
   ICollectionCategoryOption,
@@ -26,6 +27,7 @@ import {
   ICollectionQuery,
   ICollectionResult,
   parseCollectionQuery,
+  shouldShowComboStrip,
   toProductApiParams,
 } from "./collection.query";
 
@@ -271,6 +273,13 @@ export default function CollectionContent({
           sort={query.sort}
           onSortChange={handleSortChange}
         />
+
+        {shouldShowComboStrip(query) && (
+          <ComboStrip
+            key={query.categories.join(",")}
+            categoryKey={query.categories.join(",")}
+          />
+        )}
 
         {hasError ? (
           <CollectionError onRetry={handleRetry} />
