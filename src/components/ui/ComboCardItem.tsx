@@ -77,8 +77,14 @@ const ComboCardItem = ({ combo }: { combo: IComboCard }) => {
                 currentPriceClass="text-base md:text-lg font-bold text-dark-800"
                 priceClass="text-xs"
               />
+              {combo.originalPrice != null &&
+                combo.originalPrice === combo.price && (
+                  <span className="text-dark-500 text-xs line-through">
+                    {formatPrice(combo.originalPrice)}
+                  </span>
+                )}
             </div>
-            {savings > 0 && (
+            {combo.originalPrice != null && (
               <p className="mt-2.5 text-xs text-terracotta">
                 Tiết kiệm {formatPrice(savings)}
               </p>
