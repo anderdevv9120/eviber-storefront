@@ -32,11 +32,40 @@ export const updateQuantity = (data: ICartProductPayload) => {
   return axiosRequest.put("/carts/update-quantity", data);
 };
 
+/** quantity is a delta, matching addToCart. */
+export const addComboToCart = (
+  data: {
+    comboId: string;
+    quantity?: number;
+    picks: { productId: string; variantId: string }[];
+  },
+  options?: { silent?: boolean }
+) => {
+  return axiosRequest.post("/carts/combos", data, {
+    toastError: !options?.silent,
+  });
+};
+
+/** quantity is the new absolute quantity. */
+export const updateComboQuantity = (data: {
+  lineId: string;
+  quantity: number;
+}) => {
+  return axiosRequest.put("/carts/combos/quantity", data);
+};
+
+export const removeComboFromCart = (data: { lineId: string }) => {
+  return axiosRequest.delete("/carts/combos", { data });
+};
+
 const cartAPI = {
   getCart,
   addToCart,
   removeFromCart,
   updateQuantity,
+  addComboToCart,
+  updateComboQuantity,
+  removeComboFromCart,
 };
 
 export default cartAPI;

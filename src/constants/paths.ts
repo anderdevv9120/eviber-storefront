@@ -3,6 +3,7 @@ export const PATH = {
   HOME: "/",
   COLLECTION: "/collection",
   PRODUCT: "/product",
+  COMBO: "/combo",
   PAYMENT: "/payment",
   DASHBOARD: "/dashboard",
   CART: "/cart",

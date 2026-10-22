@@ -77,6 +77,7 @@ const getCheckoutContextKey = (
     profileId,
     cart ?? {
       items: [],
+      combos: [],
       totalQuantity: 0,
       totalOriginalPrice: 0,
       totalPrice: 0,

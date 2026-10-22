@@ -94,6 +94,7 @@ describe("voucher checkout controls (SSR)", () => {
       createElement(CheckoutSummary, {
         cart: {
           cartId: "cart-a",
+          combos: [],
           items: [],
           totalQuantity: 1,
           totalOriginalPrice: 100000,

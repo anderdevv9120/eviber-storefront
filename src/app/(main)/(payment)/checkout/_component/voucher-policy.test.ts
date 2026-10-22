@@ -7,6 +7,7 @@ import {
 } from "./voucher-policy";
 
 const cart: ICartResponse = {
+  combos: [],
   cartId: "cart-a",
   totalQuantity: 1,
   totalOriginalPrice: 100000,

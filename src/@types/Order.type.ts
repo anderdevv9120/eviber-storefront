@@ -1,4 +1,5 @@
 import type { OrderPaymentMethod, PaymentMethod } from "@/constants/payment";
+import type { ICheckoutReviewCombo, IOrderCombo } from "./Combo.type";
 
 /**
  * Contract order — đối chiếu: x-ecommerce-backend/src/modules/order/
@@ -79,6 +80,11 @@ export interface IMakeOrderPayload {
   couponCode?: string;
   expectedTotalPrice?: number;
   expectedCartItems?: { variantId: string; quantity: number }[];
+  expectedComboItems?: {
+    comboId: string;
+    quantity: number;
+    picks: { productId: string; variantId: string }[];
+  }[];
   shippingInfo: IShippingInfoPayload;
   paymentInfo?: IPaymentInfoPayload;
   customerNote?: string;
@@ -107,6 +113,7 @@ export interface ICheckoutReview {
   discountAmount: number;
   totalPrice: number;
   products: ICheckoutReviewProduct[];
+  combos: ICheckoutReviewCombo[];
   appliedCoupon?: AppliedCoupon;
 }
 
@@ -149,6 +156,7 @@ export interface IOrderPaymentInfo {
 
 /** BE: OrderProduct embedded — snapshot tại thời điểm đặt */
 export interface IOrderProduct {
+  comboGroupId?: string;
   productId: string;
   variantId: string;
   quantity: number;
@@ -169,6 +177,7 @@ export interface IOrderResponse {
   shippingInfo: IOrderShippingInfo;
   paymentInfo: IOrderPaymentInfo;
   productInfo: IOrderProduct[];
+  combos?: IOrderCombo[];
   status: OrderApiStatus;
   /**
    * Mảng rỗng với đơn tạo trước khi có status flow. Route của chính chủ
