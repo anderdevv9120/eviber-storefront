@@ -133,6 +133,30 @@ describe("comboTotals", () => {
       normal: 7000000001,
       combo: 6999999999,
     },
+    {
+      pricing: { mode: "FIXED", value: 500 },
+      pieces: [{ price: 101.9, quantity: 2 }],
+      normal: 202,
+      combo: 202,
+    },
+    {
+      pricing: { mode: "PERCENT", value: 15 },
+      pieces: [{ price: 101.9, quantity: 2 }],
+      normal: 202,
+      combo: 170,
+    },
+    {
+      pricing: { mode: "FIXED", value: 150.9 },
+      pieces: [{ price: 101, quantity: 2 }],
+      normal: 202,
+      combo: 150,
+    },
+    {
+      pricing: { mode: "PERCENT", value: 15.9 },
+      pieces: [{ price: 100, quantity: 2 }],
+      normal: 200,
+      combo: 170,
+    },
   ])(
     "$pricing.mode $pricing.value returns exact integer totals $combo",
     ({ pricing, pieces, normal, combo }) => {

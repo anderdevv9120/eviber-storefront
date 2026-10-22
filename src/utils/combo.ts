@@ -15,21 +15,23 @@ export interface Totals {
   combo: number;
 }
 
-/** The backend discounts each unit before multiplying quantity. All amounts are integer VND. */
+/** Match backend whole-VND normalization before per-unit discounts and quantity. */
 export function comboTotals(
   pricing: IComboPricing,
   pieces: Array<{ price: number; quantity: number }>
 ): Totals {
+  const value = Math.floor(pricing.value);
   const normal = pieces.reduce(
-    (sum, { price, quantity }) => sum + price * quantity,
+    (sum, { price, quantity }) => sum + Math.floor(price) * quantity,
     0
   );
   const combo =
     pricing.mode === "FIXED"
-      ? Math.min(pricing.value, normal)
+      ? Math.min(value, normal)
       : pieces.reduce(
           (sum, { price, quantity }) =>
-            sum + Math.floor((price * (100 - pricing.value)) / 100) * quantity,
+            sum +
+            Math.floor((Math.floor(price) * (100 - value)) / 100) * quantity,
           0
         );
   return { normal, combo };
