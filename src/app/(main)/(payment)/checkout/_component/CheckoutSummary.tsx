@@ -4,10 +4,13 @@ import Button from "@/components/ui/Button";
 import { cn } from "@/config/utils";
 import { formatPrice } from "@/utils/formatPrice";
 import { ICartItem, ICartResponse } from "@/@types/Cart.type";
+import type { ICheckoutReview } from "@/@types/Order.type";
+import type { ICheckoutReviewCombo } from "@/@types/Combo.type";
 import { unavailableReason } from "@/utils/cartAvailability";
 
 interface CheckoutSummaryProps {
   cart: ICartResponse;
+  review?: ICheckoutReview;
   totalPrice: number;
   shippingFee: number;
   discountAmount?: number;
@@ -20,6 +23,7 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
   (
     {
       cart,
+      review,
       totalPrice,
       shippingFee,
       discountAmount = 0,
@@ -45,7 +49,10 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
 
         <div className="flex flex-col">
           {cart.items.map((item) => (
-            <SummaryItem key={item.variantId} item={item} />
+            <SummaryItem key={`product:${item.variantId}`} item={item} />
+          ))}
+          {review?.combos.map((line) => (
+            <SummaryCombo key={`combo:${line.lineId}`} line={line} />
           ))}
         </div>
 
@@ -112,6 +119,69 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
 CheckoutSummary.displayName = "CheckoutSummary";
 
 export default CheckoutSummary;
+
+function SummaryCombo({ line }: { line: ICheckoutReviewCombo }) {
+  const pieceCount = line.pieces.reduce(
+    (sum, piece) => sum + piece.itemQuantity,
+    0
+  );
+  return (
+    <div className="py-3 border-b border-white-500 border-dashed">
+      <span className="bg-primary-100 text-primary-700 rounded-full px-2.5 py-0.5 text-xs font-bold">
+        {`COMBO · ${pieceCount} món`}
+      </span>
+      <div className="flex justify-between gap-3 mt-2 text-sm font-semibold">
+        <p>
+          {line.name} ×{line.quantity}
+        </p>
+        <span className="whitespace-nowrap">
+          {formatPrice(line.price * line.quantity)}
+        </span>
+      </div>
+      <div className="mt-3 ml-2 border-l-2 border-white-500 pl-3 flex flex-col gap-3">
+        {line.pieces.map((piece) => (
+          <div
+            key={`${line.lineId}:${piece.productId}:${piece.variantId}`}
+            className="flex items-center gap-3 text-sm"
+          >
+            {piece.image && (
+              <Image
+                src={piece.image}
+                alt={piece.name}
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-lg bg-white-100 object-cover shrink-0"
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="font-medium line-clamp-2">
+                {piece.name} ×{piece.itemQuantity * line.quantity}
+              </p>
+              <p className="text-xs text-dark-500">
+                {piece.attributeValues
+                  .map((attribute) =>
+                    /^\d+$/.test(attribute.value)
+                      ? `${attribute.name} ${attribute.value}`
+                      : attribute.value
+                  )
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            </div>
+            <div className="flex flex-col items-end shrink-0">
+              <span className="font-semibold">
+                {formatPrice(piece.lineTotal * line.quantity)}
+              </span>
+              <span className="text-xs text-dark-500 line-through">
+                {formatPrice(piece.originalPrice * line.quantity)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function SummaryItem({ item }: { item: ICartItem }) {
   const attributeLabel = item.attributeValues

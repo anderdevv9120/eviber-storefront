@@ -18,6 +18,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAppStore } from "@/store/useAppStore";
 import { errorToast, successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { toExpectedComboItems } from "@/utils/combo";
 import { formatPrice } from "@/utils/formatPrice";
 import { cn } from "@/config/utils";
 import { PATH } from "@/constants/paths";
@@ -45,6 +46,7 @@ import { ApiError } from "@/config/axios";
 import {
   canSubmitReviewedCheckout,
   checkoutVoucherKey,
+  couponErrorMessage,
   createVoucherReviewScope,
 } from "./voucher-policy";
 import {
@@ -246,7 +248,7 @@ export default function CheckoutView() {
         }
       } catch (cause) {
         if (reviewScope.key !== requestKey) return;
-        setReviewError(getErrorMessage(cause));
+        setReviewError(couponErrorMessage(cause, cart));
         if (!signedIn) {
           liveGuestState.current = {
             key: requestKey,
@@ -563,6 +565,7 @@ export default function CheckoutView() {
           expectedCartItems: accepted.data.products.map(
             ({ variantId, quantity }) => ({ variantId, quantity })
           ),
+          expectedComboItems: toExpectedComboItems(accepted.data),
           shippingInfo,
           ...(freeOrder
             ? {}
@@ -591,7 +594,7 @@ export default function CheckoutView() {
       liveReview.current = undefined;
       setReviewResult(undefined);
       const policyError = getCheckoutPolicyError(cause);
-      setReviewError(getErrorMessage(cause));
+      setReviewError(couponErrorMessage(cause, useCartStore.getState().cart));
       if (!useAppStore.getState().profile._id) {
         liveGuestState.current = {
           key: reviewScope.key,
@@ -628,7 +631,11 @@ export default function CheckoutView() {
         </div>
       )}
 
-      {isEmpty && <CheckoutEmptyState hasItems={cart.items.length > 0} />}
+      {isEmpty && (
+        <CheckoutEmptyState
+          hasItems={cart.items.length > 0 || cart.combos.length > 0}
+        />
+      )}
 
       {isReady && !isLoggedIn && guestStatus !== "allowed" && (
         <div
@@ -681,6 +688,7 @@ export default function CheckoutView() {
               <div className="w-full lg:flex-1">
                 <fieldset disabled={isSubmitting} className="min-w-0">
                   <VoucherField
+                    cart={cart}
                     signedIn={isLoggedIn}
                     draftCode={draftCode}
                     busy={reviewBusy}
@@ -824,6 +832,7 @@ export default function CheckoutView() {
               <CheckoutSummary
                 ref={summaryRef}
                 cart={cart}
+                review={review}
                 totalPrice={totalPrice}
                 shippingFee={review?.shippingFee ?? 0}
                 discountAmount={review?.discountAmount ?? 0}
