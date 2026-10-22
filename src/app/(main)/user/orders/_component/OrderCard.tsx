@@ -11,7 +11,9 @@ import OrderStatusPill, {
   isKnownStatus,
   STATUS_HEADER,
 } from "./OrderStatusPill";
-import OrderProductLine from "./OrderProductLine";
+import OrderProductLine from "@/components/ui/OrderProductLine";
+import OrderComboBlock from "@/components/ui/OrderComboBlock";
+import { groupOrderProducts } from "@/utils/combo";
 import OrderReviewLink from "./OrderReviewLink";
 import CancelOrderModal from "@/components/ui/CancelOrderModal";
 import { useCancelOrder } from "@/hooks/useCancelOrder";
@@ -34,6 +36,7 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
     status,
     paymentStatus,
     productInfo,
+    combos,
     checkoutInfo,
     orderNumber,
   } = order;
@@ -42,7 +45,17 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
     (sum, product) => sum + product.quantity,
     0
   );
-  const hiddenCount = productInfo.length - VISIBLE_PRODUCTS;
+  const groups = groupOrderProducts(productInfo, combos);
+  const hiddenCount = groups
+    .slice(VISIBLE_PRODUCTS)
+    .reduce(
+      (sum, group) => sum + (group.kind === "combo" ? group.pieces.length : 1),
+      0
+    );
+  const reviewAction = (productId: string) =>
+    orderNumber && (
+      <OrderReviewLink productId={productId} orderNumber={orderNumber} />
+    );
   // Đơn đã trả tiền khách không tự hủy (BE 400) → không hiện nút
   const canCancel = status === "pending" && paymentStatus !== "paid";
 
@@ -65,21 +78,26 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
       </header>
 
       <div className="px-4 sm:px-5">
-        {productInfo.slice(0, VISIBLE_PRODUCTS).map((product) => (
-          <OrderProductLine
-            key={product.variantId}
-            product={product}
-            className="border-t border-white-200 py-4 first:border-t-0"
-            reviewAction={
-              orderNumber && (
-                <OrderReviewLink
-                  productId={product.productId}
-                  orderNumber={orderNumber}
-                />
-              )
-            }
-          />
-        ))}
+        {groups
+          .slice(0, VISIBLE_PRODUCTS)
+          .map((group, index) =>
+            group.kind === "combo" ? (
+              <OrderComboBlock
+                key={group.combo.comboGroupId}
+                combo={group.combo}
+                pieces={group.pieces}
+                className="my-4"
+                reviewAction={reviewAction}
+              />
+            ) : (
+              <OrderProductLine
+                key={`product-${index}-${group.line.variantId}`}
+                product={group.line}
+                className="border-t border-white-200 py-4 first:border-t-0"
+                reviewAction={reviewAction(group.line.productId)}
+              />
+            )
+          )}
         {hiddenCount > 0 && (
           <p className="border-t border-white-200 py-3 text-sm text-dark-400">
             và {hiddenCount} sản phẩm khác
@@ -111,7 +129,7 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
               variant="outline"
               className="px-4"
               loading={reorderingId === _id}
-              onClick={() => reorder(_id, productInfo)}
+              onClick={() => reorder(_id, productInfo, combos)}
             >
               Mua lại
             </Button>

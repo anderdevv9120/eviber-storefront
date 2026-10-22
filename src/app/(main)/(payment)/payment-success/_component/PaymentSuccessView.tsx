@@ -272,6 +272,7 @@ const PaymentSuccessContent = () => {
 
       <OrderSummaryPanel
         products={productInfo}
+        combos={order.combos}
         checkoutInfo={checkoutInfo}
         headerAction={
           isLoggedIn ? (
@@ -300,7 +301,7 @@ const PaymentSuccessContent = () => {
               size="lg"
               className="w-full"
               loading={reorderingId === order._id}
-              onClick={() => reorder(order._id, productInfo)}
+              onClick={() => reorder(order._id, productInfo, order.combos)}
               data-testid="reorder-products"
             >
               Đặt lại các sản phẩm này

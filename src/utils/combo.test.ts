@@ -272,6 +272,7 @@ describe("groupOrderProducts", () => {
             quantity: 3,
             lineTotal: 369053,
             unitPrice: null,
+            product: lines[1],
           },
         ],
       },

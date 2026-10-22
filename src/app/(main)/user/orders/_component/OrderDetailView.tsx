@@ -17,7 +17,9 @@ import OrderStatusPill, {
   isKnownStatus,
   STATUS_HEADER,
 } from "./OrderStatusPill";
-import OrderProductLine from "./OrderProductLine";
+import OrderProductLine from "@/components/ui/OrderProductLine";
+import OrderComboBlock from "@/components/ui/OrderComboBlock";
+import { groupOrderProducts } from "@/utils/combo";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
 import CancelOrderModal from "@/components/ui/CancelOrderModal";
@@ -48,6 +50,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
     status,
     created_at,
     productInfo,
+    combos,
     checkoutInfo,
     shippingInfo,
     paymentInfo,
@@ -107,7 +110,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
               variant="outline"
               className="px-4"
               loading={reorderingId === _id}
-              onClick={() => reorder(_id, productInfo)}
+              onClick={() => reorder(_id, productInfo, combos)}
             >
               Mua lại
             </Button>
@@ -219,18 +222,28 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         <header className="flex items-center justify-between border-b border-white-300 bg-white-50 px-4 py-3 sm:px-5">
           <h2 className="text-sm font-bold">Sản phẩm trong đơn</h2>
           <span className="text-sm text-dark-400">
-            {productInfo.length} sản phẩm
+            {totalQuantity} sản phẩm
           </span>
         </header>
         <div className="px-4 sm:px-5">
-          {productInfo.map((product) => (
-            <OrderProductLine
-              key={product.variantId}
-              product={product}
-              showSku
-              className="border-t border-white-200 py-4 first:border-t-0"
-            />
-          ))}
+          {groupOrderProducts(productInfo, combos).map((group, index) =>
+            group.kind === "combo" ? (
+              <OrderComboBlock
+                key={group.combo.comboGroupId}
+                combo={group.combo}
+                pieces={group.pieces}
+                showSku
+                className="my-4"
+              />
+            ) : (
+              <OrderProductLine
+                key={`product-${index}-${group.line.variantId}`}
+                product={group.line}
+                showSku
+                className="border-t border-white-200 py-4 first:border-t-0"
+              />
+            )
+          )}
         </div>
         {order.customerNote && (
           <div className={SECTION}>

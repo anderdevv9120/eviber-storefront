@@ -22,6 +22,8 @@ interface OrderProductLineProps {
   showSku?: boolean;
   className?: string;
   reviewAction?: ReactNode;
+  /** Combo allocations may split a variant across different unit prices. */
+  lineTotal?: number;
 }
 
 const OrderProductLine = ({
@@ -29,6 +31,7 @@ const OrderProductLine = ({
   showSku,
   className,
   reviewAction,
+  lineTotal,
 }: OrderProductLineProps) => {
   // Ảnh snapshot trỏ URL ngoài, link chết là chuyện thường với đơn cũ. Phải đổi qua
   // state chứ không gán e.currentTarget.src: next/image có srcSet nên đổi src trần
@@ -71,7 +74,15 @@ const OrderProductLine = ({
       </div>
 
       <div className="flex-none text-right">
-        <p className="font-semibold">{formatPrice(product.priceAtOrder)}</p>
+        {lineTotal !== undefined &&
+          product.originalPriceAtOrder * product.quantity > lineTotal && (
+            <p className="text-xs text-dark-400 line-through">
+              {formatPrice(product.originalPriceAtOrder * product.quantity)}
+            </p>
+          )}
+        <p className="font-semibold">
+          {formatPrice(lineTotal ?? product.priceAtOrder)}
+        </p>
         <p className="text-sm text-dark-400">×{product.quantity}</p>
       </div>
     </div>

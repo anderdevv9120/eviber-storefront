@@ -43,6 +43,7 @@ export type GroupedOrderLine =
       kind: "combo";
       combo: IOrderCombo;
       pieces: Array<{
+        product: IOrderProduct;
         productId: IOrderProduct["productId"];
         variantId: IOrderProduct["variantId"];
         name: IOrderProduct["productNameAtOrder"];
@@ -90,6 +91,7 @@ export function groupOrderProducts(
       if (piece.unitPrice !== line.priceAtOrder) piece.unitPrice = null;
     } else {
       group.pieces.push({
+        product: line,
         productId: line.productId,
         variantId: line.variantId,
         name: line.productNameAtOrder,
