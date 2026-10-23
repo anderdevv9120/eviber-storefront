@@ -2,10 +2,15 @@ import { describe, expect, it } from "vitest";
 import { policyLinks, socialLinks } from "./footerLinks";
 
 describe("footer links", () => {
-  it("links only published policies, in the given order", () => {
-    expect(policyLinks(["dieu-khoan", "bao-mat"])).toEqual([
-      { name: "Điều khoản – Điều kiện", link: "/chinh-sach/dieu-khoan" },
-      { name: "Chính sách bảo mật", link: "/chinh-sach/bao-mat" },
+  it("links only published policies with their CMS titles, in the given order", () => {
+    expect(
+      policyLinks([
+        { slug: "dieu-khoan", title: "Điều khoản sử dụng" },
+        { slug: "bao-mat", title: "Bảo mật" },
+      ])
+    ).toEqual([
+      { name: "Điều khoản sử dụng", link: "/chinh-sach/dieu-khoan" },
+      { name: "Bảo mật", link: "/chinh-sach/bao-mat" },
     ]);
     expect(policyLinks([])).toEqual([]);
   });

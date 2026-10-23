@@ -40,6 +40,7 @@ export interface IStoreSettings {
   homePromises: IHomePromise[];
   productPromises: string[];
   publishedPolicySlugs: PolicySlug[];
+  publishedPolicies: IPublishedPolicyLink[];
   // null = ẩn section trên home
   brandStory: IBrandStory | null;
 }
@@ -50,3 +51,6 @@ export interface IPolicyPage {
   contentHtml: string;
   updatedAt: string | null;
 }
+
+// Khớp PublishedPolicyLink của backend
+export type IPublishedPolicyLink = Pick<IPolicyPage, "slug" | "title">;

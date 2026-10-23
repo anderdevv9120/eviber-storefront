@@ -1,10 +1,12 @@
-import type { IStoreSettings, PolicySlug } from "@/@types/StoreContent.type";
+import type {
+  IPublishedPolicyLink,
+  IStoreSettings,
+} from "@/@types/StoreContent.type";
 import { PATH } from "@/constants/paths";
-import { POLICY_TITLES } from "@/constants/storeContent";
 
-export const policyLinks = (slugs: PolicySlug[]) =>
-  slugs.map((slug) => ({
-    name: POLICY_TITLES[slug],
+export const policyLinks = (policies: IPublishedPolicyLink[]) =>
+  policies.map(({ slug, title }) => ({
+    name: title,
     link: `${PATH.POLICY}/${slug}`,
   }));
 

@@ -8,18 +8,11 @@ export const POLICY_SLUGS: PolicySlug[] = [
   "bao-mat",
 ];
 
-export const POLICY_TITLES: Record<PolicySlug, string> = {
-  "dieu-khoan": "Điều khoản – Điều kiện",
-  "doi-tra": "Chính sách đổi trả",
-  "ho-tro": "Chính sách hỗ trợ",
-  "bao-mat": "Chính sách bảo mật",
-};
-
 export const isPolicySlug = (value: string): value is PolicySlug =>
   (POLICY_SLUGS as string[]).includes(value);
 
 // Bản sao nội dung hardcode cũ — BE lỗi thì footer/home/product vẫn render;
-// publishedPolicySlugs rỗng để không link tới trang có thể 404
+// danh sách chính sách rỗng để không link tới trang có thể 404
 export const STORE_SETTINGS_FALLBACK: IStoreSettings = {
   contact: {
     address: "Số 8 Phạm Hùng, Mai Dịch, Cầu Giấy, Hà Nội",
@@ -59,5 +52,6 @@ export const STORE_SETTINGS_FALLBACK: IStoreSettings = {
     "Thanh toán khi nhận (COD)",
   ],
   publishedPolicySlugs: [],
+  publishedPolicies: [],
   brandStory: null,
 };
