@@ -5,7 +5,6 @@ import { IComboCard } from "@/@types/Combo.type";
 import { getCombos } from "@/apis/combo";
 import ComboCardList from "@/components/ui/ComboCardList";
 import ContentSlider from "@/components/ui/ContentSlider";
-import CollectionSkeleton from "./CollectionSkeleton";
 
 export default function ComboStrip({ categoryKey }: { categoryKey: string }) {
   const [combos, setCombos] = useState<IComboCard[] | null>(null);
@@ -26,17 +25,11 @@ export default function ComboStrip({ categoryKey }: { categoryKey: string }) {
     };
   }, [categoryKey]);
 
-  if (combos?.length === 0) return null;
+  if (!combos?.length) return null;
 
   return (
-    <ContentSlider title="Combo">
-      {combos === null ? (
-        <div role="status" aria-label="Đang tải combo" aria-busy="true">
-          <CollectionSkeleton count={4} />
-        </div>
-      ) : (
-        <ComboCardList combos={combos} />
-      )}
+    <ContentSlider title="Combo" className="my-6 md:my-8">
+      <ComboCardList combos={combos} />
     </ContentSlider>
   );
 }

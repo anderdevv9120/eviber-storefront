@@ -1,5 +1,6 @@
 import { ReactNode, memo } from "react";
 import Link from "next/link";
+import { cn } from "@/config/utils";
 import { RightArrow } from "../icons";
 
 interface IContentSliderProps {
@@ -7,6 +8,7 @@ interface IContentSliderProps {
   subtitle?: string;
   href?: string;
   children?: ReactNode;
+  className?: string;
 }
 
 const ContentSlider = ({
@@ -14,11 +16,12 @@ const ContentSlider = ({
   subtitle,
   href,
   children,
+  className,
 }: IContentSliderProps) => {
   return (
     // KHÔNG đặt overflow-hidden ở section — shadow-card của card con sẽ bị xén;
     // clipping ngang do từng rail tự quản trong container riêng của nó
-    <section className="my-16 md:my-24">
+    <section className={cn("my-16 md:my-24", className)}>
       <div className="section-head mb-6">
         <h2 className="type-display-section font-display text-deep">{title}</h2>
         {subtitle && (
