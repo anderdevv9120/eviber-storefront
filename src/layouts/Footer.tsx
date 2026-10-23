@@ -23,14 +23,14 @@ const FooterColumn = ({
   title: string;
   links: { name: string; link: string }[];
 }) => (
-  <div>
+  <div className="min-w-0">
     <p className="font-bold mb-4 text-white">{title}</p>
     <div className="flex flex-col gap-2.5 text-sm text-primary-200">
       {links.map((item) => (
         <Link
-          key={item.name}
+          key={`${item.name}:${item.link}`}
           href={item.link}
-          className="w-fit hover:text-white transition-colors"
+          className="w-fit max-w-full [overflow-wrap:anywhere] hover:text-white transition-colors"
         >
           {item.name}
         </Link>
@@ -49,7 +49,7 @@ const SOCIAL_ICONS: Record<
 };
 
 const Footer = ({ settings }: { settings: IStoreSettings }) => {
-  const supportLinks = policyLinks(settings.publishedPolicySlugs);
+  const supportLinks = policyLinks(settings.publishedPolicies);
   const socials = socialLinks(settings.socials);
 
   return (

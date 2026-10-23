@@ -14,6 +14,7 @@ describe("fetchStoreSettingsCached", () => {
     const settings = await fetchStoreSettingsCached();
     expect(settings).toEqual(STORE_SETTINGS_FALLBACK);
     expect(settings.publishedPolicySlugs).toEqual([]);
+    expect(settings.publishedPolicies).toEqual([]);
   });
 });
 
@@ -50,5 +51,12 @@ describe("fetchStoreSettingsCached brand story", () => {
     vi.mocked(getStoreSettings).mockResolvedValueOnce({ data: older } as never);
     const settings = await fetchStoreSettingsCached();
     expect(settings.brandStory).toBeNull();
+  });
+
+  it("reads missing published policies as none so the footer still renders", async () => {
+    const { publishedPolicies: _omit, ...older } = STORE_SETTINGS_FALLBACK;
+    vi.mocked(getStoreSettings).mockResolvedValueOnce({ data: older } as never);
+    const settings = await fetchStoreSettingsCached();
+    expect(settings.publishedPolicies).toEqual([]);
   });
 });

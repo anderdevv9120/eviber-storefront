@@ -30,8 +30,12 @@ export const fetchStoreSettingsCached = cache(
     try {
       const response = await getStoreSettings();
       if (!response?.data) return STORE_SETTINGS_FALLBACK;
-      // BE cũ chưa có field → coi như không có câu chuyện
-      return { ...response.data, brandStory: response.data.brandStory ?? null };
+      // BE cũ chưa có field → coi như không có câu chuyện / chưa có chính sách xuất bản
+      return {
+        ...response.data,
+        brandStory: response.data.brandStory ?? null,
+        publishedPolicies: response.data.publishedPolicies ?? [],
+      };
     } catch {
       return STORE_SETTINGS_FALLBACK;
     }
