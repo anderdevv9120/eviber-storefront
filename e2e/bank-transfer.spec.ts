@@ -15,7 +15,7 @@ import {
   paymentLinkBody as linkBody,
 } from "./helpers/payment-link";
 
-const STOREFRONT = "http://localhost:3009/api/v1";
+const STOREFRONT = process.env.E2E_API ?? "http://localhost:3009/api/v1";
 const ADMIN = process.env.E2E_ADMIN_API ?? "http://localhost:8011/admin/v1";
 const SEED_ADMIN = { email: "admin@demo.local", password: "Demo@123" };
 // Đơn chuyển khoản seed thuộc customer2 (orders.fixture ORD_6) — sweep đăng nhập customer1 nên không đo được ở đó
