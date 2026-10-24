@@ -349,6 +349,7 @@ describe("groupOrderProducts", () => {
 
 describe("toExpectedComboItems", () => {
   const review: ICheckoutReview = {
+    refundTerms: { policyRevision: 0, products: [] },
     subtotal: 800000,
     shippingFee: 0,
     discountAmount: 0,

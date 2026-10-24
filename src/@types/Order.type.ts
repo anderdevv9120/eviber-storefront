@@ -1,5 +1,6 @@
 import type { OrderPaymentMethod, PaymentMethod } from "@/constants/payment";
 import type { ICheckoutReviewCombo, IOrderCombo } from "./Combo.type";
+import type { OrderRefundPolicy, RefundTerms } from "./Refund.type";
 
 /**
  * Contract order — đối chiếu: x-ecommerce-backend/src/modules/order/
@@ -87,11 +88,14 @@ export interface IMakeOrderPayload {
   }[];
   shippingInfo: IShippingInfoPayload;
   paymentInfo?: IPaymentInfoPayload;
+  /** Điều khoản hoàn tiền khách đã xem ở checkout review — BE trả 409 CHECKOUT_CHANGED nếu đã đổi */
+  expectedRefundTerms?: RefundTerms;
   customerNote?: string;
 }
 
 /** BE: ProductExistInfo (product.interface.ts) — item trong checkout review */
 export interface ICheckoutReviewProduct {
+  refundEnabled: boolean;
   price: number;
   originalPrice: number;
   quantity: number;
@@ -108,6 +112,7 @@ export interface ICheckoutReviewProduct {
 
 /** BE: ICheckoutReview — response GET /orders/checkout-review/:cartId */
 export interface ICheckoutReview {
+  refundTerms: RefundTerms;
   subtotal: number;
   shippingFee: number;
   discountAmount: number;
@@ -189,6 +194,8 @@ export interface IOrderResponse {
   paymentHistory?: IPaymentHistoryEntry[];
   /** Có khi paymentStatus đã từng là paid */
   paidAt?: string;
+  /** Điều khoản hoàn tiền đã lưu lúc đặt; đơn tạo trước tính năng hoàn tiền không có field này */
+  refundPolicy?: OrderRefundPolicy;
   /** Chỉ đơn BANK_TRANSFER tạo sau khi có hạn thanh toán; đơn cũ không có → không đếm giờ */
   paymentDueAt?: string;
   orderNumber?: string;

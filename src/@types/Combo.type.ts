@@ -30,6 +30,7 @@ export interface IComboDetailItem {
     name: string;
     slug: string;
     image: string | null;
+    refundEnabled: boolean;
     options: IProductOption[];
   };
   variants: IProductVariant[];

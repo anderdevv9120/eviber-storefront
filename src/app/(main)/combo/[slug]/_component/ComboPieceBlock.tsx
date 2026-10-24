@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { IComboDetailItem } from "@/@types/Combo.type";
+import type { RefundPolicyState } from "@/@types/Refund.type";
 import type { IProductVariant } from "@/@types/Product.type";
 import ItemPrice from "@/components/ui/ItemPrice";
+import RefundPolicyNotice from "@/components/ui/RefundPolicyNotice";
 import { PATH } from "@/constants/paths";
 import { variantsForQuantity } from "@/utils/combo";
 import VariantSelector from "../../../product/[slug]/_component/VariantSelector";
@@ -14,12 +16,14 @@ interface ComboPieceBlockProps {
   item: IComboDetailItem;
   selectedVariantId: string | undefined;
   onPick: (variantId: string) => void;
+  refundPolicy: RefundPolicyState;
 }
 
 export default function ComboPieceBlock({
   item,
   selectedVariantId,
   onPick,
+  refundPolicy,
 }: ComboPieceBlockProps) {
   const [selected, setSelected] = useState<Record<string, string>>(() => {
     const variant = item.variants.find((v) => v.id === selectedVariantId);
@@ -111,6 +115,11 @@ export default function ComboPieceBlock({
           ))}
         </div>
       )}
+      <RefundPolicyNotice
+        productRefundEnabled={item.product.refundEnabled}
+        policy={refundPolicy}
+        className="mt-3"
+      />
     </div>
   );
 }

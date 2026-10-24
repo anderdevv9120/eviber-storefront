@@ -1,5 +1,7 @@
 import * as yup from "yup";
 import { InferType } from "yup";
+import type { ICheckoutReview } from "@/@types/Order.type";
+import type { RefundTerms } from "@/@types/Refund.type";
 import {
   ADDRESS_REQUIRED_MESSAGE,
   EMAIL_INVALID_MESSAGE,
@@ -66,3 +68,14 @@ export const checkoutSchema = yup
   .required();
 
 export type CheckoutFormInput = InferType<typeof checkoutSchema>;
+
+/** Điều khoản hoàn tiền của review đã chấp nhận, copy đúng key của contract để gửi kèm đơn */
+export const toExpectedRefundTerms = ({
+  refundTerms,
+}: Pick<ICheckoutReview, "refundTerms">): RefundTerms => ({
+  policyRevision: refundTerms.policyRevision,
+  products: refundTerms.products.map(({ productId, refundEnabled }) => ({
+    productId,
+    refundEnabled,
+  })),
+});

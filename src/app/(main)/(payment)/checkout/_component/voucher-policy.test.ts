@@ -277,6 +277,7 @@ describe("combo checkout", () => {
 
   it("groups reviewed pieces and scales their totals by combo count only", () => {
     const review: ICheckoutReview = {
+      refundTerms: { policyRevision: 0, products: [] },
       products: [],
       combos: [
         {

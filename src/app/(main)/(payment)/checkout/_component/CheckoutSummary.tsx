@@ -1,12 +1,17 @@
 import { forwardRef } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import RefundPolicyNotice, {
+  useRefundPolicy,
+} from "@/components/ui/RefundPolicyNotice";
 import { cn } from "@/config/utils";
 import { formatPrice } from "@/utils/formatPrice";
 import { ICartItem, ICartResponse } from "@/@types/Cart.type";
 import type { ICheckoutReview } from "@/@types/Order.type";
 import type { ICheckoutReviewCombo } from "@/@types/Combo.type";
+import type { RefundPolicyState } from "@/@types/Refund.type";
 import { unavailableReason } from "@/utils/cartAvailability";
+import { checkoutRefundPolicy } from "@/utils/refund-policy";
 
 interface CheckoutSummaryProps {
   cart: ICartResponse;
@@ -34,6 +39,11 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
     ref
   ) => {
     const isFreeShipping = shippingFee <= 0;
+    const fetchedPolicy = useRefundPolicy(review?.refundTerms.policyRevision);
+    // Điều khoản của review là bản được lưu theo đơn; chính sách tải về chỉ hiển thị khi khớp revision
+    const refundPolicy = review
+      ? checkoutRefundPolicy(fetchedPolicy, review.refundTerms.policyRevision)
+      : fetchedPolicy;
     return (
       <aside
         ref={ref}
@@ -49,10 +59,24 @@ const CheckoutSummary = forwardRef<HTMLElement, CheckoutSummaryProps>(
 
         <div className="flex flex-col">
           {cart.items.map((item) => (
-            <SummaryItem key={`product:${item.variantId}`} item={item} />
+            <SummaryItem
+              key={`product:${item.variantId}`}
+              item={item}
+              refundEnabled={
+                review?.products.find(
+                  (product) => product.variantId === item.variantId
+                )?.refundEnabled
+              }
+              refundPolicy={refundPolicy}
+            />
           ))}
           {review?.combos.map((line) => (
-            <SummaryCombo key={`combo:${line.lineId}`} line={line} />
+            <SummaryCombo
+              key={`combo:${line.lineId}`}
+              line={line}
+              refundTerms={review.refundTerms}
+              refundPolicy={refundPolicy}
+            />
           ))}
         </div>
 
@@ -120,7 +144,15 @@ CheckoutSummary.displayName = "CheckoutSummary";
 
 export default CheckoutSummary;
 
-function SummaryCombo({ line }: { line: ICheckoutReviewCombo }) {
+function SummaryCombo({
+  line,
+  refundTerms,
+  refundPolicy,
+}: {
+  line: ICheckoutReviewCombo;
+  refundTerms: ICheckoutReview["refundTerms"];
+  refundPolicy: RefundPolicyState;
+}) {
   const pieceCount = line.pieces.reduce(
     (sum, piece) => sum + piece.itemQuantity,
     0
@@ -139,51 +171,70 @@ function SummaryCombo({ line }: { line: ICheckoutReviewCombo }) {
         </span>
       </div>
       <div className="mt-3 ml-2 border-l-2 border-white-500 pl-3 flex flex-col gap-3">
-        {line.pieces.map((piece) => (
-          <div
-            key={`${line.lineId}:${piece.productId}:${piece.variantId}`}
-            className="flex items-center gap-3 text-sm"
-          >
-            {piece.image && (
-              <Image
-                src={piece.image}
-                alt={piece.name}
-                width={48}
-                height={48}
-                className="w-12 h-12 rounded-lg bg-white-100 object-cover shrink-0"
-              />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="font-medium line-clamp-2">
-                {piece.name} ×{piece.itemQuantity * line.quantity}
-              </p>
-              <p className="text-xs text-dark-500">
-                {piece.attributeValues
-                  .map((attribute) =>
-                    /^\d+$/.test(attribute.value)
-                      ? `${attribute.name} ${attribute.value}`
-                      : attribute.value
-                  )
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+        {line.pieces.map((piece) => {
+          const refundEnabled = refundTerms.products.find(
+            (product) => product.productId === piece.productId
+          )?.refundEnabled;
+          return (
+            <div key={`${line.lineId}:${piece.productId}:${piece.variantId}`}>
+              <div className="flex items-center gap-3 text-sm">
+                {piece.image && (
+                  <Image
+                    src={piece.image}
+                    alt={piece.name}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-lg bg-white-100 object-cover shrink-0"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium line-clamp-2">
+                    {piece.name} ×{piece.itemQuantity * line.quantity}
+                  </p>
+                  <p className="text-xs text-dark-500">
+                    {piece.attributeValues
+                      .map((attribute) =>
+                        /^\d+$/.test(attribute.value)
+                          ? `${attribute.name} ${attribute.value}`
+                          : attribute.value
+                      )
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="font-semibold">
+                    {formatPrice(piece.lineTotal * line.quantity)}
+                  </span>
+                  <span className="text-xs text-dark-500 line-through">
+                    {formatPrice(piece.originalPrice * line.quantity)}
+                  </span>
+                </div>
+              </div>
+              {refundEnabled !== undefined && (
+                <RefundPolicyNotice
+                  productRefundEnabled={refundEnabled}
+                  policy={refundPolicy}
+                  className="mt-1.5"
+                />
+              )}
             </div>
-            <div className="flex flex-col items-end shrink-0">
-              <span className="font-semibold">
-                {formatPrice(piece.lineTotal * line.quantity)}
-              </span>
-              <span className="text-xs text-dark-500 line-through">
-                {formatPrice(piece.originalPrice * line.quantity)}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function SummaryItem({ item }: { item: ICartItem }) {
+function SummaryItem({
+  item,
+  refundEnabled,
+  refundPolicy,
+}: {
+  item: ICartItem;
+  refundEnabled: boolean | undefined;
+  refundPolicy: RefundPolicyState;
+}) {
   const attributeLabel = item.attributeValues
     .map((av) => (/^\d+$/.test(av.value) ? `${av.name} ${av.value}` : av.value))
     .filter(Boolean)
@@ -191,49 +242,58 @@ function SummaryItem({ item }: { item: ICartItem }) {
   const lineTotal = item.price * item.quantity;
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-3 py-2.5 border-b border-white-300 last:border-b-0",
-        !item.isAvailable && "opacity-60"
-      )}
-    >
-      <div className="relative w-16 aspect-square shrink-0 rounded-lg overflow-hidden bg-white-100">
-        {item.image && (
-          <Image
-            src={item.image}
-            alt={item.name}
-            width={64}
-            height={64}
-            className="w-full h-full object-cover mix-blend-multiply"
-          />
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold line-clamp-2">{item.name}</p>
-        <p className="text-xs text-dark-500 mt-0.5">
-          {[attributeLabel, `×${item.quantity}`].filter(Boolean).join(" · ")}
-        </p>
-        {!item.isAvailable && (
-          <p className="text-xs text-red mt-0.5">
-            {unavailableReason(item)} — không tính
-          </p>
-        )}
-      </div>
+    <div className="py-2.5 border-b border-white-300 last:border-b-0">
       <div
         className={cn(
-          "text-right text-sm whitespace-nowrap",
-          item.isAvailable
-            ? "font-bold"
-            : "font-normal text-dark-400 line-through"
+          "flex items-center gap-3",
+          !item.isAvailable && "opacity-60"
         )}
       >
-        {formatPrice(lineTotal)}
-        {item.quantity > 1 && (
-          <span className="block text-xs font-normal text-dark-400">
-            {formatPrice(item.price)} × {item.quantity}
-          </span>
-        )}
+        <div className="relative w-16 aspect-square shrink-0 rounded-lg overflow-hidden bg-white-100">
+          {item.image && (
+            <Image
+              src={item.image}
+              alt={item.name}
+              width={64}
+              height={64}
+              className="w-full h-full object-cover mix-blend-multiply"
+            />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold line-clamp-2">{item.name}</p>
+          <p className="text-xs text-dark-500 mt-0.5">
+            {[attributeLabel, `×${item.quantity}`].filter(Boolean).join(" · ")}
+          </p>
+          {!item.isAvailable && (
+            <p className="text-xs text-red mt-0.5">
+              {unavailableReason(item)} — không tính
+            </p>
+          )}
+        </div>
+        <div
+          className={cn(
+            "text-right text-sm whitespace-nowrap",
+            item.isAvailable
+              ? "font-bold"
+              : "font-normal text-dark-400 line-through"
+          )}
+        >
+          {formatPrice(lineTotal)}
+          {item.quantity > 1 && (
+            <span className="block text-xs font-normal text-dark-400">
+              {formatPrice(item.price)} × {item.quantity}
+            </span>
+          )}
+        </div>
       </div>
+      {refundEnabled !== undefined && item.isAvailable && (
+        <RefundPolicyNotice
+          productRefundEnabled={refundEnabled}
+          policy={refundPolicy}
+          className="mt-1.5"
+        />
+      )}
     </div>
   );
 }

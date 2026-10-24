@@ -116,7 +116,7 @@ export async function generateMetadata({
     product.seo?.metaDescription ??
     (product.description
       ? stripHtml(product.description).slice(0, 160)
-      : `Mua ${product.name} chính hãng, giao toàn quốc, đổi size miễn phí 30 ngày.`);
+      : `Mua ${product.name} chính hãng, giao toàn quốc.`);
   const canonical = `${PATH.PRODUCT}/${product.slug}`;
   const images = product.images.length ? [product.images[0]] : undefined;
 
@@ -232,7 +232,10 @@ export default async function Product({
           />
           {/* Cam kết ngay dưới CTA (chốt A-F5b) — thay band USP full-width cũ */}
           <div className="mt-6 lg:mt-8">
-            <ProductUsp items={storeSettings.productPromises} />
+            <ProductUsp
+              items={storeSettings.productPromises}
+              productRefundEnabled={productDetail.refundEnabled}
+            />
           </div>
         </div>
       </div>

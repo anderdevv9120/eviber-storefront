@@ -8,6 +8,7 @@ import { getCheckoutSettings } from "@/apis/order";
 import Button from "@/components/ui/Button";
 import Counter from "@/components/ui/Counter";
 import ItemPrice from "@/components/ui/ItemPrice";
+import { useRefundPolicy } from "@/components/ui/RefundPolicyNotice";
 import SvgIcon from "@/components/ui/SvgIcon";
 import { PATH } from "@/constants/paths";
 import { useAppStore } from "@/store/useAppStore";
@@ -18,6 +19,7 @@ import ComboPieceBlock from "./ComboPieceBlock";
 
 export default function ComboForm({ combo }: { combo: IComboDetail }) {
   const router = useRouter();
+  const refundPolicy = useRefundPolicy();
   const [picks, setPicks] = useState<Record<string, string>>(() =>
     Object.fromEntries(
       combo.items
@@ -144,6 +146,7 @@ export default function ComboForm({ combo }: { combo: IComboDetail }) {
                 : picks[item.productId]
             }
             onPick={(variantId) => setPick(item.productId, variantId)}
+            refundPolicy={refundPolicy}
           />
         ))}
       </div>

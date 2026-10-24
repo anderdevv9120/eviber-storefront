@@ -1,3 +1,4 @@
+import { LiveRefundPolicyNotice } from "@/components/ui/RefundPolicyNotice";
 import SvgIcon from "@/components/ui/SvgIcon";
 
 // Check-list cam kết NGAY DƯỚI CTA trong cột mua (chốt A-F5b /ui-audit vòng 2 —
@@ -6,7 +7,13 @@ import SvgIcon from "@/components/ui/SvgIcon";
 // đủ giá trị để về lưới 2×2). Margin dọc thuộc caller.
 // Rút 4 → 3 cam kết sức nặng nhất với quyết định mua (chốt A-F5b):
 // bỏ "bảo hành đường may" — niche, đã có trong mô tả sản phẩm
-const ProductUsp = ({ items }: { items: string[] }) => {
+const ProductUsp = ({
+  items,
+  productRefundEnabled,
+}: {
+  items: string[];
+  productRefundEnabled: boolean;
+}) => {
   return (
     <div className="flex flex-col gap-2.5">
       {items.map((item, index) => (
@@ -21,6 +28,10 @@ const ProductUsp = ({ items }: { items: string[] }) => {
           {item}
         </span>
       ))}
+      <LiveRefundPolicyNotice
+        productRefundEnabled={productRefundEnabled}
+        className="pt-1"
+      />
     </div>
   );
 };

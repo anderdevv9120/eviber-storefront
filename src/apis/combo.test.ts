@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import type { AxiosRequestConfig } from "axios";
 import axiosRequest from "@/config/axios";
+import type { IComboDetail } from "@/@types/Combo.type";
 import { getComboBySlug, getCombos } from "./combo";
 import cartAPI, {
   addComboToCart,
@@ -42,6 +43,53 @@ describe("storefront combo transport", () => {
       method: "get",
       url: "/combos/by-slug/summer-outfit",
     });
+  });
+
+  it("serves each constituent product's saved refund flag on the combo detail", async () => {
+    const combo: IComboDetail = {
+      _id: "combo-a",
+      name: "Outfit",
+      slug: "outfit",
+      image: null,
+      pieceImages: [],
+      pieceCount: 2,
+      hasChoice: false,
+      pricing: { mode: "PERCENT", value: 10 },
+      price: 100000,
+      originalPrice: 110000,
+      description: "",
+      images: [],
+      seo: { metaTitle: "", metaDescription: "", metaKeywords: [] },
+      availability: "AVAILABLE",
+      items: [true, false].map((refundEnabled, index) => ({
+        productId: `product-${index}`,
+        quantity: 1,
+        mode: "LOCKED" as const,
+        variantId: `variant-${index}`,
+        product: {
+          _id: `product-${index}`,
+          name: `Piece ${index}`,
+          slug: `piece-${index}`,
+          image: null,
+          refundEnabled,
+          options: [],
+        },
+        variants: [],
+      })),
+    };
+    axiosRequest.defaults.adapter = async (config) => ({
+      data: { data: combo },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    });
+    const response = await getComboBySlug("outfit");
+    expect(
+      response.data.items.map(
+        (item: IComboDetail["items"][number]) => item.product.refundEnabled
+      )
+    ).toEqual([true, false]);
   });
 
   it("adds delta quantities and preserves normal/silent toast behavior", async () => {

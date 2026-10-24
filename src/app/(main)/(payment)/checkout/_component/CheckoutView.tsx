@@ -36,6 +36,7 @@ import {
   CheckoutSchemaContext,
   checkoutSchema,
   FIELD_LABEL,
+  toExpectedRefundTerms,
 } from "./checkoutForm";
 import AddressFields from "./AddressFields";
 import SavedAddressList from "./SavedAddressList";
@@ -566,6 +567,7 @@ export default function CheckoutView() {
             ({ variantId, quantity }) => ({ variantId, quantity })
           ),
           expectedComboItems: toExpectedComboItems(accepted.data),
+          expectedRefundTerms: toExpectedRefundTerms(accepted.data),
           shippingInfo,
           ...(freeOrder
             ? {}
