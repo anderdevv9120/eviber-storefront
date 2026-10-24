@@ -8,6 +8,7 @@ import {
   PAYMENT_METHOD_LABEL,
   PAYMENT_STATUS_LABEL,
 } from "@/constants/payment";
+import { REORDERABLE_STATUSES } from "@/constants/orderStatus";
 import BankTransferPanel from "@/components/ui/BankTransferPanel";
 import { formatAddress } from "@/utils/formatAddress";
 import { formatCouponDiscountLabel, formatPrice } from "@/utils/formatPrice";
@@ -24,7 +25,7 @@ import RefundPanel from "@/components/refunds/RefundPanel";
 import Modal from "@/components/ui/Modal";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
-import CancelOrderModal from "@/components/ui/CancelOrderModal";
+import CancelOrderFlow from "@/components/ui/CancelOrderFlow";
 import { useCancelOrder } from "@/hooks/useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
@@ -109,17 +110,16 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
             >
               Hủy đơn
             </Button>
-          ) : status === "pending" ? null : (
+          ) : REORDERABLE_STATUSES.includes(status) ? (
             <Button
               size="sm"
-              variant="outline"
               className="px-4"
               loading={reorderingId === _id}
               onClick={() => reorder(_id, productInfo, combos)}
             >
               Mua lại
             </Button>
-          )}
+          ) : null}
           {canRefund && (
             <Button
               size="sm"
@@ -285,15 +285,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         </Modal>
       )}
 
-      {cancel.isConfirmOpen && (
-        <CancelOrderModal
-          isOpen
-          orderNumber={orderNumber}
-          isCancelling={cancel.isCancelling}
-          onClose={cancel.closeConfirm}
-          onConfirm={cancel.confirmCancel}
-        />
-      )}
+      <CancelOrderFlow cancel={cancel} orderNumber={orderNumber} />
     </div>
   );
 };

@@ -280,6 +280,12 @@ test("chủ đơn đăng nhập hủy ngay trên màn chờ → hero đơn đã 
 
   await page.getByTestId("awaiting-cancel-order").click();
   await page.getByRole("button", { name: "Hủy đơn", exact: true }).click();
+  // Bước chọn lý do (Shopee-style): "Lý do khác" bắt buộc nhập mô tả rồi mới hủy được
+  await page.getByText("Lý do khác", { exact: true }).click();
+  await page
+    .getByTestId("cancel-reason-note")
+    .fill("Đặt nhầm địa chỉ giao hàng");
+  await page.getByRole("button", { name: "Hủy đơn", exact: true }).click();
 
   await expect(page.getByTestId("success-hero-title")).toHaveText(
     "Đơn này đã hủy"

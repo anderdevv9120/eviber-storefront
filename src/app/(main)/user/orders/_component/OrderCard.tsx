@@ -5,6 +5,7 @@ import { IOrderResponse } from "@/@types/Order.type";
 import Button from "@/components/ui/Button";
 import { cn } from "@/config/utils";
 import { PATH } from "@/constants/paths";
+import { REORDERABLE_STATUSES } from "@/constants/orderStatus";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatTime";
 import OrderStatusPill, {
@@ -15,8 +16,6 @@ import OrderProductLine from "@/components/ui/OrderProductLine";
 import OrderComboBlock from "@/components/ui/OrderComboBlock";
 import { groupOrderProducts } from "@/utils/combo";
 import OrderReviewLink from "./OrderReviewLink";
-import CancelOrderModal from "@/components/ui/CancelOrderModal";
-import { useCancelOrder } from "@/hooks/useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
 
 /** Số dòng sản phẩm hiện trên card — phần còn lại gộp thành một dòng đếm */
@@ -24,23 +23,19 @@ const VISIBLE_PRODUCTS = 2;
 
 interface OrderCardProps {
   order: IOrderResponse;
-  /** Gọi sau khi hủy đơn thành công để parent refetch danh sách */
-  onCancelled?: () => void;
 }
 
-const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
+const OrderCard = ({ order }: OrderCardProps) => {
   const { reorder, reorderingId } = useReorder();
   const {
     _id,
     created_at,
     status,
-    paymentStatus,
     productInfo,
     combos,
     checkoutInfo,
     orderNumber,
   } = order;
-  const cancel = useCancelOrder(_id, onCancelled);
   const totalQuantity = productInfo.reduce(
     (sum, product) => sum + product.quantity,
     0
@@ -56,8 +51,8 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
     orderNumber && (
       <OrderReviewLink productId={productId} orderNumber={orderNumber} />
     );
-  // Đơn đã trả tiền khách không tự hủy (BE 400) → không hiện nút
-  const canCancel = status === "pending" && paymentStatus !== "paid";
+  // Chỉ mời mua lại khi đơn đã khép lại (giao xong/hủy/hoàn trả) — đơn đang chạy dễ bị mua trùng
+  const canReorder = REORDERABLE_STATUSES.includes(status);
 
   return (
     <article className="overflow-hidden rounded-xl border border-white-300 bg-white shadow-card">
@@ -114,19 +109,9 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
-          {canCancel ? (
+          {canReorder && (
             <Button
               size="sm"
-              variant="secondary"
-              className="px-4"
-              onClick={cancel.openConfirm}
-            >
-              Hủy đơn
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
               className="px-4"
               loading={reorderingId === _id}
               onClick={() => reorder(_id, productInfo, combos)}
@@ -136,23 +121,13 @@ const OrderCard = ({ order, onCancelled }: OrderCardProps) => {
           )}
           {orderNumber && (
             <Link href={`${PATH.ORDER}/${orderNumber}`}>
-              <Button size="sm" className="px-4">
+              <Button size="sm" variant="outline" className="px-4">
                 Xem chi tiết
               </Button>
             </Link>
           )}
         </div>
       </footer>
-
-      {cancel.isConfirmOpen && (
-        <CancelOrderModal
-          isOpen
-          orderNumber={orderNumber}
-          isCancelling={cancel.isCancelling}
-          onClose={cancel.closeConfirm}
-          onConfirm={cancel.confirmCancel}
-        />
-      )}
     </article>
   );
 };

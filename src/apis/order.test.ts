@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import type { AxiosRequestConfig } from "axios";
 import axiosRequest from "@/config/axios";
-import { checkoutReview, getOrders, makeOrder } from "./order";
+import { cancelOrder, checkoutReview, getOrders, makeOrder } from "./order";
 import { ORDER_TABS } from "@/constants/orderStatus";
 import type { ICheckoutReview, IMakeOrderPayload } from "@/@types/Order.type";
 
@@ -37,6 +37,37 @@ describe("customer order filters", () => {
       status: "confirmed",
       page: 1,
       pageSize: 10,
+    });
+  });
+});
+
+describe("cancel order transport", () => {
+  it("sends the chosen reason to PATCH /orders/:id/cancel", async () => {
+    let request: AxiosRequestConfig | undefined;
+    capture((config) => {
+      request = config;
+    });
+
+    await cancelOrder("order-1", { reason: "other", note: "Giao quá chậm" });
+
+    expect(request?.url).toBe("/orders/order-1/cancel");
+    expect(request?.method).toBe("patch");
+    expect(JSON.parse(request?.data as string)).toEqual({
+      reason: "other",
+      note: "Giao quá chậm",
+    });
+  });
+
+  it("omits note entirely for preset reasons", async () => {
+    let request: AxiosRequestConfig | undefined;
+    capture((config) => {
+      request = config;
+    });
+
+    await cancelOrder("order-1", { reason: "changed_mind" });
+
+    expect(JSON.parse(request?.data as string)).toEqual({
+      reason: "changed_mind",
     });
   });
 });

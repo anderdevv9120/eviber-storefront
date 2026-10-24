@@ -1,6 +1,10 @@
 import axiosRequest from "@/config/axios";
 import type { AxiosRequestConfig } from "axios";
-import { IMakeOrderPayload, IOrderFilterParams } from "@/@types/Order.type";
+import {
+  ICancelOrderPayload,
+  IMakeOrderPayload,
+  IOrderFilterParams,
+} from "@/@types/Order.type";
 
 export const getOrders = (
   params: IOrderFilterParams = {},
@@ -65,9 +69,9 @@ export const getMyOrderDetail = (orderNumber: string, signal?: AbortSignal) => {
   );
 };
 
-/** Khách hủy đơn PENDING của mình — BE hoàn kho trong cùng transaction */
-export const cancelOrder = (orderId: string) => {
-  return axiosRequest.patch(`/orders/${orderId}/cancel`);
+/** Khách hủy đơn PENDING của mình kèm lý do — BE hoàn kho + lưu lý do trong cùng transaction */
+export const cancelOrder = (orderId: string, payload: ICancelOrderPayload) => {
+  return axiosRequest.patch(`/orders/${orderId}/cancel`, payload);
 };
 
 const orderAPI = {

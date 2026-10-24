@@ -18,7 +18,7 @@ import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
 import { usePaymentPolling } from "@/hooks/usePaymentPolling";
 import { useCancelOrder } from "@/hooks/useCancelOrder";
-import CancelOrderModal from "@/components/ui/CancelOrderModal";
+import CancelOrderFlow from "@/components/ui/CancelOrderFlow";
 import { PATH } from "@/constants/paths";
 import { DELIVERY_ESTIMATE_DAYS } from "@/constants/payment";
 import { statusStyles } from "@/constants/orderStatus";
@@ -393,15 +393,7 @@ const PaymentSuccessContent = () => {
         )}
       </OrderSummaryPanel>
 
-      {cancel.isConfirmOpen && (
-        <CancelOrderModal
-          isOpen={cancel.isConfirmOpen}
-          orderNumber={order.orderNumber}
-          isCancelling={cancel.isCancelling}
-          onClose={cancel.closeConfirm}
-          onConfirm={cancel.confirmCancel}
-        />
-      )}
+      <CancelOrderFlow cancel={cancel} orderNumber={order.orderNumber} />
     </div>
   );
 };

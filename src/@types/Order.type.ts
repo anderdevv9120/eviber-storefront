@@ -23,6 +23,22 @@ export interface IStatusHistoryEntry {
   note?: string;
 }
 
+/** BE: CancellationReason (order.model.ts) — lý do khách chọn khi tự hủy đơn */
+export type CancellationReasonApi =
+  | "changed_mind"
+  | "wrong_order"
+  | "better_price"
+  | "slow_shipping"
+  | "payment_issue"
+  | "other";
+
+/** BE: CancellationInfo (order.model.ts) — chỉ có trên đơn khách TỰ hủy */
+export interface ICancellationInfo {
+  reason: CancellationReasonApi;
+  /** Có khi reason = other — mô tả khách tự viết */
+  note?: string;
+}
+
 /** BE: PaymentStatus (order.model.ts) */
 export type PaymentApiStatus =
   "unpaid" | "paid" | "refunded" | "failed" | "not_required";
@@ -91,6 +107,13 @@ export interface IMakeOrderPayload {
   /** Điều khoản hoàn tiền khách đã xem ở checkout review — BE trả 409 CHECKOUT_CHANGED nếu đã đổi */
   expectedRefundTerms?: RefundTerms;
   customerNote?: string;
+}
+
+/** BE: CancelOrderDto — body PATCH /orders/:id/cancel */
+export interface ICancelOrderPayload {
+  reason: CancellationReasonApi;
+  /** Bắt buộc khi reason = other */
+  note?: string;
 }
 
 /** BE: ProductExistInfo (product.interface.ts) — item trong checkout review */
@@ -190,6 +213,8 @@ export interface IOrderResponse {
    * đó chỉ tồn tại phía admin, đừng render như thể luôn có.
    */
   statusHistory?: IStatusHistoryEntry[];
+  /** Chỉ đơn khách TỰ hủy sau khi có flow chọn lý do; đơn hủy bởi admin/system không có */
+  cancellation?: ICancellationInfo;
   paymentStatus: PaymentApiStatus;
   paymentHistory?: IPaymentHistoryEntry[];
   /** Có khi paymentStatus đã từng là paid */

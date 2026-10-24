@@ -55,3 +55,34 @@ export const ORDER_TABS: {
 ];
 
 export const ORDER_PAGE_SIZE = 10;
+
+/**
+ * Lý do hủy đơn — khách chọn 1 khi tự hủy (PATCH /orders/:id/cancel), BE lưu nguyên `value`
+ * vào Order.cancellation (BE: CancellationReason — order.model.ts). `other` bắt buộc kèm note.
+ */
+export const CANCELLATION_REASONS = [
+  { value: "changed_mind", label: "Không muốn mua nữa" },
+  { value: "wrong_order", label: "Chọn nhầm sản phẩm / phân loại" },
+  { value: "better_price", label: "Tìm được giá tốt hơn ở chỗ khác" },
+  { value: "slow_shipping", label: "Thời gian giao hàng quá lâu" },
+  { value: "payment_issue", label: "Gặp vấn đề khi thanh toán" },
+  { value: "other", label: "Lý do khác" },
+] as const;
+
+export type CancellationReasonValue =
+  (typeof CANCELLATION_REASONS)[number]["value"];
+
+export const cancellationReasonLabel: Record<CancellationReasonValue, string> =
+  Object.fromEntries(
+    CANCELLATION_REASONS.map(({ value, label }) => [value, label])
+  ) as Record<CancellationReasonValue, string>;
+
+/**
+ * Trạng thái được mời "Mua lại": đơn đã khép lại với tư cách một lần mua (giao xong, hủy,
+ * hoàn trả). pending/confirmed/shipped vẫn đang giữa chừng — bấm mua lại dễ tạo đơn trùng.
+ */
+export const REORDERABLE_STATUSES: readonly string[] = [
+  "delivered",
+  "cancelled",
+  "returned",
+];

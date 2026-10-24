@@ -1,13 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type {
-  RefundOrderView,
-  RefundRequestedReturn,
-  RefundSelection,
-} from "@/@types/Refund.type";
+import type { RefundOrderView, RefundSelection } from "@/@types/Refund.type";
 import { submitRefund, uploadRefundEvidence } from "@/apis/refund";
 import Button from "@/components/ui/Button";
+import Dropdown from "@/components/ui/Dropdown";
 import { ApiError } from "@/config/axios";
 import { useNow } from "@/hooks/useNow";
 import { formatPrice } from "@/utils/formatPrice";
@@ -321,49 +318,47 @@ export default function RefundRequestForm({
 
                 {selected && draft && (
                   <div className="mt-3 space-y-3 pl-7">
-                    <label className="block text-sm">
-                      Số lượng
-                      <select
-                        className={fieldClass}
-                        value={draft.quantity}
-                        onChange={(event) =>
-                          setQuantities((current) => ({
-                            ...current,
-                            [allocation.allocationId]: Number(
-                              event.target.value
-                            ),
-                          }))
-                        }
-                      >
-                        {Array.from(
+                    <div>
+                      <p id={`${idBase}-quantity-label`} className="text-sm">
+                        Số lượng
+                      </p>
+                      <Dropdown
+                        size="sm"
+                        ariaLabelledBy={`${idBase}-quantity-label`}
+                        className="mt-1 w-full"
+                        placeholder="Chọn số lượng"
+                        options={Array.from(
                           { length: allocation.availableQuantity },
                           (_, i) => i + 1
-                        ).map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="block text-sm">
-                      Lý do
-                      <select
-                        className={fieldClass}
-                        value={draft.reason}
-                        onChange={(event) =>
-                          setDetail(allocation.allocationId, {
-                            reason: event.target
-                              .value as RefundSelection["reason"],
-                          })
+                        ).map((n) => ({ value: n, label: String(n) }))}
+                        value={draft.quantity}
+                        onChange={(value) =>
+                          setQuantities((current) => ({
+                            ...current,
+                            [allocation.allocationId]: value,
+                          }))
                         }
-                      >
-                        {reasons.map((reason) => (
-                          <option key={reason} value={reason}>
-                            {REFUND_REASON_LABEL[reason]}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                      />
+                    </div>
+                    <div>
+                      <p id={`${idBase}-reason-label`} className="text-sm">
+                        Lý do
+                      </p>
+                      <Dropdown
+                        size="sm"
+                        ariaLabelledBy={`${idBase}-reason-label`}
+                        className="mt-1 w-full"
+                        placeholder="Chọn lý do"
+                        options={reasons.map((reason) => ({
+                          value: reason,
+                          label: REFUND_REASON_LABEL[reason],
+                        }))}
+                        value={draft.reason}
+                        onChange={(value) =>
+                          setDetail(allocation.allocationId, { reason: value })
+                        }
+                      />
+                    </div>
                     <label className="block text-sm">
                       Mô tả vấn đề
                       <textarea
@@ -383,24 +378,30 @@ export default function RefundRequestForm({
                         Hàng thiếu nên không cần gửi trả.
                       </p>
                     ) : (
-                      <label className="block text-sm">
-                        Xử lý hàng
-                        <select
-                          className={fieldClass}
+                      <div>
+                        <p id={`${idBase}-return-label`} className="text-sm">
+                          Xử lý hàng
+                        </p>
+                        <Dropdown
+                          size="sm"
+                          ariaLabelledBy={`${idBase}-return-label`}
+                          className="mt-1 w-full"
+                          placeholder="Chọn cách xử lý hàng"
+                          options={[
+                            { value: "return", label: "Tôi gửi trả hàng" },
+                            {
+                              value: "no_return",
+                              label: "Tôi không gửi trả (cần ảnh bằng chứng)",
+                            },
+                          ]}
                           value={draft.requestedReturn}
-                          onChange={(event) =>
+                          onChange={(value) =>
                             setDetail(allocation.allocationId, {
-                              requestedReturn: event.target
-                                .value as RefundRequestedReturn,
+                              requestedReturn: value,
                             })
                           }
-                        >
-                          <option value="return">Tôi gửi trả hàng</option>
-                          <option value="no_return">
-                            Tôi không gửi trả (cần ảnh bằng chứng)
-                          </option>
-                        </select>
-                      </label>
+                        />
+                      </div>
                     )}
                     <div className="text-sm">
                       <label htmlFor={`${idBase}-evidence`}>
