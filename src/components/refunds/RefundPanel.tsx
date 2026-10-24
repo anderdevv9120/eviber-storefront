@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import type { RefundOrderView } from "@/@types/Refund.type";
 import { getOrderRefunds } from "@/apis/refund";
+import { ApiError } from "@/config/axios";
 import Button from "@/components/ui/Button";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { formatDateTime } from "@/utils/formatTime";
@@ -14,6 +15,8 @@ interface RefundPanelProps {
   orderNumber: string;
   /** Phiên khách đã xác thực; khách đăng nhập chính chủ không truyền. Đổi đơn/phiên → mount lại bằng `key` */
   sessionToken?: string;
+  /** BE từ chối phiên khách (401: hết hạn/không hợp lệ) — cha xóa phiên của đơn này và mời xin link mới */
+  onSessionRejected?: () => void;
 }
 
 /** Revision tăng đơn điệu: phản hồi cũ về muộn không được đè view đã commit mới hơn */
@@ -23,10 +26,13 @@ const newest = (current: RefundOrderView | undefined, next: RefundOrderView) =>
 export default function RefundPanel({
   orderNumber,
   sessionToken,
+  onSessionRejected,
 }: RefundPanelProps) {
   const [view, setView] = useState<RefundOrderView>();
   const [loadError, setLoadError] = useState<string>();
   const [reloadKey, setReloadKey] = useState(0);
+  // Callback của cha đổi identity mỗi render nhưng không được kéo effect fetch chạy lại
+  const rejectSession = useEffectEvent(() => onSessionRejected?.());
 
   // Effect chỉ đồng bộ network: lấy view, hủy khi đổi đơn/phiên hoặc tải lại
   useEffect(() => {
@@ -38,7 +44,12 @@ export default function RefundPanel({
         setLoadError(undefined);
       })
       .catch((error: unknown) => {
-        if (!controller.signal.aborted) setLoadError(getErrorMessage(error));
+        if (controller.signal.aborted) return;
+        if (sessionToken && error instanceof ApiError && error.status === 401) {
+          rejectSession();
+          return;
+        }
+        setLoadError(getErrorMessage(error));
       });
     return () => controller.abort();
   }, [orderNumber, sessionToken, reloadKey]);

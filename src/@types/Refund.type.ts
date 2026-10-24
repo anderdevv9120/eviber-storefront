@@ -137,6 +137,12 @@ export interface SubmitRefundInput {
   items: RefundSelection[];
 }
 
+/** BE: POST /orders/:orderNumber/refund-access/verify → 200 (phiên khách 24h theo đơn) */
+export interface RefundGuestSession {
+  sessionToken: string;
+  expiresAt: string;
+}
+
 /** BE: POST /orders/:orderNumber/refund-evidence → 201 */
 export interface RefundEvidenceUpload {
   evidenceId: string;

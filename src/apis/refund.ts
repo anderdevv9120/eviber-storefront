@@ -1,6 +1,7 @@
 import axiosRequest from "@/config/axios";
 import type {
   RefundEvidenceUpload,
+  RefundGuestSession,
   RefundOrderView,
   RefundPolicy,
   SubmitRefundInput,
@@ -79,4 +80,30 @@ export const getRefundEvidence = (
   axiosRequest.get(
     `${orderPath(orderNumber)}/refund-evidence/${encodeURIComponent(evidenceId)}`,
     { ...refundRequestConfig(options), responseType: "blob" }
+  );
+
+/**
+ * Xin link xác thực gửi tới email đặt hàng của đơn khách. BE luôn 202 cùng một thân
+ * (không lộ đơn nào đủ điều kiện) và không nhận email từ client.
+ */
+export const requestRefundAccess = (
+  orderNumber: string
+): Promise<{ data: { message: string } }> =>
+  axiosRequest.post(
+    `${orderPath(orderNumber)}/refund-access/request`,
+    undefined,
+    {
+      toastError: false,
+    }
+  );
+
+/** Đổi link một lần lấy phiên 24h theo đơn — token link chỉ đi trong body */
+export const verifyRefundAccess = (
+  orderNumber: string,
+  token: string
+): Promise<{ data: RefundGuestSession }> =>
+  axiosRequest.post(
+    `${orderPath(orderNumber)}/refund-access/verify`,
+    { token },
+    { toastError: false }
   );

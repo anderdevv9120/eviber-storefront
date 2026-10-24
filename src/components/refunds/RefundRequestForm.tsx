@@ -152,6 +152,8 @@ export default function RefundRequestForm({
           },
         }));
       } catch (error) {
+        // Phiên khách bị từ chối: để panel tải lại view và nhận 401 thay vì chỉ báo lỗi ảnh
+        if (error instanceof ApiError && error.status === 401) onReload();
         setUploadErrors((current) => ({
           ...current,
           [allocationId]: `${file.name}: ${getErrorMessage(error)}`,
@@ -210,6 +212,10 @@ export default function RefundRequestForm({
         setNotice(
           "Chưa xác nhận được kết quả gửi yêu cầu. Đã tải lại lịch sử bên dưới — nếu yêu cầu chưa xuất hiện, bấm Gửi lại (hệ thống không tạo trùng)."
         );
+      } else if (status === 401) {
+        // Phiên khách hết hạn: panel tải lại view, nhận 401 và chuyển sang xin link mới
+        onReload();
+        setNotice(getErrorMessage(error));
       } else {
         setNotice(getErrorMessage(error));
       }

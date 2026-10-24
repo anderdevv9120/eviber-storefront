@@ -370,13 +370,26 @@ const PaymentSuccessContent = () => {
             )}
           </>
         ) : (
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={() => router.push(PATH.HOME)}
-          >
-            Tiếp tục mua sắm
-          </Button>
+          <>
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => router.push(PATH.HOME)}
+            >
+              Tiếp tục mua sắm
+            </Button>
+            {/* Khách vãng lai: chỉ mở được hoàn tiền sau khi xác thực qua email đặt hàng (biết mã đơn là chưa đủ);
+                người đã đăng nhập vào từ chi tiết đơn trong tài khoản */}
+            {!isLoggedIn && (
+              <Link
+                href={`${PATH.REFUND_ACCESS}?orderNumber=${encodeURIComponent(order.orderNumber ?? "")}`}
+                data-testid="guest-refund-entry"
+                className="mt-1 flex h-10 w-full items-center justify-center rounded-btn text-sm font-semibold text-dark-500 transition hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100 focus-visible:ring-offset-2"
+              >
+                Yêu cầu hoàn tiền
+              </Link>
+            )}
+          </>
         )}
       </OrderSummaryPanel>
 

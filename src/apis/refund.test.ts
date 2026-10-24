@@ -5,8 +5,10 @@ import {
   getOrderRefunds,
   getRefundEvidence,
   getRefundPolicy,
+  requestRefundAccess,
   submitRefund,
   uploadRefundEvidence,
+  verifyRefundAccess,
 } from "./refund";
 
 const adapter = axiosRequest.defaults.adapter;
@@ -153,5 +155,64 @@ describe("customer refund transport", () => {
     expect(request?.toastError).toBe(false);
     expect(header(request, "X-Refund-Token")).toBe("guest-secret");
     expect(result).toBe(bytes);
+  });
+});
+
+describe("guest access transport", () => {
+  const header = (config: AxiosRequestConfig | undefined, name: string) =>
+    (config?.headers as { get(name: string): unknown } | undefined)?.get(name);
+
+  it("requests an email link with no body, no credential and silent errors", async () => {
+    let request: AxiosRequestConfig | undefined;
+    const accepted = {
+      data: { message: "Nếu đơn đủ điều kiện, email đã được gửi" },
+    };
+    capture((config) => (request = config), accepted);
+    const response = await requestRefundAccess("ORD/1");
+    expect(request?.method).toBe("post");
+    expect(request?.url).toBe("/orders/ORD%2F1/refund-access/request");
+    expect(request?.data).toBeUndefined();
+    expect(request?.toastError).toBe(false);
+    expect(header(request, "X-Refund-Token")).toBeUndefined();
+    expect(response).toEqual(accepted);
+  });
+
+  it("exchanges the link token in the body only, never the URL or a header", async () => {
+    let request: AxiosRequestConfig | undefined;
+    const session = {
+      data: {
+        sessionToken: "session-secret",
+        expiresAt: "2026-10-25T10:00:00.000Z",
+      },
+    };
+    capture((config) => (request = config), session);
+    const response = await verifyRefundAccess("ORD-1", "link-secret");
+    expect(request?.method).toBe("post");
+    expect(request?.url).toBe("/orders/ORD-1/refund-access/verify");
+    expect(JSON.parse(request?.data as string)).toEqual({
+      token: "link-secret",
+    });
+    expect(request?.toastError).toBe(false);
+    expect(header(request, "X-Refund-Token")).toBeUndefined();
+    expect(JSON.stringify(request?.params ?? null)).not.toContain(
+      "link-secret"
+    );
+    expect(request?.url).not.toContain("link-secret");
+    expect(response).toEqual(session);
+  });
+
+  it("keeps the session token out of every evidence and view URL", async () => {
+    const urls: string[] = [];
+    capture((config) => urls.push(String(config.url)), {});
+    const options = { sessionToken: "session-secret" };
+    await getOrderRefunds("ORD-1", options);
+    await getRefundEvidence("ORD-1", "e1", options);
+    await uploadRefundEvidence(
+      "ORD-1",
+      new File([new Uint8Array([1])], "a.png"),
+      options
+    );
+    expect(urls).toHaveLength(3);
+    for (const url of urls) expect(url).not.toContain("session-secret");
   });
 });
