@@ -3,7 +3,7 @@ import type { RefundPolicy, RefundPolicyState } from "@/@types/Refund.type";
 const MIN_WINDOW_DAYS = 1;
 const MAX_WINDOW_DAYS = 365;
 
-const isWindowDays = (value: unknown): value is number =>
+export const isWindowDays = (value: unknown): value is number =>
   Number.isInteger(value) &&
   (value as number) >= MIN_WINDOW_DAYS &&
   (value as number) <= MAX_WINDOW_DAYS;

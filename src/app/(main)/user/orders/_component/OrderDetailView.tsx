@@ -20,6 +20,7 @@ import OrderStatusPill, {
 import OrderProductLine from "@/components/ui/OrderProductLine";
 import OrderComboBlock from "@/components/ui/OrderComboBlock";
 import { groupOrderProducts } from "@/utils/combo";
+import RefundPanel from "@/components/refunds/RefundPanel";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
 import CancelOrderModal from "@/components/ui/CancelOrderModal";
@@ -252,6 +253,11 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
           </div>
         )}
       </section>
+
+      {/* Đơn chưa được xác nhận chưa có gì để hoàn; từ confirmed trở đi hiện chính sách + lịch sử */}
+      {orderNumber && status !== "pending" && (
+        <RefundPanel key={orderNumber} orderNumber={orderNumber} />
+      )}
 
       <OrderReviews key={_id} products={productInfo} />
 
