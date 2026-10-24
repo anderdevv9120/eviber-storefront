@@ -33,7 +33,7 @@ const OrderManagement = () => {
         </div>
       </div>
 
-      {/* Tab dạng chip: 5 mục nên xuống dòng gọn hơn cuộn ngang ở màn hẹp */}
+      {/* Tab dạng chip xuống dòng thay vì cuộn ngang ở màn hẹp */}
       <div
         aria-label="Lọc đơn theo trạng thái"
         className="mb-4 flex flex-wrap gap-2"

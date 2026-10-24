@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import type { AxiosRequestConfig } from "axios";
 import axiosRequest from "@/config/axios";
-import { checkoutReview, makeOrder } from "./order";
+import { checkoutReview, getOrders, makeOrder } from "./order";
+import { ORDER_TABS } from "@/constants/orderStatus";
 import type { ICheckoutReview, IMakeOrderPayload } from "@/@types/Order.type";
 
 const adapter = axiosRequest.defaults.adapter;
@@ -20,6 +21,25 @@ const capture = (receive: (config: AxiosRequestConfig) => void) => {
     };
   };
 };
+
+describe("customer order filters", () => {
+  it("requests confirmed orders when selecting Đã xác nhận", async () => {
+    let request: AxiosRequestConfig | undefined;
+    capture((config) => {
+      request = config;
+    });
+    const tab = ORDER_TABS.find((tab) => tab.label === "Đã xác nhận");
+
+    await getOrders({ status: tab?.status, page: 1, pageSize: 10 });
+
+    expect(request?.url).toBe("/orders");
+    expect(request?.params).toEqual({
+      status: "confirmed",
+      page: 1,
+      pageSize: 10,
+    });
+  });
+});
 
 describe("voucher order transport", () => {
   it("forwards the code without changing signal/toast argument order", async () => {

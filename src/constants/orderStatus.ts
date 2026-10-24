@@ -48,6 +48,7 @@ export const ORDER_TABS: {
 }[] = [
   { key: "all", label: "Tất cả" },
   { key: "pending", label: "Chờ xác nhận", status: "pending" },
+  { key: "confirmed", label: "Đã xác nhận", status: "confirmed" },
   { key: "shipped", label: "Đang giao hàng", status: "shipped" },
   { key: "delivered", label: "Đã giao hàng", status: "delivered" },
   { key: "cancelled", label: "Đã hủy", status: "cancelled" },
