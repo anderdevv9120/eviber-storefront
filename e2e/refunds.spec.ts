@@ -344,6 +344,8 @@ async function openCustomerOrder(
       { name: "accessToken", value: token, domain: "localhost", path: "/" },
     ]);
   await page.goto(`/user/orders/${orderNumber}`);
+  // Refund content sits behind the header button: open the modal first.
+  await page.getByTestId("order-refund-open").click();
   await expect(
     page.getByRole("heading", { name: "Hoàn tiền", exact: true })
   ).toBeVisible();
@@ -602,6 +604,8 @@ test("registered_partial_combo_refund_keeps_retained_discount", async ({
   expect(await restockMovements(requestId)).toBe(1);
   expect(await stock(retainedVariant)).toBe(retainedStockBefore);
   await page.reload();
+  // Refund content reopens via the button after a reload — state lives behind the modal.
+  await page.getByTestId("order-refund-open").click();
   await expect(page.getByText(/đã hoàn 1/)).toBeVisible();
 });
 
@@ -1384,6 +1388,9 @@ test("rendered_cms_views_fit_both_widths_and_keep_list_filters", async ({
         await expect(
           page.getByRole("heading", { name: "Hoàn tiền" })
         ).toBeVisible();
+        // Heading renders while the view is still loading — gate the keyboard walk on loaded
+        // content, or Tab can outrun the fetch and walk past the section's controls.
+        await expect(page.getByText("Chính sách khi mua")).toBeVisible();
         // Keyboard: Tab from the section heading reaches a control inside the refund section.
         await page.getByRole("heading", { name: "Hoàn tiền" }).first().focus();
         let inside = false;
@@ -1393,8 +1400,10 @@ test("rendered_cms_views_fit_both_widths_and_keep_list_filters", async ({
             const heading = [...document.querySelectorAll("h3")].find(
               (h) => h.textContent === "Hoàn tiền"
             );
+            // Header markup nests the h3 in flex wrappers: scope to the refund section.
+            const scope = heading?.closest("section[aria-label='Hoàn tiền']");
             return Boolean(
-              heading?.parentElement?.contains(document.activeElement) &&
+              scope?.contains(document.activeElement) &&
               document.activeElement !== document.body
             );
           });
@@ -1443,6 +1452,7 @@ test("rendered_storefront_refund_views_fit_both_widths", async ({
       await page.waitForLoadState("networkidle");
       await expectNoHorizontalOverflow(page);
       if (name.startsWith("order-")) {
+        await page.getByTestId("order-refund-open").click();
         await expect(
           page.getByRole("heading", { name: "Hoàn tiền", exact: true })
         ).toBeVisible();
@@ -1450,9 +1460,7 @@ test("rendered_storefront_refund_views_fit_both_widths", async ({
       }
       if (name === "order-evidence") {
         // Evidence thumbnails load through the authorized route, never a public URL.
-        const images = page.locator(
-          "section[aria-labelledby=refund-panel-title] img"
-        );
+        const images = page.locator('[role="dialog"] img');
         for (const img of await images.all()) {
           await expect
             .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))

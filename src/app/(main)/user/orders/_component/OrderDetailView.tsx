@@ -21,6 +21,7 @@ import OrderProductLine from "@/components/ui/OrderProductLine";
 import OrderComboBlock from "@/components/ui/OrderComboBlock";
 import { groupOrderProducts } from "@/utils/combo";
 import RefundPanel from "@/components/refunds/RefundPanel";
+import Modal from "@/components/ui/Modal";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
 import CancelOrderModal from "@/components/ui/CancelOrderModal";
@@ -74,6 +75,9 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
   );
   // Đơn đã trả tiền: khách không tự hủy (BE 400 + hướng liên hệ) → ẩn nút, không để bấm rồi lỗi
   const canCancel = status === "pending" && paymentStatus !== "paid";
+  // Đơn chưa được xác nhận chưa có gì để hoàn; từ confirmed trở đi mới mở được hoàn tiền
+  const canRefund = Boolean(orderNumber) && status !== "pending";
+  const [isRefundOpen, setIsRefundOpen] = useState(false);
   const totalQuantity = productInfo.reduce(
     (sum, product) => sum + product.quantity,
     0
@@ -114,6 +118,17 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
               onClick={() => reorder(_id, productInfo, combos)}
             >
               Mua lại
+            </Button>
+          )}
+          {canRefund && (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="px-4"
+              data-testid="order-refund-open"
+              onClick={() => setIsRefundOpen(true)}
+            >
+              Hoàn tiền
             </Button>
           )}
         </div>
@@ -254,12 +269,21 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         )}
       </section>
 
-      {/* Đơn chưa được xác nhận chưa có gì để hoàn; từ confirmed trở đi hiện chính sách + lịch sử */}
-      {orderNumber && status !== "pending" && (
-        <RefundPanel key={orderNumber} orderNumber={orderNumber} />
-      )}
-
       <OrderReviews key={_id} products={productInfo} />
+
+      {/* Nội dung hoàn tiền chỉ mount khi mở: trang đơn giữ gọn, panel không fetch sẵn */}
+      {isRefundOpen && orderNumber && (
+        <Modal
+          isOpen
+          title="Hoàn tiền"
+          titleClassName="text-xl"
+          className="w-[640px]"
+          isShowFooter={false}
+          onCancel={() => setIsRefundOpen(false)}
+        >
+          <RefundPanel key={orderNumber} orderNumber={orderNumber} embedded />
+        </Modal>
+      )}
 
       {cancel.isConfirmOpen && (
         <CancelOrderModal

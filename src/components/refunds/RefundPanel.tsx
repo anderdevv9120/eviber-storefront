@@ -17,6 +17,8 @@ interface RefundPanelProps {
   sessionToken?: string;
   /** BE từ chối phiên khách (401: hết hạn/không hợp lệ) — cha xóa phiên của đơn này và mời xin link mới */
   onSessionRejected?: () => void;
+  /** Cha đã cấp khung + tiêu đề (modal ở trang đơn hàng) — bỏ viền/header thẻ, chỉ render nội dung */
+  embedded?: boolean;
 }
 
 /** Revision tăng đơn điệu: phản hồi cũ về muộn không được đè view đã commit mới hơn */
@@ -27,6 +29,7 @@ export default function RefundPanel({
   orderNumber,
   sessionToken,
   onSessionRejected,
+  embedded,
 }: RefundPanelProps) {
   const [view, setView] = useState<RefundOrderView>();
   const [loadError, setLoadError] = useState<string>();
@@ -61,6 +64,80 @@ export default function RefundPanel({
       ? refundPolicyText({ ...view.policy, productRefundEnabled: true })
       : null;
 
+  const body = (
+    <>
+      {!view && !loadError && (
+        <p role="status" className="text-sm text-dark-400">
+          Đang tải thông tin hoàn tiền…
+        </p>
+      )}
+      {loadError && (
+        <div role="alert" className="space-y-2 text-sm">
+          <p className="text-red">
+            {view
+              ? `Chưa cập nhật được thông tin hoàn tiền: ${loadError}`
+              : `Không tải được thông tin hoàn tiền: ${loadError}`}
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="px-4"
+            onClick={() => {
+              setLoadError(undefined);
+              reload();
+            }}
+          >
+            Thử lại
+          </Button>
+        </div>
+      )}
+      {view && (
+        <>
+          <div className="space-y-1 text-sm text-dark-500">
+            {policyText ? (
+              <>
+                <p>{policyText.ordinary}</p>
+                <p>{policyText.claims}</p>
+              </>
+            ) : (
+              <p>Đơn hàng này chưa có điều khoản hoàn tiền được lưu.</p>
+            )}
+            {view.deadline ? (
+              <p className="font-medium text-dark-700">
+                Hạn gửi yêu cầu: {formatDateTime(view.deadline)}
+              </p>
+            ) : (
+              policyText && (
+                <p>Hạn gửi yêu cầu được tính từ khi đơn hàng được giao.</p>
+              )
+            )}
+          </div>
+          {view.allocations.length === 0 && view.requests.length === 0 ? (
+            <p className="text-sm text-dark-400">
+              Đơn hàng này chưa có sản phẩm nào để gửi yêu cầu hoàn tiền.
+            </p>
+          ) : (
+            <RefundRequestForm
+              key={view.orderId}
+              view={view}
+              sessionToken={sessionToken}
+              onViewChange={(next) =>
+                setView((current) => newest(current, next))
+              }
+              onReload={reload}
+            />
+          )}
+          <RefundHistory view={view} sessionToken={sessionToken} />
+        </>
+      )}
+    </>
+  );
+
+  if (embedded) {
+    return <div className="space-y-5">{body}</div>;
+  }
+
   return (
     <section
       aria-labelledby="refund-panel-title"
@@ -71,73 +148,7 @@ export default function RefundPanel({
           Hoàn tiền
         </h2>
       </header>
-      <div className="space-y-5 p-4 sm:p-5">
-        {!view && !loadError && (
-          <p role="status" className="text-sm text-dark-400">
-            Đang tải thông tin hoàn tiền…
-          </p>
-        )}
-        {loadError && (
-          <div role="alert" className="space-y-2 text-sm">
-            <p className="text-red">
-              {view
-                ? `Chưa cập nhật được thông tin hoàn tiền: ${loadError}`
-                : `Không tải được thông tin hoàn tiền: ${loadError}`}
-            </p>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="px-4"
-              onClick={() => {
-                setLoadError(undefined);
-                reload();
-              }}
-            >
-              Thử lại
-            </Button>
-          </div>
-        )}
-        {view && (
-          <>
-            <div className="space-y-1 text-sm text-dark-500">
-              {policyText ? (
-                <>
-                  <p>{policyText.ordinary}</p>
-                  <p>{policyText.claims}</p>
-                </>
-              ) : (
-                <p>Đơn hàng này chưa có điều khoản hoàn tiền được lưu.</p>
-              )}
-              {view.deadline ? (
-                <p className="font-medium text-dark-700">
-                  Hạn gửi yêu cầu: {formatDateTime(view.deadline)}
-                </p>
-              ) : (
-                policyText && (
-                  <p>Hạn gửi yêu cầu được tính từ khi đơn hàng được giao.</p>
-                )
-              )}
-            </div>
-            {view.allocations.length === 0 && view.requests.length === 0 ? (
-              <p className="text-sm text-dark-400">
-                Đơn hàng này chưa có sản phẩm nào để gửi yêu cầu hoàn tiền.
-              </p>
-            ) : (
-              <RefundRequestForm
-                key={view.orderId}
-                view={view}
-                sessionToken={sessionToken}
-                onViewChange={(next) =>
-                  setView((current) => newest(current, next))
-                }
-                onReload={reload}
-              />
-            )}
-            <RefundHistory view={view} sessionToken={sessionToken} />
-          </>
-        )}
-      </div>
+      <div className="space-y-5 p-4 sm:p-5">{body}</div>
     </section>
   );
 }
