@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { fetchStoreSettingsCached } from "@/apis/home.server";
 import { getProducts } from "@/apis/product";
+import { getCombos } from "@/apis/combo";
 import { PATH } from "@/constants/paths";
 
 // Sinh lúc request (không phải postbuild) để URL product luôn theo catalog hiện tại;
@@ -40,10 +41,27 @@ async function fetchAllProductSlugs(): Promise<string[]> {
   return slugs;
 }
 
+async function fetchAllComboSlugs(): Promise<string[]> {
+  const slugs: string[] = [];
+  for (let page = 1; page <= MAX_PRODUCT_PAGES; page++) {
+    try {
+      const response = await getCombos({ page, pageSize: PRODUCT_PAGE_SIZE });
+      const list = response?.data;
+      const items: { slug?: string }[] = list?.data ?? [];
+      items.forEach((item) => item.slug && slugs.push(item.slug));
+      if (page >= (list?.totalPage ?? 1)) break;
+    } catch {
+      break;
+    }
+  }
+  return slugs;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [slugs, storeSettings] = await Promise.all([
+  const [slugs, storeSettings, comboSlugs] = await Promise.all([
     fetchAllProductSlugs(),
     fetchStoreSettingsCached(),
+    fetchAllComboSlugs(),
   ]);
   const now = new Date();
 
@@ -58,6 +76,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}${PATH.PRODUCT}/${slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    ...comboSlugs.map((slug) => ({
+      url: `${SITE_URL}${PATH.COMBO}/${slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
     })),
     // Chỉ trang đã xuất bản; BE lỗi → fallback rỗng, không thêm URL nào
     ...storeSettings.publishedPolicySlugs.map((slug) => ({

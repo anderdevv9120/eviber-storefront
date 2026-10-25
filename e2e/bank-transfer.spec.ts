@@ -16,7 +16,7 @@ import {
   paymentLinkBody as linkBody,
 } from "./helpers/payment-link";
 
-const STOREFRONT = "http://localhost:3009/api/v1";
+const STOREFRONT = process.env.E2E_API ?? "http://localhost:3009/api/v1";
 const ADMIN = process.env.E2E_ADMIN_API ?? "http://localhost:8011/admin/v1";
 const SEED_ADMIN = { email: "admin@demo.local", password: "Demo@123" };
 // Đơn chuyển khoản seed thuộc customer2 (orders.fixture ORD_6) — sweep đăng nhập customer1 nên không đo được ở đó
@@ -284,6 +284,12 @@ test("chủ đơn đăng nhập hủy ngay trên màn chờ → hero đơn đã 
   await page.waitForURL(/\/payment-success/);
 
   await page.getByTestId("awaiting-cancel-order").click();
+  await page.getByRole("button", { name: "Hủy đơn", exact: true }).click();
+  // Bước chọn lý do (Shopee-style): "Lý do khác" bắt buộc nhập mô tả rồi mới hủy được
+  await page.getByText("Lý do khác", { exact: true }).click();
+  await page
+    .getByTestId("cancel-reason-note")
+    .fill("Đặt nhầm địa chỉ giao hàng");
   await page.getByRole("button", { name: "Hủy đơn", exact: true }).click();
 
   await expect(page.getByTestId("success-hero-title")).toHaveText(

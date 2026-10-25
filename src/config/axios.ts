@@ -161,9 +161,11 @@ axiosRequest.interceptors.response.use(
   async function (error) {
     const originalRequest = error.config as RetriableRequestConfig | undefined;
     const requestUrl = originalRequest?.url ?? "";
-    const isRefreshExcluded = REFRESH_EXCLUDED_PATHS.some((path) =>
-      requestUrl.includes(path)
-    );
+    // 401 của phiên khách hoàn tiền (X-Refund-Token) là phiên khách bị từ chối, không phải
+    // đăng nhập hết hạn: refresh sẽ che mất 401 bằng lỗi refresh của khách vãng lai
+    const isRefreshExcluded =
+      REFRESH_EXCLUDED_PATHS.some((path) => requestUrl.includes(path)) ||
+      Boolean(originalRequest?.headers?.get?.("X-Refund-Token"));
 
     if (
       // Server-side không có browser cookie để refresh (và axios Node không

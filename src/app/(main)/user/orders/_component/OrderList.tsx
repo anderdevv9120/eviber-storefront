@@ -161,7 +161,7 @@ const OrderList = ({ status, search }: OrderListProps) => {
     <>
       <div className="flex flex-col gap-4">
         {orders.map((order) => (
-          <OrderCard key={order._id} order={order} onCancelled={refetch} />
+          <OrderCard key={order._id} order={order} />
         ))}
       </div>
 

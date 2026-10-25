@@ -108,4 +108,34 @@ describe("API error normalization", () => {
       code: undefined,
     });
   });
+
+  it("does not treat a rejected guest refund session as an expired login", async () => {
+    vi.stubGlobal("window", {});
+    const refresh = vi.spyOn(axios, "post");
+    const adapter: AxiosAdapter = async (config) => {
+      throw new AxiosError("Unauthorized", "ERR_BAD_REQUEST", config, null, {
+        status: 401,
+        statusText: "Unauthorized",
+        headers: new AxiosHeaders(),
+        config,
+        data: { message: "Phiên truy cập đã hết hạn" },
+      });
+    };
+
+    const error = await axiosRequest
+      .get("/orders/ORD-1/refunds", {
+        adapter,
+        toastError: false,
+        headers: { "X-Refund-Token": "guest-session" },
+      })
+      .catch((cause: unknown) => cause);
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({
+      status: 401,
+      message: "Phiên truy cập đã hết hạn",
+    });
+    expect(refresh).not.toHaveBeenCalled();
+    expect(clearProfile).not.toHaveBeenCalled();
+    expect(errorToast).not.toHaveBeenCalled();
+  });
 });

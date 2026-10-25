@@ -4,9 +4,13 @@ import Link from "next/link";
 import { PATH } from "@/constants/paths";
 import { formatCouponDiscountLabel, formatPrice } from "@/utils/formatPrice";
 import { IOrderCheckoutInfo, IOrderProduct } from "@/@types/Order.type";
+import type { IOrderCombo } from "@/@types/Combo.type";
+import OrderComboBlock from "@/components/ui/OrderComboBlock";
+import { groupOrderProducts } from "@/utils/combo";
 
 interface OrderSummaryPanelProps {
   products: IOrderProduct[];
+  combos?: IOrderCombo[];
   checkoutInfo: IOrderCheckoutInfo;
   /** Hành động phụ cạnh tiêu đề: xem sổ đơn (đăng nhập) hoặc sao chép link tra cứu (guest) */
   headerAction?: ReactNode;
@@ -15,6 +19,7 @@ interface OrderSummaryPanelProps {
 
 export default function OrderSummaryPanel({
   products,
+  combos,
   checkoutInfo,
   headerAction,
   children,
@@ -48,9 +53,21 @@ export default function OrderSummaryPanel({
       </div>
 
       <div className="flex flex-col">
-        {products.map((item) => (
-          <SummaryItem key={item.variantId} item={item} />
-        ))}
+        {groupOrderProducts(products, combos).map((group, index) =>
+          group.kind === "combo" ? (
+            <OrderComboBlock
+              key={group.combo.comboGroupId}
+              combo={group.combo}
+              pieces={group.pieces}
+              className="my-2.5"
+            />
+          ) : (
+            <SummaryItem
+              key={`product-${index}-${group.line.variantId}`}
+              item={group.line}
+            />
+          )
+        )}
       </div>
 
       <div className="mt-2 flex flex-col gap-2.5 border-t border-white-500 pt-3.5 text-sm text-dark-500">

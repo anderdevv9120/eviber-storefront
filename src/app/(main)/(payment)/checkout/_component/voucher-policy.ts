@@ -1,4 +1,30 @@
 import type { ICartResponse } from "@/@types/Cart.type";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+
+const COMBO_COUPON_MESSAGE = "Mã giảm giá không áp dụng cho combo";
+
+export function couponComboNote(cart?: ICartResponse | null): string | null {
+  return cart?.combos.some((line) => line.isAvailable)
+    ? COMBO_COUPON_MESSAGE
+    : null;
+}
+
+export function couponErrorMessage(
+  cause: unknown,
+  cart?: ICartResponse | null
+): string {
+  if (
+    typeof cause === "object" &&
+    cause !== null &&
+    "code" in cause &&
+    cause.code === "COUPON_NOT_ELIGIBLE" &&
+    cart?.combos.length &&
+    !cart.items.some((item) => item.isAvailable)
+  ) {
+    return COMBO_COUPON_MESSAGE;
+  }
+  return getErrorMessage(cause);
+}
 
 export function checkoutVoucherKey(
   accountId: string,
@@ -14,10 +40,19 @@ export function checkoutVoucherKey(
       isAvailable,
     ])
     .sort(([left], [right]) => String(left).localeCompare(String(right)));
+  const combos = cart.combos
+    .map(({ lineId, quantity, price, isAvailable }) => [
+      lineId,
+      quantity,
+      price,
+      isAvailable,
+    ])
+    .sort(([left], [right]) => String(left).localeCompare(String(right)));
   return JSON.stringify([
     accountId,
     cart.cartId,
     items,
+    combos,
     code.trim().toUpperCase(),
     generation,
   ]);

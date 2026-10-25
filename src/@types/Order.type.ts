@@ -1,4 +1,6 @@
 import type { OrderPaymentMethod, PaymentMethod } from "@/constants/payment";
+import type { ICheckoutReviewCombo, IOrderCombo } from "./Combo.type";
+import type { OrderRefundPolicy, RefundTerms } from "./Refund.type";
 
 /**
  * Contract order — đối chiếu: x-ecommerce-backend/src/modules/order/
@@ -18,6 +20,22 @@ export interface IStatusHistoryEntry {
     actorId?: string;
     actorName?: string;
   };
+  note?: string;
+}
+
+/** BE: CancellationReason (order.model.ts) — lý do khách chọn khi tự hủy đơn */
+export type CancellationReasonApi =
+  | "changed_mind"
+  | "wrong_order"
+  | "better_price"
+  | "slow_shipping"
+  | "payment_issue"
+  | "other";
+
+/** BE: CancellationInfo (order.model.ts) — chỉ có trên đơn khách TỰ hủy */
+export interface ICancellationInfo {
+  reason: CancellationReasonApi;
+  /** Có khi reason = other — mô tả khách tự viết */
   note?: string;
 }
 
@@ -79,13 +97,28 @@ export interface IMakeOrderPayload {
   couponCode?: string;
   expectedTotalPrice?: number;
   expectedCartItems?: { variantId: string; quantity: number }[];
+  expectedComboItems?: {
+    comboId: string;
+    quantity: number;
+    picks: { productId: string; variantId: string }[];
+  }[];
   shippingInfo: IShippingInfoPayload;
   paymentInfo?: IPaymentInfoPayload;
+  /** Điều khoản hoàn tiền khách đã xem ở checkout review — BE trả 409 CHECKOUT_CHANGED nếu đã đổi */
+  expectedRefundTerms?: RefundTerms;
   customerNote?: string;
+}
+
+/** BE: CancelOrderDto — body PATCH /orders/:id/cancel */
+export interface ICancelOrderPayload {
+  reason: CancellationReasonApi;
+  /** Bắt buộc khi reason = other */
+  note?: string;
 }
 
 /** BE: ProductExistInfo (product.interface.ts) — item trong checkout review */
 export interface ICheckoutReviewProduct {
+  refundEnabled: boolean;
   price: number;
   originalPrice: number;
   quantity: number;
@@ -102,11 +135,13 @@ export interface ICheckoutReviewProduct {
 
 /** BE: ICheckoutReview — response GET /orders/checkout-review/:cartId */
 export interface ICheckoutReview {
+  refundTerms: RefundTerms;
   subtotal: number;
   shippingFee: number;
   discountAmount: number;
   totalPrice: number;
   products: ICheckoutReviewProduct[];
+  combos: ICheckoutReviewCombo[];
   appliedCoupon?: AppliedCoupon;
 }
 
@@ -149,6 +184,7 @@ export interface IOrderPaymentInfo {
 
 /** BE: OrderProduct embedded — snapshot tại thời điểm đặt */
 export interface IOrderProduct {
+  comboGroupId?: string;
   productId: string;
   variantId: string;
   quantity: number;
@@ -169,6 +205,7 @@ export interface IOrderResponse {
   shippingInfo: IOrderShippingInfo;
   paymentInfo: IOrderPaymentInfo;
   productInfo: IOrderProduct[];
+  combos?: IOrderCombo[];
   status: OrderApiStatus;
   /**
    * Mảng rỗng với đơn tạo trước khi có status flow. Route của chính chủ
@@ -176,10 +213,14 @@ export interface IOrderResponse {
    * đó chỉ tồn tại phía admin, đừng render như thể luôn có.
    */
   statusHistory?: IStatusHistoryEntry[];
+  /** Chỉ đơn khách TỰ hủy sau khi có flow chọn lý do; đơn hủy bởi admin/system không có */
+  cancellation?: ICancellationInfo;
   paymentStatus: PaymentApiStatus;
   paymentHistory?: IPaymentHistoryEntry[];
   /** Có khi paymentStatus đã từng là paid */
   paidAt?: string;
+  /** Điều khoản hoàn tiền đã lưu lúc đặt; đơn tạo trước tính năng hoàn tiền không có field này */
+  refundPolicy?: OrderRefundPolicy;
   /** Chỉ đơn BANK_TRANSFER tạo sau khi có hạn thanh toán; đơn cũ không có → không đếm giờ */
   paymentDueAt?: string;
   orderNumber?: string;

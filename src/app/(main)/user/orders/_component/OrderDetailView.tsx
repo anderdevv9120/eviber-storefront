@@ -8,6 +8,7 @@ import {
   PAYMENT_METHOD_LABEL,
   PAYMENT_STATUS_LABEL,
 } from "@/constants/payment";
+import { REORDERABLE_STATUSES } from "@/constants/orderStatus";
 import BankTransferPanel from "@/components/ui/BankTransferPanel";
 import { formatAddress } from "@/utils/formatAddress";
 import { formatCouponDiscountLabel, formatPrice } from "@/utils/formatPrice";
@@ -17,10 +18,14 @@ import OrderStatusPill, {
   isKnownStatus,
   STATUS_HEADER,
 } from "./OrderStatusPill";
-import OrderProductLine from "./OrderProductLine";
+import OrderProductLine from "@/components/ui/OrderProductLine";
+import OrderComboBlock from "@/components/ui/OrderComboBlock";
+import { groupOrderProducts } from "@/utils/combo";
+import RefundPanel from "@/components/refunds/RefundPanel";
+import Modal from "@/components/ui/Modal";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
-import CancelOrderModal from "@/components/ui/CancelOrderModal";
+import CancelOrderFlow from "@/components/ui/CancelOrderFlow";
 import { useCancelOrder } from "@/hooks/useCancelOrder";
 import { useReorder } from "@/hooks/useReorder";
 import { useNow } from "@/hooks/useNow";
@@ -48,6 +53,7 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
     status,
     created_at,
     productInfo,
+    combos,
     checkoutInfo,
     shippingInfo,
     paymentInfo,
@@ -70,6 +76,9 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
   );
   // Đơn đã trả tiền: khách không tự hủy (BE 400 + hướng liên hệ) → ẩn nút, không để bấm rồi lỗi
   const canCancel = status === "pending" && paymentStatus !== "paid";
+  // Đơn chưa được xác nhận chưa có gì để hoàn; từ confirmed trở đi mới mở được hoàn tiền
+  const canRefund = Boolean(orderNumber) && status !== "pending";
+  const [isRefundOpen, setIsRefundOpen] = useState(false);
   const totalQuantity = productInfo.reduce(
     (sum, product) => sum + product.quantity,
     0
@@ -101,15 +110,25 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
             >
               Hủy đơn
             </Button>
-          ) : status === "pending" ? null : (
+          ) : REORDERABLE_STATUSES.includes(status) ? (
             <Button
               size="sm"
-              variant="outline"
               className="px-4"
               loading={reorderingId === _id}
-              onClick={() => reorder(_id, productInfo)}
+              onClick={() => reorder(_id, productInfo, combos)}
             >
               Mua lại
+            </Button>
+          ) : null}
+          {canRefund && (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="px-4"
+              data-testid="order-refund-open"
+              onClick={() => setIsRefundOpen(true)}
+            >
+              Hoàn tiền
             </Button>
           )}
         </div>
@@ -219,18 +238,28 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
         <header className="flex items-center justify-between border-b border-white-300 bg-white-50 px-4 py-3 sm:px-5">
           <h2 className="text-sm font-bold">Sản phẩm trong đơn</h2>
           <span className="text-sm text-dark-400">
-            {productInfo.length} sản phẩm
+            {combos?.length ? totalQuantity : productInfo.length} sản phẩm
           </span>
         </header>
         <div className="px-4 sm:px-5">
-          {productInfo.map((product) => (
-            <OrderProductLine
-              key={product.variantId}
-              product={product}
-              showSku
-              className="border-t border-white-200 py-4 first:border-t-0"
-            />
-          ))}
+          {groupOrderProducts(productInfo, combos).map((group, index) =>
+            group.kind === "combo" ? (
+              <OrderComboBlock
+                key={group.combo.comboGroupId}
+                combo={group.combo}
+                pieces={group.pieces}
+                showSku
+                className="my-4"
+              />
+            ) : (
+              <OrderProductLine
+                key={`product-${index}-${group.line.variantId}`}
+                product={group.line}
+                showSku
+                className="border-t border-white-200 py-4 first:border-t-0"
+              />
+            )
+          )}
         </div>
         {order.customerNote && (
           <div className={SECTION}>
@@ -242,15 +271,21 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
 
       <OrderReviews key={_id} products={productInfo} />
 
-      {cancel.isConfirmOpen && (
-        <CancelOrderModal
+      {/* Nội dung hoàn tiền chỉ mount khi mở: trang đơn giữ gọn, panel không fetch sẵn */}
+      {isRefundOpen && orderNumber && (
+        <Modal
           isOpen
-          orderNumber={orderNumber}
-          isCancelling={cancel.isCancelling}
-          onClose={cancel.closeConfirm}
-          onConfirm={cancel.confirmCancel}
-        />
+          title="Hoàn tiền"
+          titleClassName="text-xl"
+          className="w-[640px]"
+          isShowFooter={false}
+          onCancel={() => setIsRefundOpen(false)}
+        >
+          <RefundPanel key={orderNumber} orderNumber={orderNumber} embedded />
+        </Modal>
       )}
+
+      <CancelOrderFlow cancel={cancel} orderNumber={orderNumber} />
     </div>
   );
 };

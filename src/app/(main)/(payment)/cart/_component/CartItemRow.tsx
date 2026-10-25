@@ -12,6 +12,7 @@ interface CartItemRowProps {
   item: ICartItem;
   /** Đổi giá trị để remount Counter về số server (Counter uncontrolled) */
   counterResetKey: number;
+  isQuantityLocked: boolean;
   onDeleteClick: (variantId: string) => void;
   /** Gửi số lượng MỚI tuyệt đối (khớp BE update-quantity) */
   onQuantityChange: (variantId: string, quantity: number) => void;
@@ -20,6 +21,7 @@ interface CartItemRowProps {
 const CartItemRow = ({
   item,
   counterResetKey,
+  isQuantityLocked,
   onDeleteClick,
   onQuantityChange,
 }: CartItemRowProps) => {
@@ -106,6 +108,7 @@ const CartItemRow = ({
             variant="pill"
             size="sm-md"
             defaultValue={item.quantity}
+            disabled={isQuantityLocked}
             onChangeCount={handleCountChange}
             min={1}
             max={item.availableQuantity}
@@ -118,6 +121,7 @@ const CartItemRow = ({
           aria-label="Xóa sản phẩm"
           data-testid="cart-item-remove"
           onClick={() => onDeleteClick(item.variantId)}
+          disabled={isQuantityLocked}
           className="flex items-center justify-center w-10 h-10 rounded-lg text-dark-400 hover:text-red hover:bg-white-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-100"
         >
           <TrashOutline className="w-5 h-5" />

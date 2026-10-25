@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import theme from "@active-theme";
 import ContentSlider from "@/components/ui/ContentSlider";
 import CardItemGrid from "@/components/ui/CardItemGrid";
+import ComboCardList from "@/components/ui/ComboCardList";
 import CardItemSlider from "@/components/ui/CardItemSlider";
 import Category from "@/components/ui/Category";
 import CustomerReview from "@/components/ui/CustomerReview";
@@ -11,6 +12,8 @@ import { PATH } from "@/constants/paths";
 import { getBanners, getFeaturedReviews } from "@/apis/home";
 import { fetchStoreSettingsCached } from "@/apis/home.server";
 import { getProducts } from "@/apis/product";
+import { getCombos } from "@/apis/combo";
+import { IComboCard } from "@/@types/Combo.type";
 import { IBanner, IFeaturedReview } from "@/@types/Home.type";
 import { IProductListItem } from "@/@types/Product.type";
 
@@ -71,14 +74,24 @@ async function fetchFeaturedReviews(): Promise<IFeaturedReview[]> {
   }
 }
 
+async function fetchCombos(): Promise<IComboCard[]> {
+  try {
+    const response = await getCombos({ pageSize: 10 });
+    return response?.data?.data ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function Home() {
-  const [banners, saleProducts, bestSellers, reviews, storeSettings] =
+  const [banners, saleProducts, bestSellers, reviews, storeSettings, combos] =
     await Promise.all([
       fetchBanners(),
       fetchSaleProducts(),
       fetchBestSellers(),
       fetchFeaturedReviews(),
       fetchStoreSettingsCached(),
+      fetchCombos(),
     ]);
 
   return (
@@ -95,6 +108,12 @@ export default async function Home() {
         {saleProducts.length > 0 && (
           <ContentSlider title="Đang khuyến mãi" href={PATH.COLLECTION}>
             <CardItemGrid dataProduct={saleProducts} />
+          </ContentSlider>
+        )}
+
+        {combos.length > 0 && (
+          <ContentSlider title="Combo">
+            <ComboCardList combos={combos} />
           </ContentSlider>
         )}
 

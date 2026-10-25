@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { ICartResponse } from "@/@types/Cart.type";
+import type { ICheckoutReview } from "@/@types/Order.type";
+import CheckoutSummary from "./CheckoutSummary";
+import VoucherField from "./VoucherField";
 import {
   canSubmitReviewedCheckout,
   checkoutVoucherKey,
+  couponComboNote,
+  couponErrorMessage,
   createVoucherReviewScope,
 } from "./voucher-policy";
 
 const cart: ICartResponse = {
+  combos: [],
   cartId: "cart-a",
   totalQuantity: 1,
   totalOriginalPrice: 100000,
@@ -128,5 +136,182 @@ describe("voucher approval", () => {
         throw new Error("invalid voucher");
       })
     ).rejects.toThrow("invalid voucher");
+  });
+});
+
+const combo = {
+  lineId: "line-a",
+  comboId: "combo-a",
+  name: "Bộ đồ",
+  slug: "bo-do",
+  image: null,
+  quantity: 2,
+  price: 100001,
+  originalPrice: 150000,
+  isAvailable: true,
+  unavailableReason: null,
+  availableQuantity: 3,
+  pieces: [
+    {
+      productId: "product-a",
+      variantId: "variant-a",
+      name: "Áo",
+      slug: "ao",
+      image: null,
+      attributeValues: [{ name: "Size", code: "size", value: "42" }],
+      itemQuantity: 2,
+      lineTotal: 66667,
+      originalPrice: 100000,
+    },
+    {
+      productId: "product-b",
+      variantId: "variant-b",
+      name: "Quần",
+      slug: "quan",
+      image: null,
+      attributeValues: [],
+      itemQuantity: 1,
+      lineTotal: 33334,
+      originalPrice: 50000,
+    },
+  ],
+} satisfies ICartResponse["combos"][number];
+const comboCart: ICartResponse = {
+  ...cart,
+  items: [],
+  combos: [combo],
+  totalQuantity: 6,
+  totalPrice: 200002,
+  totalOriginalPrice: 300000,
+  totalSavings: 99998,
+};
+const comboMessage = "Mã giảm giá không áp dụng cho combo";
+
+describe("combo checkout", () => {
+  it.each([
+    { quantity: 3 },
+    { price: 90000 },
+    { isAvailable: false },
+    { lineId: "line-b" },
+  ])("invalidates combo approval when a line changes: %j", (change) => {
+    expect(
+      checkoutVoucherKey(
+        "u1",
+        { ...comboCart, combos: [{ ...combo, ...change }] },
+        "SAVE10",
+        0
+      )
+    ).not.toBe(checkoutVoucherKey("u1", comboCart, "SAVE10", 0));
+  });
+
+  it("keeps identical combo contents stable across ordering without mutation", () => {
+    const other = { ...combo, lineId: "line-b" };
+    const combos = [combo, other];
+    expect(
+      checkoutVoucherKey("u1", { ...comboCart, combos }, " save10 ", 3)
+    ).toBe(
+      checkoutVoucherKey(
+        "u1",
+        { ...comboCart, combos: [other, { ...combo }] },
+        "SAVE10",
+        3
+      )
+    );
+    expect(combos[0]).toBe(combo);
+  });
+
+  it("notes coupon exclusion only for available combos", () => {
+    expect(couponComboNote(comboCart)).toBe(comboMessage);
+    expect(couponComboNote({ ...comboCart, items: cart.items })).toBe(
+      comboMessage
+    );
+    expect(couponComboNote(cart)).toBeNull();
+    expect(
+      couponComboNote({
+        ...comboCart,
+        combos: [{ ...combo, isAvailable: false }],
+      })
+    ).toBeNull();
+  });
+
+  it("explains ineligibility for combos without available normal products", () => {
+    const cause = Object.assign(new Error("Backend rejection"), {
+      code: "COUPON_NOT_ELIGIBLE",
+    });
+    expect(couponErrorMessage(cause, comboCart)).toBe(comboMessage);
+    expect(
+      couponErrorMessage(cause, {
+        ...comboCart,
+        items: [{ ...cart.items[0], isAvailable: false }],
+      })
+    ).toBe(comboMessage);
+    expect(couponErrorMessage(cause, { ...comboCart, items: cart.items })).toBe(
+      "Backend rejection"
+    );
+    expect(couponErrorMessage(cause, cart)).toBe("Backend rejection");
+    expect(
+      couponErrorMessage(
+        Object.assign(new Error("Expired"), { code: "COUPON_EXPIRED" }),
+        comboCart
+      )
+    ).toBe("Expired");
+    expect(couponErrorMessage(null, comboCart)).toBe(
+      "Có lỗi xảy ra, vui lòng thử lại"
+    );
+  });
+
+  it("shows the exclusion note under the voucher field", () => {
+    const html = renderToStaticMarkup(
+      createElement(VoucherField, {
+        cart: comboCart,
+        signedIn: true,
+        draftCode: "",
+        busy: false,
+        onCodeChange: () => {},
+        onApply: async () => {},
+        onRemove: async () => {},
+      })
+    );
+    expect(html).toContain(comboMessage);
+  });
+
+  it("groups reviewed pieces and scales their totals by combo count only", () => {
+    const review: ICheckoutReview = {
+      refundTerms: { policyRevision: 0, products: [] },
+      products: [],
+      combos: [
+        {
+          ...combo,
+          picks: combo.pieces.map((piece) => ({
+            productId: piece.productId,
+            variantId: piece.variantId,
+            itemQuantity: piece.itemQuantity,
+          })),
+        },
+      ],
+      subtotal: 200002,
+      totalPrice: 200002,
+      shippingFee: 0,
+      discountAmount: 0,
+    };
+    const html = renderToStaticMarkup(
+      createElement(CheckoutSummary, {
+        cart: comboCart,
+        review,
+        totalPrice: review.totalPrice,
+        shippingFee: 0,
+        isSubmitting: false,
+      })
+    );
+    expect(html).toContain("COMBO · 3 món");
+    expect(html).toContain("Bộ đồ");
+    expect(html).toContain("Size 42");
+    expect(html).toContain("×4");
+    expect(html).toContain("133.334");
+    expect(html).toContain("66.668");
+    expect(html).toContain("200.000");
+    expect(html).toContain("100.000");
+    expect(html).not.toContain("266.668");
+    expect(html).not.toContain("undefined");
   });
 });

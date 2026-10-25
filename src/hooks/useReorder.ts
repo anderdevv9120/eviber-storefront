@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { addToCart } from "@/apis/cart";
+import { addComboToCart, addToCart } from "@/apis/cart";
 import { IOrderProduct } from "@/@types/Order.type";
+import type { IOrderCombo } from "@/@types/Combo.type";
 import { ApiError } from "@/config/axios";
 import { PATH } from "@/constants/paths";
 import { useCartStore } from "@/store/useCartStore";
 import { errorToast, successToast, warningToast } from "@/utils/toast";
+import { planReorder } from "./reorder-plan";
 
 const MAX_NAMES_IN_TOAST = 2;
 
@@ -37,28 +39,48 @@ export const useReorder = () => {
   const router = useRouter();
   const fetchCart = useCartStore((state) => state.fetchCart);
 
-  const reorder = async (orderId: string, products: IOrderProduct[]) => {
+  const reorder = async (
+    orderId: string,
+    products: IOrderProduct[],
+    combos?: IOrderCombo[]
+  ) => {
     if (reorderingId) return;
     setReorderingId(orderId);
 
     const skipped: string[] = [];
+    let added = 0;
     try {
-      for (const product of products) {
-        try {
-          await addToCart(
-            { variantId: product.variantId, quantity: product.quantity },
-            { silent: true }
-          );
-        } catch (error: unknown) {
-          if (!isItemLevelError(error)) {
-            errorToast("Không thêm được vào giỏ hàng, vui lòng thử lại.");
-            return;
+      for (const entry of planReorder(products, combos)) {
+        if (entry.kind === "combo") {
+          try {
+            const { comboId, quantity, picks } = entry;
+            await addComboToCart(
+              { comboId, quantity, picks },
+              { silent: true }
+            );
+            added += 1;
+            continue;
+          } catch (error: unknown) {
+            if (!isItemLevelError(error)) throw error;
           }
-          skipped.push(product.productNameAtOrder ?? "một sản phẩm");
+        }
+
+        const fallback = entry.kind === "combo" ? entry.fallback : [entry];
+        for (const { variantId, quantity } of fallback) {
+          try {
+            await addToCart({ variantId, quantity }, { silent: true });
+            added += 1;
+          } catch (error: unknown) {
+            if (!isItemLevelError(error)) throw error;
+            skipped.push(
+              products.find((product) => product.variantId === variantId)
+                ?.productNameAtOrder ?? "một sản phẩm"
+            );
+          }
         }
       }
 
-      if (skipped.length === products.length) {
+      if (added === 0) {
         errorToast(
           "Sản phẩm trong đơn này hiện chưa mua lại được, chưa thêm được gì vào giỏ."
         );
@@ -76,6 +98,8 @@ export const useReorder = () => {
         successToast("Đã thêm vào giỏ hàng");
       }
       router.push(PATH.CART);
+    } catch {
+      errorToast("Không thêm được vào giỏ hàng, vui lòng thử lại.");
     } finally {
       setReorderingId(undefined);
     }

@@ -92,6 +92,8 @@ export interface IProductDetailResponse {
   name: string;
   slug: string;
   status: ProductApiStatus;
+  /** BE chuẩn hóa field vắng (sản phẩm cũ) thành true — false = loại khỏi hoàn tiền thông thường */
+  refundEnabled: boolean;
   description?: string;
   images: string[];
   soldCount?: number;

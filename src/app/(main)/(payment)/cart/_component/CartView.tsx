@@ -5,18 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import { removeFromCart, updateQuantity } from "@/apis/cart";
+import {
+  removeComboFromCart,
+  removeFromCart,
+  updateComboQuantity,
+  updateQuantity,
+} from "@/apis/cart";
 import { getCountdownStorageKey } from "@/components/ui/CountdownTimer";
 import { removeLocalStorage } from "@/utils/localStorage";
 import { useCartStore } from "@/store/useCartStore";
 import { formatPrice } from "@/utils/formatPrice";
-import useDebounce from "@/hooks/useDebounce";
+import { CartQuantityQueue } from "@/utils/cartQuantityQueue";
 import { successToast } from "@/utils/toast";
-import { ICartProductPayload } from "@/@types/Cart.type";
 import { cn } from "@/config/utils";
 import { PATH } from "@/constants/paths";
 import { RightArrow } from "@/components/icons";
 import CartItemRow from "./CartItemRow";
+import CartComboRow from "./CartComboRow";
 
 export default function CartView() {
   const router = useRouter();
@@ -26,18 +31,44 @@ export default function CartView() {
   const fetchCart = useCartStore((s) => s.fetchCart);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [variantIdRemove, setVariantIdRemove] = useState("");
+  const [lineToRemove, setLineToRemove] = useState("");
   const [isMutating, setIsMutating] = useState(false);
-  const [quantityChange, setQuantityChange] = useState<ICartProductPayload>({
-    variantId: "",
-    quantity: 0,
-  });
-  // Remount Counter khi PUT fail — Counter uncontrolled nên số optimistic
-  // không tự quay về giá trị server sau resync
-  const [counterResetKey, setCounterResetKey] = useState(0);
-  // 1s — đủ cho chuỗi bấm +/- liên tiếp gộp thành 1 request update-quantity
-  const debouncedQuantity = useDebounce(quantityChange, 1000);
-  const pendingRef = useRef(quantityChange);
+  // Counter uncontrolled: chỉ remount dòng PUT lỗi, giữ optimistic edit dòng khác.
+  const [counterResetKeys, setCounterResetKeys] = useState<
+    Record<string, number>
+  >({});
+  const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const checkoutSettlingRef = useRef(false);
+  const [quantityQueue] = useState(
+    () =>
+      new CartQuantityQueue(async (key, quantity) => {
+        const isCombo = key.startsWith("combo:");
+        const id = key.slice(isCombo ? 6 : 8);
+        const cartNow = useCartStore.getState().cart;
+        const current = isCombo
+          ? cartNow?.combos.find((line) => line.lineId === id)
+          : cartNow?.items.find((item) => item.variantId === id);
+        if (!current || current.quantity === quantity) return true;
+
+        try {
+          if (isCombo) {
+            await updateComboQuantity({ lineId: id, quantity });
+          } else {
+            await updateQuantity({ variantId: id, quantity });
+          }
+          await fetchCart(true);
+          successToast("Cập nhật số lượng thành công");
+          return true;
+        } catch {
+          await fetchCart(true);
+          setCounterResetKeys((keys) => ({
+            ...keys,
+            [key]: (keys[key] ?? 0) + 1,
+          }));
+          return false;
+        }
+      })
+  );
 
   useEffect(() => {
     fetchCart();
@@ -47,80 +78,58 @@ export default function CartView() {
     removeLocalStorage(getCountdownStorageKey(PATH.CART));
   }, []);
 
-  // Bắn PUT ngay nếu có gì cần gửi, trả null nếu không: item đã bị xóa, hoặc
-  // quantity đã về đúng số server (bấm + rồi − quay lại số cũ — không guard là
-  // PUT bắn giá trị trung gian)
-  const firePendingUpdate = (data: ICartProductPayload) => {
-    const current = useCartStore
-      .getState()
-      .cart?.items.find((i) => i.variantId === data.variantId);
-    if (!data.variantId || !current || current.quantity === data.quantity) {
-      return null;
-    }
-    return updateQuantity(data);
+  const queueQuantityChange = (key: string, quantity: number) => {
+    if (!quantityQueue.enqueue(key, quantity)) return;
+    const old = timersRef.current.get(key);
+    if (old) clearTimeout(old);
+    const timer = setTimeout(() => {
+      timersRef.current.delete(key);
+      quantityQueue.flush(key).catch((error) => {
+        console.error("Cart quantity flush failed", error);
+      });
+    }, 1000);
+    timersRef.current.set(key, timer);
   };
 
-  const handleChangeQuantity = async (data: ICartProductPayload) => {
-    const request = firePendingUpdate(data);
-    if (!request) return;
-    try {
-      await request;
-      await fetchCart(true);
-      successToast("Cập nhật số lượng thành công");
-    } catch {
-      // interceptor đã toast lỗi — reload để đồng bộ lại số lượng thật
-      await fetchCart(true);
-      setCounterResetKey((k) => k + 1);
-    }
-  };
-
+  // Unmount giữa debounce: bắt đầu drain các thay đổi còn chờ.
   useEffect(() => {
-    if (debouncedQuantity.variantId) {
-      // Sync the remote cart; the local counter reset runs only after the async request fails.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      handleChangeQuantity(debouncedQuantity);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuantity]);
-
-  // Slot pending là MỘT cho cả list — chuyển sang chỉnh item khác phải flush
-  // update của item trước ngay, không thì nó bị ghi đè mất (server giữ số cũ)
-  const queueQuantityChange = (variantId: string, quantity: number) => {
-    const prev = pendingRef.current;
-    if (prev.variantId && prev.variantId !== variantId) {
-      firePendingUpdate(prev)
-        ?.then(() => fetchCart(true))
-        .catch(() => {
-          fetchCart(true);
-          setCounterResetKey((k) => k + 1);
-        });
-    }
-    pendingRef.current = { variantId, quantity };
-    setQuantityChange(pendingRef.current);
-  };
-
-  // Unmount giữa cửa sổ debounce → update cuối bị nuốt im lặng; flush fire-and-forget
-  useEffect(() => {
+    const timers = timersRef.current;
     return () => {
-      const request = firePendingUpdate(pendingRef.current);
-      request
-        ?.then(() => useCartStore.getState().fetchCart(true))
-        .catch(() => {});
+      for (const timer of timers.values()) clearTimeout(timer);
+      timers.clear();
+      quantityQueue.flushAll().catch((error) => {
+        console.error("Cart unmount flush failed", error);
+      });
     };
-  }, []);
+  }, [quantityQueue]);
 
-  const handleDeleteClick = (variantId: string) => {
-    setVariantIdRemove(variantId);
+  const handleDeleteClick = (key: string) => {
+    if (checkoutSettlingRef.current || isMutating) return;
+    setLineToRemove(key);
     setIsModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
+    if (checkoutSettlingRef.current) return;
     setIsModalOpen(false);
     setIsMutating(true);
     try {
-      await removeFromCart({ variantId: variantIdRemove });
+      const queued = timersRef.current.get(lineToRemove);
+      if (queued) clearTimeout(queued);
+      timersRef.current.delete(lineToRemove);
+      quantityQueue.discard(lineToRemove);
+      await quantityQueue.flush(lineToRemove);
+      if (lineToRemove.startsWith("combo:")) {
+        await removeComboFromCart({ lineId: lineToRemove.slice(6) });
+      } else {
+        await removeFromCart({ variantId: lineToRemove.slice(8) });
+      }
       await fetchCart(true);
-      successToast("Xóa sản phẩm thành công");
+      successToast(
+        lineToRemove.startsWith("combo:")
+          ? "Xóa khỏi giỏ hàng thành công"
+          : "Xóa sản phẩm thành công"
+      );
     } catch {
       // interceptor đã toast lỗi
     } finally {
@@ -129,35 +138,42 @@ export default function CartView() {
   };
 
   const handleCheckout = async () => {
+    if (checkoutSettlingRef.current || isMutating) return;
+    checkoutSettlingRef.current = true;
+    quantityQueue.freeze();
     setIsMutating(true);
-    // Flush update còn treo trong debounce — không chờ là checkout đọc số lượng CŨ
-    const request = firePendingUpdate(pendingRef.current);
-    if (request) {
-      try {
-        await request;
-        await fetchCart(true);
-      } catch {
-        // PUT fail: ở lại cart với số server thật thay vì checkout số sai
-        fetchCart(true);
-        setCounterResetKey((k) => k + 1);
+    for (const timer of timersRef.current.values()) clearTimeout(timer);
+    timersRef.current.clear();
+    let navigating = false;
+    try {
+      // Frozen queue + shared per-line drain guarantee latest PUT/GET before navigation.
+      if (!(await quantityQueue.flushAll())) return;
+      router.push(PATH.CHECKOUT);
+      navigating = true;
+    } catch (error) {
+      console.error("Cart checkout flush failed", error);
+    } finally {
+      if (!navigating) {
+        quantityQueue.unfreeze();
+        checkoutSettlingRef.current = false;
         setIsMutating(false);
-        return;
       }
     }
-    router.push(PATH.CHECKOUT);
   };
 
   const items = cart?.items ?? [];
+  const combos = cart?.combos ?? [];
   const totalQuantity = cart?.totalQuantity ?? 0;
   // cart null = chưa có data lần nào → skeleton NGAY CẢ frame đầu trước khi
   // effect fetch kịp chạy (điều kiện đòi isFetching là flash "0 sản phẩm" 1 nhịp);
   // retry đang bay (hasError + isFetching) cũng quay về skeleton
   const isLoadFailed = !cart && hasError && !isFetching;
   const isInitialLoading = !cart && !isLoadFailed;
-  const isEmpty = !!cart && items.length === 0;
+  const isEmpty = !!cart && items.length === 0 && combos.length === 0;
   // BE chỉ đếm item còn hàng vào totalQuantity — giỏ toàn hàng hết là "0 sản phẩm"
   // trong khi list vẫn hiện hàng mờ, phải nói rõ thay vì hiện số 0 mâu thuẫn
-  const isAllOutOfStock = !!cart && items.length > 0 && totalQuantity === 0;
+  const isAllOutOfStock =
+    !!cart && (items.length > 0 || combos.length > 0) && totalQuantity === 0;
 
   // Sticky bar mobile chỉ hiện khi panel summary nằm ngoài viewport (list dài);
   // summary cuộn vào tầm nhìn thì bar rút xuống
@@ -224,9 +240,28 @@ export default function CartView() {
               <CartItemRow
                 key={item.variantId}
                 item={item}
-                counterResetKey={counterResetKey}
-                onDeleteClick={handleDeleteClick}
-                onQuantityChange={queueQuantityChange}
+                counterResetKey={
+                  counterResetKeys[`product:${item.variantId}`] ?? 0
+                }
+                isQuantityLocked={isMutating}
+                onDeleteClick={(variantId) =>
+                  handleDeleteClick(`product:${variantId}`)
+                }
+                onQuantityChange={(variantId, qty) =>
+                  queueQuantityChange(`product:${variantId}`, qty)
+                }
+              />
+            ))}
+            {combos.map((line) => (
+              <CartComboRow
+                key={line.lineId}
+                line={line}
+                counterResetKey={counterResetKeys[`combo:${line.lineId}`] ?? 0}
+                isQuantityLocked={isMutating}
+                onDeleteClick={(lineId) => handleDeleteClick(`combo:${lineId}`)}
+                onQuantityChange={(lineId, qty) =>
+                  queueQuantityChange(`combo:${lineId}`, qty)
+                }
               />
             ))}
 
@@ -309,7 +344,11 @@ export default function CartView() {
         okText="Đồng ý"
         cancelText="Bỏ qua"
       >
-        <p>Bạn có muốn xóa sản phẩm ra khỏi giỏ hàng ?</p>
+        <p>
+          Bạn có muốn xóa{" "}
+          {lineToRemove.startsWith("combo:") ? "combo" : "sản phẩm"} ra khỏi giỏ
+          hàng ?
+        </p>
       </Modal>
     </>
   );

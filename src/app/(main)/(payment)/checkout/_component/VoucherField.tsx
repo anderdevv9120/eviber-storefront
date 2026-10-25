@@ -1,12 +1,14 @@
 import type { AppliedCoupon } from "@/@types/Order.type";
+import type { ICartResponse } from "@/@types/Cart.type";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { PATH } from "@/constants/paths";
 import { errorToast } from "@/utils/toast";
-import { getErrorMessage } from "@/utils/getErrorMessage";
 import { cn } from "@/config/utils";
+import { couponComboNote, couponErrorMessage } from "./voucher-policy";
 
 export interface VoucherFieldProps {
+  cart?: ICartResponse;
   signedIn: boolean;
   draftCode: string;
   busy: boolean;
@@ -20,6 +22,7 @@ export interface VoucherFieldProps {
 }
 
 export default function VoucherField({
+  cart,
   signedIn,
   draftCode,
   busy,
@@ -51,7 +54,9 @@ export default function VoucherField({
       </div>
     );
   }
-  const reportError = (cause: unknown) => errorToast(getErrorMessage(cause));
+  const reportError = (cause: unknown) =>
+    errorToast(couponErrorMessage(cause, cart));
+  const comboNote = couponComboNote(cart);
   return (
     <section className="py-6 border-b border-white-500" aria-busy={busy}>
       <label
@@ -96,6 +101,7 @@ export default function VoucherField({
           </Button>
         )}
       </div>
+      {comboNote && <p className="mt-2 text-sm text-dark-500">{comboNote}</p>}
       <p
         id="checkout-voucher-feedback"
         role="status"

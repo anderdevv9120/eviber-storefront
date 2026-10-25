@@ -1,3 +1,5 @@
+import type { ICartComboLine } from "./Combo.type";
+
 /**
  * Contract cart — đối chiếu: x-ecommerce-backend/src/modules/cart/cart.interface.ts
  * và cart-product.dto.ts. Cart thao tác theo VARIANT (không phải product).
@@ -33,6 +35,7 @@ export interface ICartItem {
 export interface ICartResponse {
   cartId?: string;
   items: ICartItem[];
+  combos: ICartComboLine[];
   totalQuantity: number;
   totalOriginalPrice: number;
   totalPrice: number;
