@@ -66,10 +66,14 @@ function CategoryNav({
     // snap point gần nhất — nếu đích không trùng mép pill sẽ bị kéo thêm, giật ở cuối animation
     const firstChild = el.children[0] as HTMLElement | undefined;
     const snapPoints = firstChild
-      ? Array.from(el.children, (c) => (c as HTMLElement).offsetLeft - firstChild.offsetLeft)
+      ? Array.from(
+          el.children,
+          (c) => (c as HTMLElement).offsetLeft - firstChild.offsetLeft
+        )
       : [];
     const snappedTarget = snapPoints.reduce(
-      (best, p) => (Math.abs(p - desired) < Math.abs(best - desired) ? p : best),
+      (best, p) =>
+        Math.abs(p - desired) < Math.abs(best - desired) ? p : best,
       desired
     );
     const to = Math.min(Math.max(snappedTarget, 0), maxScroll);
