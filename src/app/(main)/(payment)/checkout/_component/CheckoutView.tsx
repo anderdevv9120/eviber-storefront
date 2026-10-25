@@ -23,6 +23,7 @@ import { cn } from "@/config/utils";
 import { PATH } from "@/constants/paths";
 import { NOTE_MAX_LENGTH } from "@/constants/validate";
 import {
+  BANK_TRANSFER_UNAVAILABLE_CODE,
   CHECKOUT_PAYMENT_METHODS,
   DEFAULT_PAYMENT_METHOD,
   PaymentMethod,
@@ -111,6 +112,8 @@ export default function CheckoutView() {
   const [hasPendingDraft, setHasPendingDraft] = useState(false);
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewError, setReviewError] = useState<string>();
+  // Lấy cùng request settings của review; không thuộc key review vì stale response đã bị isCurrent lọc
+  const [bankTransferAvailable, setBankTransferAvailable] = useState<boolean>();
 
   // null = chưa load (hoặc guest); [] = user chưa có địa chỉ nào → form inline
   const [addressResult, setAddressResult] = useState<{
@@ -207,8 +210,13 @@ export default function CheckoutView() {
                 reviewReady: false,
               };
               setGuestState(liveGuestState.current);
-              const settings = await getCheckoutSettings(signal);
-              if (!isCurrent()) return undefined;
+            }
+            const settings = await getCheckoutSettings(signal);
+            if (!isCurrent()) return undefined;
+            setBankTransferAvailable(
+              settings?.data?.bankTransferAvailable === true
+            );
+            if (!signedIn) {
               if (typeof settings?.data?.allowGuestCheckout !== "boolean")
                 throw new Error(
                   "Không kiểm tra được quyền mua hàng. Vui lòng thử lại."
@@ -587,6 +595,19 @@ export default function CheckoutView() {
         );
         return;
       }
+      // Tab mở từ trước khi shop tắt payOS: ẩn card chuyển khoản (lựa chọn tự về COD) và review lại,
+      // không rơi vào nhánh "unavailable" của guest vì đơn vẫn kiểm được
+      if (
+        cause instanceof ApiError &&
+        cause.code === BANK_TRANSFER_UNAVAILABLE_CODE
+      ) {
+        setBankTransferAvailable(false);
+        await requestReview(
+          liveVoucher.current.code,
+          "Shop vừa tạm ngưng nhận chuyển khoản — đơn chuyển về thanh toán khi nhận hàng. Kiểm tra lại rồi đặt hàng."
+        );
+        return;
+      }
       liveReview.current = undefined;
       setReviewResult(undefined);
       const policyError = getCheckoutPolicyError(cause);
@@ -806,7 +827,10 @@ export default function CheckoutView() {
                     {noPaymentRequired ? (
                       <p role="status">Không cần thanh toán</p>
                     ) : (
-                      <PaymentMethodField totalPrice={totalPrice} />
+                      <PaymentMethodField
+                        totalPrice={totalPrice}
+                        bankTransferAvailable={bankTransferAvailable}
+                      />
                     )}
                   </section>
                 </fieldset>

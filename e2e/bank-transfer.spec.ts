@@ -11,6 +11,7 @@ import {
 } from "./helpers/shop";
 import {
   PAYMENT_LINK_ROUTE as LINK_ROUTE,
+  ensurePayosConfigured,
   mockPaymentLink,
   paymentLinkBody as linkBody,
 } from "./helpers/payment-link";
@@ -57,6 +58,10 @@ async function lookupOrder(request: APIRequestContext, orderNumber: string) {
  * đơn hủy hiện E2 với CTA "Đặt lại các sản phẩm này". Admin API chạy ở E2E_ADMIN_API.
  */
 test.describe.configure({ mode: "serial" });
+
+test.beforeAll(async ({ request }) => {
+  await ensurePayosConfigured(request, ADMIN, await adminToken(request));
+});
 
 test("guest đặt đơn Chuyển khoản → màn chờ đủ QR payOS / STK / hạn, QR hết hạn tạo mã mới, paid tự đổi ≤5s", async ({
   page,

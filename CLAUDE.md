@@ -101,9 +101,14 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
   Máy mới lần đầu: `npx playwright install chromium` (tải browser binary).
 - FE/BE đang chạy sẵn thì dùng luôn (`reuseExistingServer`), chưa chạy thì tự start.
   BE do Playwright tự start được cấp `AUTH_THROTTLE_LIMIT=100` + `ORDER_LOOKUP_THROTTLE_LIMIT=200`
-  (nới throttle login/tra cứu đơn khi test dồn dập) và `PAYOS_*` giả + `PAYOS_BASE_URL` cổng chết
-  (không bao giờ gọi payOS thật). BE chạy tay muốn chạy cả suite thì export 2 biến throttle trước
-  `npm run start:dev`, không là dính 429 "Tra cứu quá nhanh" giữa chừng.
+  (nới throttle login/tra cứu đơn khi test dồn dập), `PAYOS_BASE_URL` cổng chết (không bao giờ gọi
+  payOS thật) và `PAYOS_E2E_SKIP_KEY_CHECK` (BE không kiểm key với payOS khi lưu). Key payOS nằm ở DB:
+  spec bank-transfer tự lưu key GIẢ qua admin API khi DB dev chưa cấu hình (`ensurePayosConfigured`)
+  và key giả này nằm lại trong DB — CMS hiện "Đã cấu hình", checkout thật hiện Chuyển khoản rồi QR 503;
+  muốn dùng payOS thật thì vào CMS › Cài đặt › Thanh toán › Đổi bộ key. BE chạy tay muốn chạy cả suite
+  thì export 2 biến throttle + `PAYOS_E2E_SKIP_KEY_CHECK=true` (và `PAYOS_BASE_URL=http://127.0.0.1:9`
+  nếu không muốn gọi payOS thật) trước `npm run start:dev`, không là dính 429 "Tra cứu quá nhanh" giữa
+  chừng hoặc `ensurePayosConfigured` bị BE từ chối key giả.
 - Spec mở màn chờ chuyển khoản (`/payment-success?orderNumber=`, chi tiết đơn chuyển khoản) PHẢI
   mock route link bằng `mockPaymentLink` (`e2e/helpers/payment-link.ts`) — BE chạy tay với key thật
   mà không mock là tạo link payOS thật cho đơn seed.
@@ -112,6 +117,11 @@ npm run test:e2e      # headless — dành cho /qa và trước commit
 - Data: bám fixture seed cố định (hoodie `07…0003`); order/account test TÍCH LŨY trong DB dev
   (chính sách đã chốt) — thấy bẩn thì chạy lại `npm run seed` phía backend.
 - E2e KHÔNG nằm trong Stop hook — chạy qua /qa và trước commit.
+- **E2e khi BE đang chạy tay (`nest start --watch`):** đừng sửa file BE trong ~10s trước khi bấm chạy.
+  Watcher rebuild làm :3009 chết tạm đúng lúc Playwright kiểm `reuseExistingServer` → nó tự start thêm
+  cặp nest watch ghi chung `lib/` và process dev của bạn chết (admin :8005 mất, :3009 bị chiếm tới khi
+  suite xong). Đã cắn 2 lần. BE tay cũng cần 2 biến throttle (mục trên), không là màn chờ chuyển khoản
+  dính "Tra cứu quá nhanh" 429 ở các spec cuối.
 - Phân công hybrid: runner chỉ ôm các flow chính ổn định (regression); UI mới/chưa ổn định
   verify bằng browse agentic (playwright MCP) trong tầng audit /qa.
 

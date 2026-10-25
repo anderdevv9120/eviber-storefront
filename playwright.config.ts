@@ -1,13 +1,13 @@
 import { defineConfig } from "@playwright/test";
 
-// BE fail-fast khi thiếu key payOS. E2e ép key giả + base URL chết (cổng discard) để BE test
-// không bao giờ gọi payOS thật: route link trả 503 ngay, spec nào cần QR thì mock ở trình duyệt.
-// Biến ở đây thắng .env của backend (dotenv không ghi đè biến đã có).
+// Key payOS nằm ở DB (CMS › Cài đặt › Thanh toán); spec chuyển khoản tự lưu key giả khi DB chưa có
+// (helpers/payment-link.ts) — BE bình thường từ chối lưu key payOS không chấp nhận, nên tắt bước kiểm
+// key cho process e2e (BE bỏ qua biến này ở production). Base URL chết (cổng discard) để BE test không
+// bao giờ gọi payOS thật: route link trả 503 ngay, spec nào cần QR thì mock ở trình duyệt.
+// Biến ở đây thắng .env của backend.
 const PAYOS_E2E_ENV = {
-  PAYOS_CLIENT_ID: "e2e-client-id",
-  PAYOS_API_KEY: "e2e-api-key",
-  PAYOS_CHECKSUM_KEY: "e2e-checksum-key",
   PAYOS_BASE_URL: "http://127.0.0.1:9",
+  PAYOS_E2E_SKIP_KEY_CHECK: "true",
 };
 
 export default defineConfig({

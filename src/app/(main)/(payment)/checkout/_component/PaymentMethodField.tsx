@@ -1,18 +1,36 @@
-import { Controller, useFormContext } from "react-hook-form";
+import { useEffect } from "react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import FormError from "@/components/ui/FormError";
 import { formatPrice } from "@/utils/formatPrice";
-import { CHECKOUT_PAYMENT_METHODS } from "@/constants/payment";
 import ChoiceCard from "./ChoiceCard";
 import QrPreview from "./QrPreview";
+import {
+  availablePaymentMethods,
+  keepAvailableMethod,
+} from "./payment-methods";
 
 interface PaymentMethodFieldProps {
   totalPrice: number;
+  /** undefined = chưa biết (review đang chạy) — CheckoutView làm tươi mỗi lần review */
+  bankTransferAvailable: boolean | undefined;
 }
 
 export default function PaymentMethodField({
   totalPrice,
+  bankTransferAvailable,
 }: PaymentMethodFieldProps) {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+  const selected = useWatch({ control, name: "paymentMethod" });
+  const methods = availablePaymentMethods(bankTransferAvailable);
+
+  useEffect(() => {
+    if (bankTransferAvailable === undefined) return;
+    const next = keepAvailableMethod(
+      selected,
+      availablePaymentMethods(bankTransferAvailable)
+    );
+    if (next !== selected) setValue("paymentMethod", next);
+  }, [bankTransferAvailable, selected, setValue]);
 
   return (
     <div>
@@ -21,7 +39,7 @@ export default function PaymentMethodField({
         name="paymentMethod"
         render={({ field }) => (
           <div className="flex flex-col gap-3">
-            {CHECKOUT_PAYMENT_METHODS.map((method) => (
+            {methods.map((method) => (
               <ChoiceCard
                 key={method.value}
                 name="paymentMethod"

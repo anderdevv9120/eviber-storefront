@@ -4,9 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { getPaymentLink } from "@/apis/payment";
 import { ApiError } from "@/config/axios";
 import { IPaymentLink } from "@/@types/Order.type";
+import { BANK_TRANSFER_UNAVAILABLE_CODE } from "@/constants/payment";
 
-/** `closed`: BE báo đơn không còn chờ thanh toán (đã trả / đã hủy ở nơi khác) — thử lại vô ích */
-type PaymentLinkStatus = "loading" | "ready" | "expired" | "error" | "closed";
+/**
+ * `closed`: BE báo đơn không còn chờ thanh toán (đã trả / đã hủy ở nơi khác) — thử lại vô ích.
+ * `unavailable`: shop chưa cấu hình payOS (hoặc key hỏng) — đơn vẫn còn, khách cần liên hệ shop.
+ */
+type PaymentLinkStatus =
+  "loading" | "ready" | "expired" | "error" | "closed" | "unavailable";
 
 // Hai lần mount sát nhau (StrictMode dev, success → chi tiết đơn) dùng chung 1 request:
 // 2 POST song song là BE tạo 2 link payOS cho cùng một đơn
@@ -21,6 +26,12 @@ const load = (orderNumber: string) => {
     inflight.set(orderNumber, request);
   }
   return request;
+};
+
+const linkErrorStatus = (error: unknown): PaymentLinkStatus => {
+  if (!(error instanceof ApiError)) return "error";
+  if (error.code === BANK_TRANSFER_UNAVAILABLE_CODE) return "unavailable";
+  return error.status === 400 ? "closed" : "error";
 };
 
 /** Mã QR payOS của đơn đang chờ chuyển khoản; `refresh` dùng cho cả "Tạo mã QR mới" lẫn "Thử lại" */
@@ -50,8 +61,7 @@ export const usePaymentLink = (orderNumber: string) => {
       })
       .catch((error: unknown) => {
         if (!active) return;
-        const isClosed = error instanceof ApiError && error.status === 400;
-        setStatus(isClosed ? "closed" : "error");
+        setStatus(linkErrorStatus(error));
       });
     return () => {
       active = false;

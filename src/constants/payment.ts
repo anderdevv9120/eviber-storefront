@@ -39,6 +39,9 @@ export const CHECKOUT_PAYMENT_METHODS: {
 
 export const DEFAULT_PAYMENT_METHOD: PaymentMethod = "CASH";
 
+/** Mã lỗi BE (ERROR.PAYMENT_BANK_TRANSFER_UNAVAILABLE): shop chưa cấu hình / đã tắt payOS trên CMS */
+export const BANK_TRANSFER_UNAVAILABLE_CODE = "sys00028";
+
 export const PAYMENT_METHOD_LABEL = {
   ...Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.label])),
   NO_PAYMENT: "Không cần thanh toán",

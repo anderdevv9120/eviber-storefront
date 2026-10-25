@@ -10,16 +10,22 @@ export const getOrders = (
   return axiosRequest.get("/orders", { params, signal, toastError: false });
 };
 
-/** Review đơn trước khi đặt — BE validate tồn kho + tính subtotal/shipping/total */
+/**
+ * Cài đặt checkout công khai. `bankTransferAvailable` = shop đã cấu hình payOS trên CMS;
+ * false thì BE từ chối đơn BANK_TRANSFER (400 `BANK_TRANSFER_UNAVAILABLE_CODE`).
+ */
 export const getCheckoutSettings = (
   signal?: AbortSignal
-): Promise<{ data: { allowGuestCheckout: boolean } }> => {
+): Promise<{
+  data: { allowGuestCheckout: boolean; bankTransferAvailable?: boolean };
+}> => {
   return axiosRequest.get("/orders/checkout-settings", {
     signal,
     toastError: false,
   });
 };
 
+/** Review đơn trước khi đặt — BE validate tồn kho + tính subtotal/shipping/total */
 export const checkoutReview = (
   cartId: string,
   signal?: AbortSignal,

@@ -265,6 +265,13 @@ function getLinkNotice(
         action: "Thử lại",
         onAction: refresh,
       };
+    case "unavailable":
+      return {
+        title: "Shop tạm ngưng nhận chuyển khoản.",
+        detail: `Đơn vẫn được giữ — liên hệ shop kèm mã đơn ${orderNumber} để được hướng dẫn thanh toán.`,
+        action: "Thử lại",
+        onAction: refresh,
+      };
     case "closed":
       return {
         title: "Đơn này không còn chờ thanh toán.",
