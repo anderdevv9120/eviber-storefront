@@ -11,7 +11,11 @@ import { PATH } from "@/constants/paths";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import { successToast } from "@/utils/toast";
 import { forgotPassword } from "@/apis/auth";
+import type { IStoreSettings } from "@/@types/StoreContent.type";
+import ContactShopLinks from "@/components/ui/ContactShopLinks";
+import { ApiError } from "@/config/axios";
 import { EMAIL_REGEX } from "@/constants";
+import { EMAIL_UNAVAILABLE_CODE } from "@/constants/storeContent";
 import {
   EMAIL_REQUIRED_MESSAGE,
   EMAIL_INVALID_MESSAGE,
@@ -36,7 +40,17 @@ interface IForgotPasswordFormInput {
   email: string;
 }
 
-const ForgotPasswordForm = () => {
+interface ForgotPasswordFormProps {
+  emailAvailable: boolean;
+  contact: IStoreSettings["contact"];
+}
+
+const ForgotPasswordForm = ({
+  emailAvailable,
+  contact,
+}: ForgotPasswordFormProps) => {
+  // Cờ từ store-settings có thể trễ (revalidate) — BE trả EMAIL_UNAVAILABLE_CODE khi submit cũng chuyển sang đây
+  const [isEmailUnavailable, setIsEmailUnavailable] = useState(!emailAvailable);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -70,6 +84,10 @@ const ForgotPasswordForm = () => {
       }
       setSentEmail(email);
     } catch (error: unknown) {
+      if (error instanceof ApiError && error.code === EMAIL_UNAVAILABLE_CODE) {
+        setIsEmailUnavailable(true);
+        return;
+      }
       setMessage(translateAuthError(getErrorMessage(error)));
     } finally {
       setIsSubmitting(false);
@@ -78,6 +96,24 @@ const ForgotPasswordForm = () => {
 
   const onSubmit: SubmitHandler<IForgotPasswordFormInput> = (data) =>
     sendResetLink(data.email);
+
+  if (isEmailUnavailable) {
+    return (
+      <AuthNotice
+        status="error"
+        title="Chưa thể gửi link đặt lại mật khẩu"
+        description="Shop chưa bật gửi email. Liên hệ shop để được hỗ trợ đặt lại mật khẩu:"
+      >
+        <ContactShopLinks contact={contact} />
+        <Link
+          href={PATH.LOGIN}
+          className="text-sm font-bold text-primary-700 hover:underline"
+        >
+          Quay lại trang đăng nhập
+        </Link>
+      </AuthNotice>
+    );
+  }
 
   if (sentEmail) {
     return (

@@ -16,6 +16,8 @@ const ROUTES = [
   "/trang-khong-ton-tai",
   "/login",
   "/register",
+  "/forget-password",
+  "/refund-access?orderNumber=ORD-SEEDSHPPED234567",
   "/cart",
   "/checkout",
   // /payment-success không có mã đơn hợp lệ → đo ở trạng thái "không tìm thấy đơn";

@@ -8,7 +8,9 @@ vi.mock("@/apis/combo", () => ({ getCombos: vi.fn() }));
 describe("collection combo strip", () => {
   it("renders no heading or section before combos are available", () => {
     expect(
-      renderToStaticMarkup(createElement(ComboStrip, { categoryKey: "giay-dep" }))
+      renderToStaticMarkup(
+        createElement(ComboStrip, { categoryKey: "giay-dep" })
+      )
     ).toBe("");
   });
 });

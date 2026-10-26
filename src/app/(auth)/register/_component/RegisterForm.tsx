@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as yup from "yup";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,6 +16,7 @@ import { successToast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import AuthHeading from "../../_component/AuthHeading";
 import AuthNotice from "../../_component/AuthNotice";
+import { rememberLoginEmail } from "../../_component/loginEmailHandoff";
 import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 
 import {
@@ -70,6 +72,7 @@ const RegisterForm = () => {
   const [countdown, setCountdown] = useState(0);
   // Email đã đăng ký thành công — có giá trị nghĩa là chuyển sang màn "kiểm tra hộp thư"
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     if (countdown > 0) {
@@ -89,16 +92,26 @@ const RegisterForm = () => {
 
   const onSubmit: SubmitHandler<IFormInput> = async (dataRegister) => {
     setIsSubmitting(true);
+    // Đang chuyển sang Login: giữ nút khóa, bấm lần 2 sẽ đăng ký trùng và flash lỗi "Email đã được sử dụng"
+    let isLeaving = false;
     try {
       const { email, firstName, lastName, password } = dataRegister;
-      await register({ email, firstName, lastName, password });
+      const { data } = await register({ email, firstName, lastName, password });
+      // Shop chưa bật gửi email: BE tạo tài khoản đã xác thực, không có mail nào để chờ
+      if (data?.verified) {
+        rememberLoginEmail(email);
+        successToast("Tạo tài khoản thành công, mời bạn đăng nhập");
+        router.push(PATH.LOGIN);
+        isLeaving = true;
+        return;
+      }
       setMessage("");
       setRegisteredEmail(email);
       setCountdown(RESEND_COOLDOWN_SECONDS);
     } catch (error: unknown) {
       setMessage(translateAuthError(getErrorMessage(error)));
     } finally {
-      setIsSubmitting(false);
+      if (!isLeaving) setIsSubmitting(false);
     }
   };
 
