@@ -35,6 +35,7 @@ export const fetchStoreSettingsCached = cache(
         ...response.data,
         brandStory: response.data.brandStory ?? null,
         publishedPolicies: response.data.publishedPolicies ?? [],
+        emailAvailable: response.data.emailAvailable ?? true,
       };
     } catch {
       return STORE_SETTINGS_FALLBACK;

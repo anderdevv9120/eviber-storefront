@@ -31,12 +31,18 @@ export const googleCallback = (code: string) => {
   });
 };
 
+/**
+ * data.verified: true = shop chưa bật gửi email nên tài khoản tạo ra đã xác thực, đăng nhập được ngay;
+ * false = phải bấm link xác thực trong mail trước khi đăng nhập.
+ */
 export const register = (data: {
   email: string;
   firstName: string;
   lastName: string;
   password: string;
-}) => {
+}): Promise<{
+  data: { message: string; userId?: string; verified: boolean };
+}> => {
   return axiosRequest.post("/auth/register", data, { toastError: false });
 };
 

@@ -4,6 +4,7 @@ import { createRequire } from "module";
 import { createConnection } from "net";
 import os from "os";
 import path from "path";
+import { ensureEmailConfigured } from "../helpers/email-settings";
 
 // Isolated refund harness: owns a temporary MongoMemoryReplSet, a seed run and fresh
 // backend/admin/storefront processes. It never reuses servers and never touches :27017.
@@ -28,8 +29,8 @@ const FAKE_PROVIDER_ENV = {
   PAYOS_CHECKSUM_KEY: "e2e-checksum-key",
   PAYOS_BASE_URL: "http://127.0.0.1:9",
   IMAGEKIT_PRIVATE_KEY: "e2e-imagekit-key",
-  SYSTEM_EMAIL: "refund-e2e@refund-e2e.invalid",
-  SYSTEM_EMAIL_PASSWORD: "e2e-not-a-password",
+  // Cấu hình Gmail lưu qua admin API sau khi BE lên (ensureEmailConfigured); mail bị refund-email-capture.cjs bắt
+  EMAIL_FAKE_TRANSPORT: "true",
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -131,8 +132,8 @@ function assertIsolation(
     ) {
       throw new Error(`${name} must use fake payOS configuration`);
     }
-    if (!env.SYSTEM_EMAIL?.endsWith("@refund-e2e.invalid"))
-      throw new Error(`${name} must use a fake system mailbox`);
+    if (env.EMAIL_FAKE_TRANSPORT !== "true")
+      throw new Error(`${name} must use the fake mail transport`);
   }
   for (const name of ["backend", "admin"]) {
     if (!childEnvs[name].NODE_OPTIONS?.includes("refund-email-capture.cjs")) {
@@ -299,6 +300,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
         `Mailbox capture active in ${active.length}/2 backend processes`
       );
     if (!existsSync(mailboxDir)) throw new Error("Mailbox directory vanished");
+    await ensureEmailConfigured(ADMIN_API_URL);
 
     process.env.REFUND_E2E_MAILBOX_DIR = mailboxDir;
     process.env.REFUND_E2E_WEB = WEB_URL;

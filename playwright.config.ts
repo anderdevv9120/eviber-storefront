@@ -8,6 +8,8 @@ import { defineConfig } from "@playwright/test";
 const PAYOS_E2E_ENV = {
   PAYOS_BASE_URL: "http://127.0.0.1:9",
   PAYOS_E2E_SKIP_KEY_CHECK: "true",
+  // Cùng lý do cho cấu hình Gmail (helpers/email-settings.ts): lưu không đăng nhập Gmail, mail không rời máy
+  EMAIL_FAKE_TRANSPORT: "true",
 };
 
 export default defineConfig({
@@ -53,7 +55,8 @@ export default defineConfig({
       url: "http://localhost:8011/admin-docs",
       reuseExistingServer: true,
       timeout: 120_000,
-      env: { ADMIN_PORT: "8011", ...PAYOS_E2E_ENV },
+      // Login admin 5/60s thật: bank-transfer, catalog-attributes và ensureEmailConfigured cùng đăng nhập trong 1 phút
+      env: { ADMIN_PORT: "8011", AUTH_THROTTLE_LIMIT: "100", ...PAYOS_E2E_ENV },
     },
     {
       command: "npm run dev",
