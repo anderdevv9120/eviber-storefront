@@ -1,6 +1,10 @@
 import type { OrderPaymentMethod, PaymentMethod } from "@/constants/payment";
 import type { ICheckoutReviewCombo, IOrderCombo } from "./Combo.type";
-import type { OrderRefundPolicy, RefundTerms } from "./Refund.type";
+import type {
+  CustomerOrderRefundStatus,
+  OrderRefundPolicy,
+  RefundTerms,
+} from "./Refund.type";
 
 /**
  * Contract order — đối chiếu: x-ecommerce-backend/src/modules/order/
@@ -221,6 +225,8 @@ export interface IOrderResponse {
   paidAt?: string;
   /** Điều khoản hoàn tiền đã lưu lúc đặt; đơn tạo trước tính năng hoàn tiền không có field này */
   refundPolicy?: OrderRefundPolicy;
+  /** Owner list/detail only; absent from public lookup and older API responses. */
+  refundStatus?: CustomerOrderRefundStatus;
   /** Chỉ đơn BANK_TRANSFER tạo sau khi có hạn thanh toán; đơn cũ không có → không đếm giờ */
   paymentDueAt?: string;
   orderNumber?: string;

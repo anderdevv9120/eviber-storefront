@@ -43,6 +43,11 @@ export type RefundStage =
   | "rejected";
 
 export type RefundCoverage = "none" | "partial" | "full";
+export interface CustomerOrderRefundStatus {
+  coverage: RefundCoverage;
+  activeStages: RefundStage[];
+  hasRejected: boolean;
+}
 export type RefundReason =
   "ordinary" | "missing_item" | "incorrect_item" | "other";
 export type RefundRequestedReturn = "return" | "no_return";

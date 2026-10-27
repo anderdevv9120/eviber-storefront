@@ -17,6 +17,7 @@ import OrderComboBlock from "@/components/ui/OrderComboBlock";
 import { groupOrderProducts } from "@/utils/combo";
 import OrderReviewLink from "./OrderReviewLink";
 import { useReorder } from "@/hooks/useReorder";
+import OrderRefundBadges from "@/components/refunds/OrderRefundBadges";
 
 /** Số dòng sản phẩm hiện trên card — phần còn lại gộp thành một dòng đếm */
 const VISIBLE_PRODUCTS = 2;
@@ -69,7 +70,14 @@ const OrderCard = ({ order }: OrderCardProps) => {
           </span>{" "}
           · đặt ngày {formatDate(created_at, "DD/MM/YYYY")}
         </p>
-        <OrderStatusPill status={status} />
+        <div
+          role="group"
+          aria-label="Trạng thái đơn hàng"
+          className="flex max-w-full flex-wrap items-center gap-2"
+        >
+          <OrderStatusPill status={status} />
+          <OrderRefundBadges status={order.refundStatus} />
+        </div>
       </header>
 
       <div className="px-4 sm:px-5">

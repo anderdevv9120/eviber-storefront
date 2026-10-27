@@ -22,6 +22,7 @@ import OrderProductLine from "@/components/ui/OrderProductLine";
 import OrderComboBlock from "@/components/ui/OrderComboBlock";
 import { groupOrderProducts } from "@/utils/combo";
 import RefundPanel from "@/components/refunds/RefundPanel";
+import OrderRefundBadges from "@/components/refunds/OrderRefundBadges";
 import Modal from "@/components/ui/Modal";
 import OrderReviews from "./OrderReviews";
 import OrderTimeline from "./OrderTimeline";
@@ -142,7 +143,14 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
           )}
         >
           <h2 className="text-sm font-bold">Tiến trình đơn</h2>
-          <OrderStatusPill status={status} />
+          <div
+            role="group"
+            aria-label="Trạng thái đơn hàng"
+            className="flex max-w-full flex-wrap items-center gap-2"
+          >
+            <OrderStatusPill status={status} />
+            <OrderRefundBadges status={order.refundStatus} />
+          </div>
         </header>
         <div className="p-4 sm:p-6">
           <OrderTimeline order={order} />
@@ -279,7 +287,10 @@ const OrderDetailView = ({ order, onRefresh }: OrderDetailViewProps) => {
           titleClassName="text-xl"
           className="w-[640px]"
           isShowFooter={false}
-          onCancel={() => setIsRefundOpen(false)}
+          onCancel={async () => {
+            setIsRefundOpen(false);
+            await onRefresh?.({ quiet: true });
+          }}
         >
           <RefundPanel key={orderNumber} orderNumber={orderNumber} embedded />
         </Modal>
