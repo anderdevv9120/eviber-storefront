@@ -19,7 +19,7 @@ const STAGE_LABEL: Record<RefundStage, string> = {
 
 const STAGE_HINT: Partial<Record<RefundStage, string>> = {
   awaiting_return:
-    "Vui lòng gửi hàng trả theo hướng dẫn của cửa hàng bên dưới. Tiền chỉ được hoàn sau khi cửa hàng nhận và kiểm tra hàng.",
+    "Vui lòng liên hệ cửa hàng và cung cấp mã đơn để xác nhận địa chỉ nhận hàng và cách gửi trả trước khi gửi hàng. Tiền chỉ được hoàn sau khi cửa hàng nhận và kiểm tra hàng.",
   awaiting_payout:
     "Yêu cầu đã được duyệt. Cửa hàng chưa hoàn tiền — bạn sẽ thấy xác nhận tại đây khi khoản hoàn được ghi nhận.",
   payout_in_progress:
@@ -74,6 +74,20 @@ function RequestCard({
       {STAGE_HINT[request.stage] && (
         <p className="mt-2 text-sm text-dark-500">
           {STAGE_HINT[request.stage]}
+        </p>
+      )}
+      {/* shortcut: return instructions use store contact; update this feature in the future if needed. */}
+      {request.stage === "awaiting_return" && (
+        <p className="mt-2 text-sm">
+          Mã đơn: <strong>{view.orderNumber}</strong> ·{" "}
+          <a
+            href="/#lien-he"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary-600 underline underline-offset-2"
+          >
+            Liên hệ cửa hàng
+          </a>
         </p>
       )}
 

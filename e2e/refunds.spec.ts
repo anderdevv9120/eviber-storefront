@@ -369,10 +369,16 @@ async function fillRefundRow(
   const row = checkbox.locator(
     "xpath=ancestor::div[contains(@class,'border-t')][1]"
   );
-  if (form.quantity)
-    await row.getByLabel("Số lượng").selectOption(String(form.quantity));
-  if (form.reason)
-    await row.getByLabel("Lý do").selectOption({ label: form.reason });
+  if (form.quantity) {
+    await row.getByRole("combobox", { name: "Số lượng" }).click();
+    await row
+      .getByRole("option", { name: String(form.quantity), exact: true })
+      .click();
+  }
+  if (form.reason) {
+    await row.getByRole("combobox", { name: "Lý do" }).click();
+    await row.getByRole("option", { name: form.reason, exact: true }).click();
+  }
   await row.getByLabel("Mô tả vấn đề").fill(form.explanation);
   if (form.evidence) {
     await row.locator('input[type="file"]').setInputFiles({
@@ -987,18 +993,59 @@ test("excluded_ordinary_product_can_still_be_claimed_as_incorrect", async ({
       .getByRole("group", { name: alloc.productName })
       .getByRole("checkbox")
       .check();
-    const reasons = page
-      .getByRole("group", { name: alloc.productName })
-      .getByLabel("Lý do")
-      .locator("option");
+    await page.getByRole("combobox", { name: "Lý do" }).click();
+    const reasons = page.getByRole("option");
     await expect(reasons).toHaveText(["Thiếu hàng", "Nhận sai sản phẩm"]);
+    await page.getByRole("combobox", { name: "Lý do" }).click();
+    const uploads: string[] = [];
+    page.on("request", (request) => {
+      if (
+        request.method() === "POST" &&
+        request.url().endsWith("/refund-evidence")
+      )
+        uploads.push(request.url());
+    });
     await fillRefundRow(page, alloc.productName, {
       reason: "Nhận sai sản phẩm",
-      explanation: "Giao nhầm mẫu",
+      explanation: "",
       evidence: true,
     });
+    await expect(
+      page.getByRole("img", { name: "Ảnh xem trước evidence.png" })
+    ).toBeVisible();
+    await expect(page.getByLabel("Mô tả vấn đề")).not.toHaveAttribute(
+      "required"
+    );
+    await expect(
+      page.getByText("Ảnh bằng chứng *", { exact: false })
+    ).toBeVisible();
+    expect(uploads).toHaveLength(0);
+    const submissions: Json[] = [];
+    await page.route(
+      `**/orders/${order.orderNumber}/refunds`,
+      async (route) => {
+        if (route.request().method() !== "POST") return route.continue();
+        submissions.push(route.request().postDataJSON());
+        if (submissions.length === 1) {
+          await route.fulfill({
+            status: 503,
+            json: { message: "Temporary failure" },
+          });
+        } else {
+          await route.continue();
+        }
+      }
+    );
+    await sendRefundForm(page);
+    await expect(
+      page.getByText(/Chưa xác nhận được kết quả gửi yêu cầu/)
+    ).toBeVisible();
+    expect(uploads).toHaveLength(1);
     await sendRefundForm(page);
     await expect(page.getByText(/Nhận sai sản phẩm · yêu cầu 1/)).toBeVisible();
+    expect(uploads).toHaveLength(1);
+    expect(submissions).toHaveLength(2);
+    expect(submissions[1]).toEqual(submissions[0]);
 
     let view = await refundView(staff, order.orderId);
     const requestId = view.requests[0].requestId;

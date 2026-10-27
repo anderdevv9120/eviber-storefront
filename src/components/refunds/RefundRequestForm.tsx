@@ -18,6 +18,8 @@ import {
   groupRefundAllocations,
   refundBlockedMessage,
   refundDraftProblems,
+  refundEvidenceRequired,
+  refundExplanationRequired,
   wholeOrderSelection,
 } from "@/utils/refund-selection";
 
@@ -34,7 +36,7 @@ const fieldClass =
 
 type Detail = Partial<
   Pick<RefundSelection, "reason" | "explanation" | "requestedReturn">
-> & { evidence?: { id: string; name: string }[] };
+> & { evidence?: { id: string; file: File; evidenceId?: string }[] };
 
 interface RefundRequestFormProps {
   view: RefundOrderView;
@@ -54,7 +56,6 @@ export default function RefundRequestForm({
   const now = useNow().getTime();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [details, setDetails] = useState<Record<string, Detail>>({});
-  const [uploading, setUploading] = useState(0);
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
   const [attempted, setAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,7 +115,7 @@ export default function RefundRequestForm({
       return checked ? { ...rest, [allocationId]: 1 } : rest;
     });
 
-  const upload = async (allocationId: string, files: File[]) => {
+  const selectEvidence = (allocationId: string, files: File[]) => {
     setUploadErrors((current) => ({ ...current, [allocationId]: "" }));
     let count = evidenceTotal;
     for (const file of files) {
@@ -132,33 +133,17 @@ export default function RefundRequestForm({
         }));
         return;
       }
-      setUploading((n) => n + 1);
-      try {
-        const { data } = await uploadRefundEvidence(view.orderNumber, file, {
-          sessionToken,
-        });
-        count += 1;
-        setDetails((current) => ({
-          ...current,
-          [allocationId]: {
-            ...current[allocationId],
-            evidence: [
-              ...(current[allocationId]?.evidence ?? []),
-              { id: data.evidenceId, name: data.name },
-            ],
-          },
-        }));
-      } catch (error) {
-        // Phiên khách bị từ chối: để panel tải lại view và nhận 401 thay vì chỉ báo lỗi ảnh
-        if (error instanceof ApiError && error.status === 401) onReload();
-        setUploadErrors((current) => ({
-          ...current,
-          [allocationId]: `${file.name}: ${getErrorMessage(error)}`,
-        }));
-        return;
-      } finally {
-        setUploading((n) => n - 1);
-      }
+      count += 1;
+      setDetails((current) => ({
+        ...current,
+        [allocationId]: {
+          ...current[allocationId],
+          evidence: [
+            ...(current[allocationId]?.evidence ?? []),
+            { id: crypto.randomUUID(), file },
+          ],
+        },
+      }));
     }
   };
 
@@ -176,18 +161,57 @@ export default function RefundRequestForm({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setAttempted(true);
-    if (problems.length || uploading || isSubmitting) return;
-
-    const fingerprint = JSON.stringify(drafts);
-    if (attempt.current?.fingerprint !== fingerprint) {
-      attempt.current = { key: crypto.randomUUID(), fingerprint };
-    }
+    if (problems.length || isSubmitting) return;
     setIsSubmitting(true);
     setNotice(undefined);
     try {
+      const items: RefundSelection[] = [];
+      for (const draft of drafts) {
+        const evidenceIds: string[] = [];
+        for (const entry of details[draft.allocationId]?.evidence ?? []) {
+          let evidenceId = entry.evidenceId;
+          if (!evidenceId) {
+            try {
+              const { data } = await uploadRefundEvidence(
+                view.orderNumber,
+                entry.file,
+                { sessionToken }
+              );
+              evidenceId = data.evidenceId;
+              const uploadedId = evidenceId;
+              setDetails((current) => ({
+                ...current,
+                [draft.allocationId]: {
+                  ...current[draft.allocationId],
+                  evidence: current[draft.allocationId]?.evidence?.map(
+                    (image) =>
+                      image.id === entry.id
+                        ? { ...image, evidenceId: uploadedId }
+                        : image
+                  ),
+                },
+              }));
+            } catch (error) {
+              if (error instanceof ApiError && error.status === 401) onReload();
+              setUploadErrors((current) => ({
+                ...current,
+                [draft.allocationId]: `${entry.file.name}: ${getErrorMessage(error)}`,
+              }));
+              return;
+            }
+          }
+          evidenceIds.push(evidenceId);
+        }
+        items.push({ ...draft, evidenceIds });
+      }
+      setUploadErrors({});
+      const fingerprint = JSON.stringify(items);
+      if (attempt.current?.fingerprint !== fingerprint) {
+        attempt.current = { key: crypto.randomUUID(), fingerprint };
+      }
       const { data } = await submitRefund(
         view.orderNumber,
-        { idempotencyKey: attempt.current.key, items: drafts },
+        { idempotencyKey: attempt.current.key, items },
         { sessionToken }
       );
       attempt.current = null;
@@ -240,6 +264,7 @@ export default function RefundRequestForm({
             type="button"
             size="sm"
             variant="outline"
+            disabled={isSubmitting}
             className="px-4"
             onClick={() =>
               setQuantities(
@@ -293,7 +318,7 @@ export default function RefundRequestForm({
                     id={idBase}
                     type="checkbox"
                     className="h-4 w-4"
-                    disabled={allocation.availableQuantity < 1}
+                    disabled={isSubmitting || allocation.availableQuantity < 1}
                     checked={selected}
                     onChange={(event) =>
                       toggle(allocation.allocationId, event.target.checked)
@@ -320,9 +345,10 @@ export default function RefundRequestForm({
                   <div className="mt-3 space-y-3 pl-7">
                     <div>
                       <p id={`${idBase}-quantity-label`} className="text-sm">
-                        Số lượng
+                        Số lượng *
                       </p>
                       <Dropdown
+                        disabled={isSubmitting}
                         size="sm"
                         ariaLabelledBy={`${idBase}-quantity-label`}
                         className="mt-1 w-full"
@@ -342,11 +368,12 @@ export default function RefundRequestForm({
                     </div>
                     <div>
                       <p id={`${idBase}-reason-label`} className="text-sm">
-                        Lý do
+                        Lý do *
                       </p>
                       <Dropdown
                         size="sm"
                         ariaLabelledBy={`${idBase}-reason-label`}
+                        disabled={isSubmitting}
                         className="mt-1 w-full"
                         placeholder="Chọn lý do"
                         options={reasons.map((reason) => ({
@@ -355,13 +382,20 @@ export default function RefundRequestForm({
                         }))}
                         value={draft.reason}
                         onChange={(value) =>
-                          setDetail(allocation.allocationId, { reason: value })
+                          setDetail(allocation.allocationId, {
+                            reason: value,
+                          })
                         }
                       />
                     </div>
                     <label className="block text-sm">
                       Mô tả vấn đề
+                      {refundExplanationRequired(draft.reason)
+                        ? " *"
+                        : " (không bắt buộc)"}
                       <textarea
+                        disabled={isSubmitting}
+                        required={refundExplanationRequired(draft.reason)}
                         className={fieldClass}
                         rows={3}
                         maxLength={MAX_REFUND_EXPLANATION}
@@ -380,11 +414,12 @@ export default function RefundRequestForm({
                     ) : (
                       <div>
                         <p id={`${idBase}-return-label`} className="text-sm">
-                          Xử lý hàng
+                          Xử lý hàng *
                         </p>
                         <Dropdown
                           size="sm"
                           ariaLabelledBy={`${idBase}-return-label`}
+                          disabled={isSubmitting}
                           className="mt-1 w-full"
                           placeholder="Chọn cách xử lý hàng"
                           options={[
@@ -405,19 +440,23 @@ export default function RefundRequestForm({
                     )}
                     <div className="text-sm">
                       <label htmlFor={`${idBase}-evidence`}>
-                        Ảnh bằng chứng (tối đa {MAX_REFUND_EVIDENCE} ảnh mỗi yêu
-                        cầu, JPEG/PNG/GIF/WebP, mỗi ảnh ≤ 5 MB)
+                        Ảnh bằng chứng
+                        {refundEvidenceRequired(draft) ? " *" : ""} (tối đa{" "}
+                        {MAX_REFUND_EVIDENCE} ảnh mỗi yêu cầu,
+                        JPEG/PNG/GIF/WebP, mỗi ảnh ≤ 5 MB)
                       </label>
                       <input
                         id={`${idBase}-evidence`}
                         type="file"
                         accept={EVIDENCE_MIME_TYPES.join(",")}
                         multiple
+                        disabled={isSubmitting}
+                        aria-required={refundEvidenceRequired(draft)}
                         className="mt-2 block w-full"
-                        onChange={async (event) => {
+                        onChange={(event) => {
                           const files = Array.from(event.target.files ?? []);
                           event.target.value = "";
-                          await upload(allocation.allocationId, files);
+                          selectEvidence(allocation.allocationId, files);
                         }}
                       />
                       {(detail?.evidence ?? []).length > 0 && (
@@ -427,11 +466,25 @@ export default function RefundRequestForm({
                               key={entry.id}
                               className="flex items-center gap-2"
                             >
-                              <span className="truncate">{entry.name}</span>
+                              {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview bypasses image optimization */}
+                              <img
+                                ref={(image) => {
+                                  if (!image) return;
+                                  const url = URL.createObjectURL(entry.file);
+                                  image.src = url;
+                                  return () => URL.revokeObjectURL(url);
+                                }}
+                                alt={`Ảnh xem trước ${entry.file.name}`}
+                                className="h-20 w-20 shrink-0 rounded-lg border border-white-300 object-cover"
+                              />
+                              <span className="truncate">
+                                {entry.file.name}
+                              </span>
                               <button
                                 type="button"
+                                disabled={isSubmitting}
                                 className="text-xs text-dark-400 underline"
-                                aria-label={`Bỏ ảnh ${entry.name} của ${rowLabel}`}
+                                aria-label={`Bỏ ảnh ${entry.file.name} của ${rowLabel}`}
                                 onClick={() =>
                                   removeEvidence(
                                     allocation.allocationId,
@@ -478,14 +531,8 @@ export default function RefundRequestForm({
           {notice}
         </p>
       )}
-      <Button
-        type="submit"
-        size="sm"
-        className="px-6"
-        loading={isSubmitting}
-        disabled={uploading > 0}
-      >
-        {uploading > 0 ? "Đang tải ảnh…" : "Gửi yêu cầu hoàn tiền"}
+      <Button type="submit" size="sm" className="px-6" loading={isSubmitting}>
+        Gửi yêu cầu hoàn tiền
       </Button>
     </form>
   );

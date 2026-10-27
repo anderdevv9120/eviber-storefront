@@ -21,6 +21,14 @@ export const REFUND_REASON_LABEL: Record<RefundReason, string> = {
 /** Lý do thiếu/giao sai hàng vẫn gửi được khi hoàn tiền thông thường tắt; vẫn cần còn hạn và mốc giao */
 const CLAIM_REASONS: RefundReason[] = ["missing_item", "incorrect_item"];
 
+export const refundExplanationRequired = (reason: RefundReason) =>
+  !CLAIM_REASONS.includes(reason);
+
+export const refundEvidenceRequired = (
+  draft: Pick<RefundSelection, "reason" | "requestedReturn">
+) =>
+  CLAIM_REASONS.includes(draft.reason) || draft.requestedReturn === "no_return";
+
 const ordinaryAllowed = (
   view: RefundOrderView,
   allocation: RefundOrderAllocationView
@@ -139,18 +147,17 @@ export function refundDraftProblems(
       add(draft.allocationId, "Lý do này không còn áp dụng cho sản phẩm");
     }
     const explanation = draft.explanation.trim();
-    if (!explanation || explanation.length > MAX_REFUND_EXPLANATION) {
+    if (
+      (!explanation && refundExplanationRequired(draft.reason)) ||
+      explanation.length > MAX_REFUND_EXPLANATION
+    ) {
       add(
         draft.allocationId,
         `Mô tả cần từ 1 đến ${MAX_REFUND_EXPLANATION} ký tự`
       );
     }
     evidenceCount += draft.evidenceIds.length;
-    if (
-      !draft.evidenceIds.length &&
-      (CLAIM_REASONS.includes(draft.reason) ||
-        draft.requestedReturn === "no_return")
-    ) {
+    if (!draft.evidenceIds.length && refundEvidenceRequired(draft)) {
       add(draft.allocationId, "Cần đính kèm ảnh bằng chứng cho yêu cầu này");
     }
   }

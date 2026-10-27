@@ -265,6 +265,43 @@ describe("refundDraftProblems", () => {
     ).toEqual([]);
   });
 
+  it.each(["missing_item", "incorrect_item"])(
+    "allows an empty description for %s but still requires proof",
+    (reason) => {
+      expect(
+        refundDraftProblems(
+          ok,
+          [draft({ reason, explanation: "   ", evidenceIds: ["e1"] })],
+          NOW
+        )
+      ).toEqual([]);
+      expect(
+        refundDraftProblems(
+          ok,
+          [draft({ reason, explanation: "", evidenceIds: [] })],
+          NOW
+        )
+      ).toEqual([
+        expect.objectContaining({
+          message: "Cần đính kèm ảnh bằng chứng cho yêu cầu này",
+        }),
+      ]);
+      expect(
+        refundDraftProblems(
+          ok,
+          [
+            draft({
+              reason,
+              explanation: "x".repeat(2001),
+              evidenceIds: ["e1"],
+            }),
+          ],
+          NOW
+        )
+      ).toHaveLength(1);
+    }
+  );
+
   it("requires a 1-2000 character explanation after trimming", () => {
     expect(
       refundDraftProblems(ok, [draft({ explanation: "   " })], NOW)
