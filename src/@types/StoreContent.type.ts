@@ -43,6 +43,8 @@ export interface IStoreSettings {
   publishedPolicies: IPublishedPolicyLink[];
   // null = ẩn section trên home
   brandStory: IBrandStory | null;
+  // false = shop chưa cấu hình gửi mail trên CMS: quên mật khẩu / xin link hoàn tiền đổi thành hướng dẫn liên hệ
+  emailAvailable: boolean;
 }
 
 export interface IPolicyPage {

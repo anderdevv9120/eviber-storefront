@@ -8,6 +8,9 @@ export const POLICY_SLUGS: PolicySlug[] = [
   "bao-mat",
 ];
 
+// BE từ chối thao tác cần gửi mail khi shop chưa cấu hình mail (quên mật khẩu, link hoàn tiền guest)
+export const EMAIL_UNAVAILABLE_CODE = "email00001";
+
 export const isPolicySlug = (value: string): value is PolicySlug =>
   (POLICY_SLUGS as string[]).includes(value);
 
@@ -54,4 +57,6 @@ export const STORE_SETTINGS_FALLBACK: IStoreSettings = {
   publishedPolicySlugs: [],
   publishedPolicies: [],
   brandStory: null,
+  // Không đọc được BE thì vẫn hiện form — BE trả EMAIL_UNAVAILABLE_CODE khi submit nếu thật sự chưa có mail
+  emailAvailable: true,
 };

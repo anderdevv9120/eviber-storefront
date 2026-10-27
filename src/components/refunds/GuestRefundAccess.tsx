@@ -4,10 +4,13 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { RefundGuestSession } from "@/@types/Refund.type";
+import type { IStoreSettings } from "@/@types/StoreContent.type";
 import { requestRefundAccess, verifyRefundAccess } from "@/apis/refund";
 import Button from "@/components/ui/Button";
+import ContactShopLinks from "@/components/ui/ContactShopLinks";
 import { ApiError } from "@/config/axios";
 import { PATH } from "@/constants/paths";
+import { EMAIL_UNAVAILABLE_CODE } from "@/constants/storeContent";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 import {
   clearRefundGuestSession,
@@ -26,8 +29,18 @@ const LINK_REJECTED_STATUSES = [400, 401, 404];
 const readLinkToken = () =>
   new URLSearchParams(window.location.hash.slice(1)).get("token") ?? "";
 
-function GuestRefundAccessContent() {
+interface GuestRefundAccessProps {
+  emailAvailable: boolean;
+  contact: IStoreSettings["contact"];
+}
+
+function GuestRefundAccessContent({
+  emailAvailable,
+  contact,
+}: GuestRefundAccessProps) {
   const orderNumber = useSearchParams().get("orderNumber") ?? "";
+  // Cờ từ store-settings có thể trễ (revalidate) — BE trả EMAIL_UNAVAILABLE_CODE khi xin link cũng chuyển sang đây
+  const [isEmailUnavailable, setIsEmailUnavailable] = useState(!emailAvailable);
 
   // undefined = chưa đọc sessionStorage (server render không có nó)
   const [session, setSession] = useState<RefundGuestSession | null>();
@@ -99,6 +112,10 @@ function GuestRefundAccessContent() {
       await requestRefundAccess(orderNumber);
       setRequestResult({ ok: true, text: LINK_REQUESTED_TEXT });
     } catch (error) {
+      if (error instanceof ApiError && error.code === EMAIL_UNAVAILABLE_CODE) {
+        setIsEmailUnavailable(true);
+        return;
+      }
       setRequestResult({ ok: false, text: getErrorMessage(error) });
     } finally {
       setIsRequesting(false);
@@ -111,7 +128,9 @@ function GuestRefundAccessContent() {
     setSession(null);
     setRequestResult(undefined);
     setNotice(
-      "Phiên truy cập đã hết hạn. Hãy gửi liên kết xác thực mới tới email đặt hàng."
+      isEmailUnavailable
+        ? "Phiên truy cập đã hết hạn."
+        : "Phiên truy cập đã hết hạn. Hãy gửi liên kết xác thực mới tới email đặt hàng."
     );
   };
 
@@ -152,11 +171,13 @@ function GuestRefundAccessContent() {
 
   return (
     <Card title={`Yêu cầu hoàn tiền cho đơn ${orderNumber}`}>
-      <p className="text-sm text-dark-500">
-        Để bảo vệ thông tin đơn hàng, shop cần xác nhận bạn là người đặt hàng
-        qua email dùng khi đặt. Biết mã đơn hàng là chưa đủ để xem hoặc gửi yêu
-        cầu hoàn tiền.
-      </p>
+      {!isEmailUnavailable && (
+        <p className="text-sm text-dark-500">
+          Để bảo vệ thông tin đơn hàng, shop cần xác nhận bạn là người đặt hàng
+          qua email dùng khi đặt. Biết mã đơn hàng là chưa đủ để xem hoặc gửi
+          yêu cầu hoàn tiền.
+        </p>
+      )}
       {notice && (
         <p role="status" className="text-sm font-medium text-dark-700">
           {notice}
@@ -184,28 +205,39 @@ function GuestRefundAccessContent() {
           {verifyError}
         </p>
       )}
-      <div className="space-y-2">
-        <Button
-          type="button"
-          size="md"
-          variant={hasLinkToken ? "ghost" : "outline"}
-          loading={isRequesting}
-          onClick={requestLink}
-          data-testid="refund-access-request"
-        >
-          Gửi liên kết xác thực tới email đặt hàng
-        </Button>
-        {requestResult && (
-          <p
-            role={requestResult.ok ? "status" : "alert"}
-            className={
-              requestResult.ok ? "text-sm text-dark-700" : "text-sm text-red"
-            }
-          >
-            {requestResult.text}
+      {isEmailUnavailable ? (
+        <div className="space-y-2 rounded-lg bg-white-50 p-4">
+          <p className="text-sm text-dark-700">
+            Shop chưa bật gửi email nên chưa gửi được liên kết xác thực. Liên hệ
+            shop kèm mã đơn <strong>{orderNumber}</strong> để được hỗ trợ hoàn
+            tiền:
           </p>
-        )}
-      </div>
+          <ContactShopLinks contact={contact} />
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Button
+            type="button"
+            size="md"
+            variant={hasLinkToken ? "ghost" : "outline"}
+            loading={isRequesting}
+            onClick={requestLink}
+            data-testid="refund-access-request"
+          >
+            Gửi liên kết xác thực tới email đặt hàng
+          </Button>
+          {requestResult && (
+            <p
+              role={requestResult.ok ? "status" : "alert"}
+              className={
+                requestResult.ok ? "text-sm text-dark-700" : "text-sm text-red"
+              }
+            >
+              {requestResult.text}
+            </p>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
@@ -235,10 +267,10 @@ function GuestRefundAccessSkeleton() {
   );
 }
 
-export default function GuestRefundAccess() {
+export default function GuestRefundAccess(props: GuestRefundAccessProps) {
   return (
     <Suspense fallback={<GuestRefundAccessSkeleton />}>
-      <GuestRefundAccessContent />
+      <GuestRefundAccessContent {...props} />
     </Suspense>
   );
 }

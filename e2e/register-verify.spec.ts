@@ -1,5 +1,13 @@
 import { test, expect } from "@playwright/test";
+import { ensureEmailConfigured } from "./helpers/email-settings";
 import { signVerificationToken } from "./helpers/verification-token";
+
+const ADMIN = process.env.E2E_ADMIN_API ?? "http://localhost:8011/admin/v1";
+
+// Shop chưa cấu hình mail thì đăng ký tạo tài khoản đã xác thực — spec này ghim luồng có xác thực
+test.beforeAll(async () => {
+  await ensureEmailConfigured(ADMIN);
+});
 
 // Email unique mỗi run — DB dev tích lũy account test; user tự chạy lại seed khi thấy vấn đề.
 const email = `e2e.reg.${Date.now()}@demo.local`;

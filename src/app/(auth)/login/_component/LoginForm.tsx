@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import * as yup from "yup";
 import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
@@ -25,6 +25,7 @@ import { getErrorMessage } from "@/utils/getErrorMessage";
 import InputPassword from "@/components/ui/InputPassword";
 import { AUTH_FIELD_LABEL, AUTH_INPUT } from "../../_component/authStyles";
 import { translateAuthError } from "../../_component/authErrors";
+import { takeLoginEmail } from "../../_component/loginEmailHandoff";
 
 const schema = yup
   .object({
@@ -59,7 +60,15 @@ const LoginForm = () => {
     mode: "onBlur",
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, setValue, setFocus } = methods;
+
+  // Vừa đăng ký xong (shop chưa bật gửi email) — điền sẵn email, chỉ còn gõ mật khẩu
+  useEffect(() => {
+    const email = takeLoginEmail();
+    if (!email) return;
+    setValue("email", email);
+    setFocus("password");
+  }, [setValue, setFocus]);
 
   const onSubmit: SubmitHandler<IFormInput> = async (dataLogin) => {
     setIsSubmitting(true);
