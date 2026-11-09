@@ -286,20 +286,21 @@ export default function Header({ categories }: ThemeHeaderProps) {
     <>
       {/* Mockup .header: nền page mờ nhẹ, hairline dưới, cao 64px */}
       <header className="sticky top-0 z-50 bg-page/95 backdrop-blur-md border-b border-white-200">
-        <div className="container-base h-16 flex items-center justify-between gap-x-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
+        <div className="container-base h-16 flex items-center justify-between gap-x-2 min-[360px]:gap-x-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link
             href={PATH.HOME}
             aria-label="CLOTHES — về trang chủ"
             className={cn("inline-flex rounded-md text-dark-800", FOCUS_RING)}
           >
-            <Wordmark className="text-[26px] tracking-[.04em]" />
+            {/* < 360px: wordmark nhỏ lại để pill "Giỏ (nn)" không tràn khỏi viewport 320px */}
+            <Wordmark className="text-[20px] min-[360px]:text-[26px] tracking-[.04em]" />
           </Link>
 
           <div className="hidden lg:flex justify-center min-w-0">
             <CategoryNavSlot categories={categories} />
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center min-[360px]:gap-1">
             <button
               type="button"
               aria-label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm kiếm"}

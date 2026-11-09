@@ -33,7 +33,7 @@ const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
             >
               <div
                 className={cn(
-                  "relative flex min-h-[440px] items-center justify-center overflow-hidden bg-white-300 p-6 text-white lg:min-h-[520px] lg:px-[8%]",
+                  "relative flex min-h-[440px] items-center justify-center overflow-hidden bg-primary-900 p-6 text-white lg:min-h-[520px] lg:px-[8%]",
                   reversed ? "lg:order-2 lg:justify-start" : "lg:justify-end"
                 )}
               >
@@ -46,13 +46,15 @@ const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
                     className="object-cover"
                   />
                 )}
+                {/* Ảnh combo CMS thường nền sáng: scrim ≥ 55% dưới vùng chữ (từ 45% bề ngang ở lg) + text-shadow
+                    như Hero → chữ trắng nhỏ đạt AA kể cả ảnh trắng; gradient mockup (5% → 55%) không đủ */}
                 <span
                   className={cn(
-                    "absolute inset-0 bg-black/40 lg:bg-transparent lg:from-black/5 lg:from-30% lg:to-black/55",
+                    "absolute inset-0 bg-black/55 lg:bg-transparent lg:from-black/20 lg:via-black/55 lg:via-45% lg:to-black/60",
                     reversed ? "lg:bg-gradient-to-l" : "lg:bg-gradient-to-r"
                   )}
                 />
-                <div className="relative max-w-[300px] text-center">
+                <div className="relative max-w-[300px] text-center [text-shadow:0_1px_14px_rgb(0_0_0/0.35)]">
                   <p className="text-[11px] uppercase tracking-[.3em]">
                     {copy.eyebrow}
                   </p>
@@ -76,7 +78,13 @@ const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
 
               <div className="flex flex-col gap-6 bg-primary-50 p-5 md:p-7">
                 {view.pieces.length > 0 && (
-                  <div className="grid grid-cols-3 gap-1.5">
+                  // Số cột = số món (1–3): combo 2 món không để trống cột thứ 3
+                  <div
+                    className="grid gap-1.5"
+                    style={{
+                      gridTemplateColumns: `repeat(${view.pieces.length}, minmax(0, 1fr))`,
+                    }}
+                  >
                     {view.pieces.map((src, i) => (
                       <div
                         key={`${src}-${i}`}

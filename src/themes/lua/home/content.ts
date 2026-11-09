@@ -43,14 +43,14 @@ export const COMBO_SLOT_COPY: {
     quote:
       "“Bộ phối công sở hiện đại, tinh tế giúp nàng tự tin trong mọi khoảnh khắc làm việc.”",
     description:
-      "Các món đã phối sẵn theo một tông, mua trọn bộ tiết kiệm hơn mua lẻ.",
+      "Các món đã phối sẵn theo một tông, mua trọn bộ trong một lần.",
   },
   {
     eyebrow: "Tiệc & sự kiện",
     titleLines: ["Dịu dàng", "Rạng rỡ"],
     quote: "“Chất liệu mềm rủ, gam màu nhẹ cho những buổi tối đáng nhớ.”",
     description:
-      "Bộ phối sẵn cho tiệc, hẹn hò và chụp ảnh — chọn size từng món ở trang combo.",
+      "Bộ phối sẵn cho tiệc, hẹn hò và chụp ảnh — xem chi tiết từng món ở trang combo.",
   },
 ];
 
