@@ -5,6 +5,7 @@ import Header from "./Header";
 import Hero from "./Hero";
 import BrandStory from "./BrandStory";
 import Wordmark from "./Wordmark";
+import Home from "./Home";
 
 const theme = {
   fontClassName: `${bodyFont.variable} ${displayFont.variable}`,
@@ -12,6 +13,7 @@ const theme = {
   Hero,
   BrandStory,
   Wordmark,
+  Home,
 } satisfies ThemeModule;
 
 export default theme;
