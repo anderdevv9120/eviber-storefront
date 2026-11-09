@@ -1,0 +1,104 @@
+/* Theme lua — Lụa (design-showcase/site/son-lua, hướng B).
+   Chỉ khai báo biến :root (không @layer/@apply). Màu = kênh RGB để Tailwind
+   giữ opacity modifier: rgb(var(--color-…) / <alpha-value>).
+   Tương phản chữ (WCAG AA) đã đo: muted #6B5D54 5.77:1 trên page, 6.33:1 trên white;
+   accent #9E2032 7.08:1 / 7.76:1. */
+:root {
+  --color-primary-50: 243 230 223; /* #F3E6DF — tint mockup — nền panel combo / hover nhạt */
+  --color-primary-100: 251 217 213; /* #FBD9D5 */
+  --color-primary-200: 240 196 195; /* #F0C4C3 */
+  --color-primary-300: 217 142 146; /* #D98E92 */
+  --color-primary-400: 210 85 106; /* #D2556A */
+  --color-primary-500: 200 54 74; /* #C8364A */
+  --color-primary-600: 179 38 58; /* #B3263A */
+  --color-primary-700: 158 32 50; /* #9E2032 */
+  --color-primary-800: 143 28 46; /* #8F1C2E */
+  --color-primary-900: 90 26 42; /* #5A1A2A */
+  --color-dark-50: 227 216 200; /* #E3D8C8 */
+  --color-dark-100: 214 200 182; /* #D6C8B6 */
+  --color-dark-200: 191 174 156; /* #BFAE9C */
+  --color-dark-300: 107 93 84; /* #6B5D54 — muted mockup — 5.77:1 trên page */
+  --color-dark-400: 92 78 70; /* #5C4E46 */
+  --color-dark-500: 78 65 57; /* #4E4139 */
+  --color-dark-600: 64 51 44; /* #40332C */
+  --color-dark-700: 56 42 36; /* #382A24 */
+  --color-dark-800: 46 31 26; /* #2E1F1A */
+  --color-dark-900: 35 23 19; /* #231713 */
+  --color-white-50: 251 248 242; /* #FBF8F2 — soft mockup */
+  --color-white-100: 239 230 216; /* #EFE6D8 — band mockup */
+  --color-white-200: 227 216 200; /* #E3D8C8 — line mockup — hairline */
+  --color-white-300: 217 204 186; /* #D9CCBA */
+  --color-white-400: 207 192 172; /* #CFC0AC */
+  --color-white-500: 197 181 159; /* #C5B59F */
+  --color-white-600: 191 174 156; /* #BFAE9C */
+  --color-terracotta: 158 32 50; /* #9E2032 — = accent: giá sale 7.08:1 trên page, 7.76:1 trên white */
+  --color-page: 248 244 237; /* #F8F4ED — ivory mockup */
+  --color-ink: 46 31 26; /* #2E1F1A — chữ thân trang */
+  --color-deep: 46 31 26; /* #2E1F1A — tiêu đề section + nền footer */
+
+  /* Mockup --radius 4px: góc gần vuông, nút vẫn pill */
+  --radius-sm: 4px;
+  --radius-default: 4px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
+  --radius-btn: 9999px;
+  --radius-btn-lg: 9999px;
+
+  /* Cùng offset/blur với classic, tông nâu ink (#2E1F1A) */
+  --shadow-card:
+    0 1px 2px rgba(46, 31, 26, 0.04), 0 10px 28px -14px rgba(46, 31, 26, 0.12);
+  --shadow-card-hover:
+    0 2px 4px rgba(46, 31, 26, 0.06), 0 18px 44px -16px rgba(46, 31, 26, 0.18);
+  --shadow-auth-card:
+    0 24px 60px -12px rgba(46, 31, 26, 0.14), 0 4px 14px rgba(46, 31, 26, 0.05);
+
+  /* --font-body / --font-display do next/font gắn (fonts.ts) */
+
+  /* Vai trò chữ — Playfair 400, không in hoa; clamp tự co giãn nên size = size-md */
+  /* Head lớn kiểu mockup (.head h2 clamp 34–66px); leading ≥ 1.1 để dấu chồng (ể, ấ) không đè dòng trên */
+  --display-section-size: clamp(34px, 4.6vw, 66px);
+  --display-section-size-md: clamp(34px, 4.6vw, 66px);
+  --display-section-weight: 400;
+  --display-section-transform: none;
+  --display-section-tracking: -0.015em;
+  --display-section-leading: 1.12;
+  --display-page-size: clamp(44px, 5vw, 72px);
+  --display-page-size-md: clamp(44px, 5vw, 72px);
+  --display-page-weight: 400;
+  --display-page-transform: none;
+  --display-page-tracking: -0.015em;
+  --display-page-leading: 1.1;
+  --display-sub-size: clamp(28px, 3vw, 40px);
+  --display-sub-size-md: clamp(28px, 3vw, 40px);
+  --display-sub-weight: 400;
+  --display-sub-tracking: -0.015em;
+  --display-sub-leading: 1.15;
+  --section-head-align: left;
+  /* Mô tả section cạnh tiêu đề như head "Shop by mood" của mockup (index.html:85-87) */
+  --section-head-display: flex;
+  --section-sub-size: 15px;
+  --section-sub-leading: 1.55;
+  --section-sub-mt: 0;
+  --section-sub-max-w: 340px;
+  /* header-offset/hero-offset giữ theo Header copy từ rosier — chỉnh khi restyle Header (plan Task 4) */
+  /* scroll-margin cho anchor/scrollIntoView: chỉ hàng logo/icon sticky (~80px, nav < lg cuộn theo trang) + 16px */
+  --header-offset: 96px;
+
+  /* Trục container-base = trục Header/Hero/BrandStory của theme */
+  --container-max: 1440px;
+  --container-px: clamp(16px, 4vw, 48px);
+  /* Nội dung narrow tối đa 1260 ở mọi nấc — không theo nấc 1500 của classic (1280–1499 sẽ rộng hơn rồi tụt) */
+  --container-narrow-max: calc(1260px + 2 * var(--container-px));
+  --color-star-empty: 227 216 200; /* #E3D8C8 — = white-200: sáng hơn hẳn sao vàng */
+  /* Trần ảnh Hero: < lg màn đầu còn hàng pill (~70px) nằm dưới header sticky */
+  --hero-offset: calc(var(--header-offset) + 70px);
+}
+@media (min-width: 1024px) {
+  :root {
+    --header-offset: 104px;
+    --hero-offset: var(--header-offset);
+  }
+}
