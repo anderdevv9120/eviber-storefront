@@ -141,7 +141,7 @@ function CategoryNav({
       <nav
         ref={navRef}
         aria-label="Danh mục"
-        className="bg-white-300 rounded-full p-1 flex gap-1 overflow-x-auto scroll-px-1 snap-x scrollbar-hide max-w-full text-sm font-medium"
+        className="flex gap-[clamp(8px,calc(2.6vw-12px),32px)] overflow-x-auto snap-x scrollbar-hide max-w-full text-sm font-semibold uppercase tracking-[.02em]"
       >
         {items.map((item) => (
           <Link
@@ -155,10 +155,14 @@ function CategoryNav({
                 inline: "nearest",
               })
             }
+            // Mockup .nav a::after: gạch chân accent trượt ra khi hover / trang hiện tại
             className={cn(
-              "px-[18px] min-h-11 flex items-center rounded-full whitespace-nowrap snap-start text-dark-800 transition-colors hover:bg-page/60",
+              "relative min-h-11 px-1.5 flex items-center whitespace-nowrap snap-start text-dark-800 transition-colors hover:text-primary-700",
+              "after:absolute after:inset-x-1.5 after:bottom-2 after:h-[1.5px] after:bg-primary-700 after:origin-left after:scale-x-0 after:transition-transform after:content-[''] hover:after:scale-x-100",
+              // ring-inset: nav overflow-x-auto xén ring ngoài
               FOCUS_RING,
-              item.active && "bg-page hover:bg-page"
+              "focus-visible:ring-inset",
+              item.active && "text-primary-700 after:scale-x-100"
             )}
           >
             {item.name}
@@ -168,13 +172,13 @@ function CategoryNav({
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full overflow-hidden"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
       >
         <div
           data-testid="nav-fade-left"
           className={cn(
             SCROLL_FADE,
-            "left-0 bg-gradient-to-r from-white-300 to-transparent",
+            "left-0 bg-gradient-to-r from-page to-transparent",
             scrollable.left ? "opacity-100" : "opacity-0"
           )}
         />
@@ -182,7 +186,7 @@ function CategoryNav({
           data-testid="nav-fade-right"
           className={cn(
             SCROLL_FADE,
-            "right-0 bg-gradient-to-l from-white-300 to-transparent",
+            "right-0 bg-gradient-to-l from-page to-transparent",
             scrollable.right ? "opacity-100" : "opacity-0"
           )}
         />
@@ -191,13 +195,13 @@ function CategoryNav({
         {scrollable.left && (
           <div
             aria-hidden
-            className="absolute -left-1 top-1/2 size-14 -translate-y-1/2 rounded-full backdrop-blur-[2px] bg-[radial-gradient(closest-side,rgb(var(--color-white-300)/0.9),transparent)]"
+            className="absolute -left-1 top-1/2 size-14 -translate-y-1/2 rounded-full backdrop-blur-[2px] bg-[radial-gradient(closest-side,rgb(var(--color-page)/0.9),transparent)]"
           />
         )}
         {scrollable.right && (
           <div
             aria-hidden
-            className="absolute -right-1 top-1/2 size-14 -translate-y-1/2 rounded-full backdrop-blur-[2px] bg-[radial-gradient(closest-side,rgb(var(--color-white-300)/0.9),transparent)]"
+            className="absolute -right-1 top-1/2 size-14 -translate-y-1/2 rounded-full backdrop-blur-[2px] bg-[radial-gradient(closest-side,rgb(var(--color-page)/0.9),transparent)]"
           />
         )}
       </div>
@@ -280,14 +284,15 @@ export default function Header({ categories }: ThemeHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-page">
-        <div className="container-base py-[18px] flex flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
+      {/* Mockup .header: nền page mờ nhẹ, hairline dưới, cao 64px */}
+      <header className="sticky top-0 z-50 bg-page/95 backdrop-blur-md border-b border-white-200">
+        <div className="container-base h-16 flex items-center justify-between gap-x-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link
             href={PATH.HOME}
             aria-label="CLOTHES — về trang chủ"
             className={cn("inline-flex rounded-md text-dark-800", FOCUS_RING)}
           >
-            <Wordmark className="text-[26px] sm:text-[34px]" />
+            <Wordmark className="text-[26px] tracking-[.04em]" />
           </Link>
 
           <div className="hidden lg:flex justify-center min-w-0">
@@ -341,8 +346,8 @@ export default function Header({ categories }: ThemeHeaderProps) {
 
       {/* < lg: hàng pill nằm NGOÀI header sticky — cuộn đi cùng trang, chỉ hàng logo/icon bám lại.
           Không margin âm kéo lên: header sticky z-50 nền page sẽ đè mất mép trên của pill */}
-      <div className="lg:hidden">
-        <div className="container-base flex justify-center pb-[18px]">
+      <div className="lg:hidden border-b border-white-200">
+        <div className="container-base flex justify-center">
           <CategoryNavSlot categories={categories} />
         </div>
       </div>

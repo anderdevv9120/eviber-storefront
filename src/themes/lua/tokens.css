@@ -83,9 +83,8 @@
   --section-sub-leading: 1.55;
   --section-sub-mt: 0;
   --section-sub-max-w: 340px;
-  /* header-offset/hero-offset giữ theo Header copy từ rosier — chỉnh khi restyle Header (plan Task 4) */
-  /* scroll-margin cho anchor/scrollIntoView: chỉ hàng logo/icon sticky (~80px, nav < lg cuộn theo trang) + 16px */
-  --header-offset: 96px;
+  /* scroll-margin cho anchor/scrollIntoView: chỉ hàng logo/icon sticky (64px + hairline, nav < lg cuộn theo trang) + 16px */
+  --header-offset: 81px;
 
   /* Trục container-base = trục Header/Hero/BrandStory của theme */
   --container-max: 1440px;
@@ -93,12 +92,11 @@
   /* Nội dung narrow tối đa 1260 ở mọi nấc — không theo nấc 1500 của classic (1280–1499 sẽ rộng hơn rồi tụt) */
   --container-narrow-max: calc(1260px + 2 * var(--container-px));
   --color-star-empty: 227 216 200; /* #E3D8C8 — = white-200: sáng hơn hẳn sao vàng */
-  /* Trần ảnh Hero: < lg màn đầu còn hàng pill (~70px) nằm dưới header sticky */
-  --hero-offset: calc(var(--header-offset) + 70px);
+  /* < lg màn đầu còn hàng danh mục (44px + hairline) nằm dưới header sticky */
+  --hero-offset: calc(var(--header-offset) + 45px);
 }
 @media (min-width: 1024px) {
   :root {
-    --header-offset: 104px;
     --hero-offset: var(--header-offset);
   }
 }

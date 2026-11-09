@@ -11,17 +11,19 @@ import { resolveImageUrl } from "@/utils/resolveImageUrl";
 const AUTO_SLIDE_MS = 5000;
 
 // Cỡ tiêu đề theo độ dài (CMS cho tới 200 ký tự) và chặn theo chiều cao màn hình (vh)
-// để cả hero vừa một màn hình; tiêu đề ngắn mới được cỡ lớn kiểu mockup.
+// để chữ vừa khung hero; tiêu đề ngắn mới được cỡ lớn kiểu mockup (clamp 48–104px).
+// leading ≥ 1.1: dấu chồng tiếng Việt (ể, ấ) không đè dòng trên.
 // leading đứng SAU cỡ chữ: cn() (tailwind-merge) bỏ leading-* nằm trước text-[...]
 const titleClass = (title: string) =>
   title.length <= 30
-    ? "text-[clamp(40px,min(7vw,10vh),70px)] leading-none"
+    ? "text-[clamp(48px,min(7vw,11vh),104px)] leading-[1.1]"
     : title.length <= 70
-      ? "text-[clamp(34px,min(5vw,7.5vh),70px)] leading-none"
-      : "text-[clamp(26px,min(3vw,4.5vh),48px)] leading-[1.1]";
+      ? "text-[clamp(36px,min(5vw,8vh),72px)] leading-[1.1]"
+      : "text-[clamp(28px,min(3.2vw,5vh),48px)] leading-[1.15]";
 
+// Nền ảnh tối → outline trắng thay ring màu nhấn
 const FOCUS_RING =
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
+  "focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white";
 
 const Hero = ({ banners }: ThemeHeroProps) => {
   const [current, setCurrent] = useState(0);
@@ -49,40 +51,66 @@ const Hero = ({ banners }: ThemeHeroProps) => {
   if (count === 0) return null;
 
   return (
+    // Mockup .hero: 1 ảnh full-bleed mỗi banner, gradient tối, chữ canh giữa, dot dạng vạch
     <section
       aria-label="Banner khuyến mãi"
       onFocus={() => setPaused(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false);
       }}
-      className="container-base pt-4 grid grid-cols-1 md:grid-cols-2 items-center gap-[clamp(32px,5vw,72px)]"
+      {...swipeHandlers}
+      className="relative h-[min(86vh,820px)] min-h-[520px] overflow-hidden bg-dark-800 text-white"
     >
-      {/* Các slide chữ chồng cùng ô grid → cột cao theo slide dài nhất, đổi slide không nhảy layout.
-          min-w-0 + grid-cols-1 (minmax(0,1fr)) để break-words có tác dụng — track auto co theo min-content của từ dài */}
-      <div className="grid grid-cols-1 min-w-0">
+      {banners.map((banner, index) => (
+        <Image
+          key={banner._id}
+          src={resolveImageUrl(banner.image)}
+          alt={banner.title}
+          fill
+          priority={index === 0}
+          // Kéo chuột trên <img> mở native drag, nuốt mousemove → swipe chuột không chạy
+          draggable={false}
+          sizes="100vw"
+          aria-hidden={index !== current}
+          className={cn(
+            "object-cover object-[center_25%] transition-opacity duration-700",
+            index === current ? "opacity-100" : "opacity-0"
+          )}
+        />
+      ))}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/50"
+      />
+
+      {/* Các slide chữ chồng cùng ô grid → đổi slide không nhảy layout */}
+      {/* text-shadow: ảnh CMS sáng (áo trắng) vẫn đọc được chữ trắng — gradient mockup không đủ */}
+      <div className="absolute inset-0 grid grid-cols-1 place-items-center p-6 [text-shadow:0_1px_14px_rgb(0_0_0/0.35)]">
         {banners.map((banner, index) => {
           const active = index === current;
           return (
             <div
               key={banner._id}
               className={cn(
-                "[grid-area:1/1] transition-opacity duration-700",
+                "[grid-area:1/1] flex min-w-0 max-w-[900px] flex-col items-center text-center transition-opacity duration-700",
                 active ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
               aria-hidden={!active}
               inert={!active}
             >
-              {/* leading 1 thay 0.88 của mockup: dấu chồng tiếng Việt (ể, ấ) đè chân chữ g/p dòng trên */}
+              <p className="text-xs font-semibold uppercase tracking-[.28em]">
+                Bộ sưu tập mới
+              </p>
               <h2
                 className={cn(
-                  "font-display text-dark-800 tracking-[-0.02em] break-words",
+                  "mt-3.5 mb-2.5 font-display italic font-normal tracking-[-0.02em] break-words",
                   titleClass(banner.title)
                 )}
               >
                 {banner.title}
               </h2>
               {banner.subtitle && (
-                <p className="mt-5 md:mt-7 text-base md:text-lg leading-relaxed text-dark-500 max-w-[440px]">
+                <p className="max-w-[560px] text-base opacity-90">
                   {banner.subtitle}
                 </p>
               )}
@@ -90,14 +118,14 @@ const Hero = ({ banners }: ThemeHeroProps) => {
                 <Link
                   href={banner.ctaHref}
                   className={cn(
-                    "mt-9 inline-flex items-center gap-2.5 min-h-[56px] px-8 rounded-full bg-primary-600 hover:bg-primary-800 text-white font-semibold transition-colors",
+                    "mt-7 inline-flex items-center gap-2.5 rounded-btn border-[1.5px] border-white px-[26px] py-[13px] text-[13px] font-semibold uppercase tracking-[.08em] transition-colors hover:bg-white hover:text-deep",
                     FOCUS_RING
                   )}
                 >
                   {banner.ctaLabel}
                   <svg
-                    width="18"
-                    height="18"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -113,53 +141,25 @@ const Hero = ({ banners }: ThemeHeroProps) => {
         })}
       </div>
 
-      <div className="flex flex-col items-center">
-        <div
-          {...swipeHandlers}
-          // Rộng tối đa theo chiều cao còn lại dưới header → khung 4/5 không cao quá màn hình
-          className="relative w-full max-w-[min(600px,calc((100svh_-_var(--hero-offset)_-_4rem)*0.8))] aspect-[4/5] rounded-[999px_999px_32px_32px] overflow-hidden bg-primary-200"
-        >
+      {count > 1 && (
+        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
           {banners.map((banner, index) => (
-            <Image
+            <button
               key={banner._id}
-              src={resolveImageUrl(banner.image)}
-              alt={banner.title}
-              fill
-              priority={index === 0}
-              // Kéo chuột trên <img> mở native drag, nuốt mousemove → swipe chuột không chạy
-              draggable={false}
-              sizes="(min-width: 768px) 50vw, 100vw"
-              aria-hidden={index !== current}
+              type="button"
+              aria-label={`Banner ${index + 1}`}
+              aria-current={index === current}
+              onClick={() => setCurrent(index)}
               className={cn(
-                "object-cover transition-opacity duration-700",
-                index === current ? "opacity-100" : "opacity-0"
+                // Vạch 28×2px; hit-area dọc 40px, ngang nới đúng nửa gap-2 để không đè vùng bấm của nhau
+                "relative h-0.5 w-7 transition-colors duration-300 after:absolute after:-inset-x-1 after:-inset-y-5 after:content-['']",
+                FOCUS_RING,
+                index === current ? "bg-white" : "bg-white/45 hover:bg-white/70"
               )}
             />
           ))}
         </div>
-
-        {count > 1 && (
-          <div className="mt-5 flex gap-4">
-            {banners.map((banner, index) => (
-              <button
-                key={banner._id}
-                type="button"
-                aria-label={`Banner ${index + 1}`}
-                aria-current={index === current}
-                onClick={() => setCurrent(index)}
-                className={cn(
-                  // Hit-area dọc 40px; ngang nới đúng nửa gap-4 để các dot không đè vùng bấm của nhau
-                  "relative h-2 rounded-full transition-all duration-300 after:absolute after:-inset-x-2 after:-inset-y-4 after:content-['']",
-                  FOCUS_RING,
-                  index === current
-                    ? "w-5 bg-primary-600"
-                    : "w-2 bg-dark-300 hover:bg-dark-400"
-                )}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </section>
   );
 };

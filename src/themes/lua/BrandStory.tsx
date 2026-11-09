@@ -5,76 +5,53 @@ import type { ThemeBrandStoryProps } from "@/themes/types";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 const FOCUS_RING =
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white-300";
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
-// Bám section "Our story" của mockup (design-showcase/site/atelier-rosier/index.html):
-// band full-bleed, 2 khung vòm so le, eyebrow, phần nhấn tiêu đề in nghiêng.
+// Bám hàng "guide row" của mockup son-lua (.story-row): viền nhấn trên, ảnh | chữ, band soft.
+// image2 bỏ qua — hàng thứ 2 cần chữ riêng mà CMS không có.
 // Nội dung CMS là text thuần — xuống dòng bằng whitespace-pre-line, KHÔNG render HTML
-const BrandStory = ({ story }: ThemeBrandStoryProps) => {
-  const twoImages = !!story.image2;
-
-  return (
-    <section
-      id="story"
-      aria-labelledby="story-h"
-      // Cỡ chữ/leading nền của mockup (15px / 1.55) — con kế thừa
-      className="mt-[clamp(64px,8vw,112px)] bg-white-300 text-[15px] leading-[1.55]"
-    >
-      <div className="container-base py-[clamp(64px,8vw,112px)] grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[clamp(32px,5vw,80px)] items-center">
-        <div
-          className={cn(
-            "grid gap-4",
-            twoImages
-              ? "grid-cols-2"
-              : "grid-cols-1 w-full max-w-[420px] mx-auto"
-          )}
-        >
-          <div className="relative aspect-[3/4] rounded-[999px_999px_24px_24px] bg-terracotta overflow-hidden">
-            <Image
-              src={resolveImageUrl(story.image)}
-              alt={story.title}
-              fill
-              sizes="(min-width: 768px) 25vw, 50vw"
-              className="object-cover"
-            />
-          </div>
-          {story.image2 && (
-            <div className="relative aspect-[3/4] rounded-[24px_24px_999px_999px] bg-dark-50 mt-16 overflow-hidden">
-              <Image
-                src={resolveImageUrl(story.image2)}
-                alt=""
-                fill
-                sizes="(min-width: 768px) 25vw, 50vw"
-                className="object-cover"
-              />
-            </div>
-          )}
+const BrandStory = ({ story }: ThemeBrandStoryProps) => (
+  <section
+    id="story"
+    aria-labelledby="story-h"
+    className="bg-white-50 py-[clamp(56px,7vw,104px)]"
+  >
+    <div className="container-base">
+      <div className="grid border-t-[3px] border-primary-700 bg-page md:grid-cols-2">
+        <div className="relative aspect-[16/10] md:aspect-auto md:min-h-[360px]">
+          <Image
+            src={resolveImageUrl(story.image)}
+            alt={story.title}
+            fill
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
         </div>
 
-        <div className="min-w-0">
-          <div className="text-[13px] tracking-[0.16em] uppercase text-primary-800">
-            Câu chuyện của chúng tôi
-          </div>
+        <div className="flex min-w-0 flex-col justify-center p-[clamp(28px,4vw,56px)]">
+          <p className="text-xs font-semibold tracking-[.04em] text-primary-700">
+            Câu chuyện CLOTHES
+          </p>
           <h2
             id="story-h"
-            className="mt-5 font-display font-normal text-[clamp(44px,5.5vw,84px)] leading-[0.95] text-dark-800 break-words"
+            className="mt-1.5 mb-3.5 font-display text-[clamp(30px,3.2vw,48px)] font-normal leading-[1.2] text-deep break-words"
           >
             {story.title}
             {story.titleAccent && (
               <>
                 {" "}
-                <em className="text-primary-600">{story.titleAccent}</em>
+                <em className="text-primary-700">{story.titleAccent}</em>
               </>
             )}
           </h2>
-          <p className="mt-7 max-w-[480px] text-[17px] text-dark-600 whitespace-pre-line break-words">
+          <p className="max-w-[52ch] text-dark-500 whitespace-pre-line break-words">
             {story.body}
           </p>
           {story.ctaLabel && story.href && (
             <Link
               href={story.href}
               className={cn(
-                "inline-flex items-center min-h-[52px] px-7 mt-8 border border-dark-800 rounded-[999px] font-semibold transition-colors hover:bg-dark-800 hover:text-white-100",
+                "mt-5 inline-flex self-start items-center rounded-btn border-[1.5px] border-primary-700 px-[26px] py-[13px] text-[13px] font-semibold uppercase tracking-[.08em] text-primary-700 transition-colors hover:bg-primary-700 hover:text-white",
                 FOCUS_RING
               )}
             >
@@ -83,8 +60,8 @@ const BrandStory = ({ story }: ThemeBrandStoryProps) => {
           )}
         </div>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default BrandStory;
