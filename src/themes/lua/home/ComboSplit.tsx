@@ -15,7 +15,11 @@ const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
   if (blocks.length === 0) return null;
 
   return (
-    <section className="container-base my-16 md:my-24">
+    // id="combo": đích neo mục "Combo" trên Header (chưa có trang danh sách combo)
+    <section
+      id="combo"
+      className="container-base my-16 md:my-24 scroll-mt-[var(--header-offset)]"
+    >
       <CenterHead
         eyebrow="Combo phối sẵn – nâng tầm phong cách"
         title="Sắc riêng trong từng bộ đồ"

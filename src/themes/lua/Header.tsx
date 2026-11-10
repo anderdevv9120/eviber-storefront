@@ -1,321 +1,549 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Search, ChevronLeft } from "@/components/icons";
-import UserAction from "@/layouts/Header/UserAction";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SearchBox from "@/layouts/Header/SearchBox";
+import UserSidebar from "@/components/ui/UserSidebar";
+import useClickOutside from "@/hooks/useClickOutside";
+import { useAppStore } from "@/store/useAppStore";
+import { useCartStore } from "@/store/useCartStore";
 import { PATH } from "@/constants/paths";
 import { cn } from "@/config/utils";
 import type { ICategoryItem } from "@/@types/Home.type";
 import type { ThemeHeaderProps } from "@/themes/types";
 import Wordmark from "./Wordmark";
+import {
+  LINKS_AFTER_COLLECTION,
+  LINKS_BEFORE_COLLECTION,
+  activeCollectionKey,
+  categoryHref,
+} from "./nav";
 
-// "Liên hệ" chưa có trang riêng — neo xuống khối liên hệ ở Footer (id="lien-he")
-const CONTACT_ANCHOR = `${PATH.HOME}#lien-he`;
+// Nấc nav = mockup @media (max-width:1100px): dưới đó ẩn nav, hiện burger. Tailwind cần class literal
+// nên mọi chỗ viết thẳng `min-[1100px]:` — đổi nấc thì đổi cả DESKTOP_MQ.
+const DESKTOP_MQ = "(min-width: 1100px)";
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600";
 
-// Cùng quy ước Category.tsx: thiếu slug → collection trần (không filter được)
-const categoryHref = (slug?: string) =>
-  slug
-    ? `${PATH.COLLECTION}?category=${encodeURIComponent(slug)}`
-    : PATH.COLLECTION;
+// < 360px vùng bấm 40px (vẫn > 24px AA) để burger + logo + 3 icon vừa 320px
+const ICON_BUTTON = cn(
+  "relative grid place-items-center size-10 min-[360px]:size-11 rounded-full text-dark-800 transition-colors hover:text-primary-700",
+  FOCUS_RING
+);
 
-// Clip-layer bo tròn giống nav để fade không tràn ra nền trang ngoài mép pill;
-// chỉ khi nav bị co (đủ nội dung) nó mới hẹp hơn wrapper — lúc đó cả 2 fade đều ẩn nên không lộ
-const SCROLL_FADE = "absolute inset-y-0 w-6 transition-opacity duration-200";
+// Mockup .nav a: in hoa 14/600, gạch chân accent trượt ra khi hover
+const NAV_LINK = cn(
+  "relative flex items-center min-h-11 whitespace-nowrap rounded-sm text-dark-800 transition-colors hover:text-primary-700",
+  "after:absolute after:inset-x-0 after:bottom-1.5 after:h-[1.5px] after:bg-primary-700 after:origin-left after:scale-x-0 after:transition-transform after:content-[''] hover:after:scale-x-100",
+  FOCUS_RING
+);
 
-function CategoryNav({
-  categories,
-  activeSlug,
-  className,
-}: ThemeHeaderProps & { activeSlug: string | null; className?: string }) {
-  const pathname = usePathname();
-  const navRef = useRef<HTMLElement>(null);
-  const scrollAnim = useRef<number | null>(null);
-  // Side còn cuộn được — quyết định fade nào hiện (đo scrollLeft/scrollWidth thật, không đoán từ số mục)
-  const [scrollable, setScrollable] = useState({ left: false, right: false });
+const DRAWER_LINK = cn(
+  "flex min-h-12 items-center border-b border-white-200 text-dark-800 transition-colors hover:text-primary-700",
+  FOCUS_RING,
+  "focus-visible:ring-inset"
+);
 
-  const updateScrollable = useCallback(() => {
-    const el = navRef.current;
-    if (!el) return;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    const next = {
-      left: el.scrollLeft > 1,
-      right: el.scrollLeft < maxScroll - 1,
-    };
-    // Scroll event nổ theo từng frame khi animate — giữ nguyên reference nếu không đổi để tránh re-render
-    setScrollable((prev) =>
-      prev.left === next.left && prev.right === next.right ? prev : next
-    );
-  }, []);
-
-  // Tự điều khiển animation thay vì behavior:"smooth" — chế độ đó bị bỏ qua khi OS/trình duyệt
-  // bật reduce-motion hoặc tắt smooth scrolling, sẽ thành nhảy tức thì. Ease-out cho cảm giác mượt.
-  const scrollByStep = (direction: -1 | 1) => {
-    const el = navRef.current;
-    if (!el) return;
-
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    const from = el.scrollLeft;
-    const desired = from + direction * el.clientWidth * 0.8;
-    // Đích đến chọn trùng mép một pill: khi bật lại snap sau animation, Chrome re-snap về
-    // snap point gần nhất — nếu đích không trùng mép pill sẽ bị kéo thêm, giật ở cuối animation
-    const firstChild = el.children[0] as HTMLElement | undefined;
-    const snapPoints = firstChild
-      ? Array.from(
-          el.children,
-          (c) => (c as HTMLElement).offsetLeft - firstChild.offsetLeft
-        )
-      : [];
-    const snappedTarget = snapPoints.reduce(
-      (best, p) =>
-        Math.abs(p - desired) < Math.abs(best - desired) ? p : best,
-      desired
-    );
-    const to = Math.min(Math.max(snappedTarget, 0), maxScroll);
-    if (Math.abs(to - from) < 1) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      el.scrollLeft = to;
-      return;
-    }
-
-    if (scrollAnim.current !== null) cancelAnimationFrame(scrollAnim.current);
-    // Bắt buộc tắt snap trong lúc animate: Chrome re-snap sau MỖI lần gán scrollLeft
-    // (thử nghiệm: gán 97 → bị kéo về 0) — giữ snap sẽ làm animation giật từng bước
-    el.style.scrollSnapType = "none";
-    const duration = 400;
-    const startTime = performance.now();
-
-    const tick = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
-      el.scrollLeft = from + (to - from) * eased;
-      if (progress < 1) {
-        scrollAnim.current = requestAnimationFrame(tick);
-      } else {
-        scrollAnim.current = null;
-        el.style.scrollSnapType = ""; // trả snap về giá trị từ class Tailwind
-      }
-    };
-    scrollAnim.current = requestAnimationFrame(tick);
-  };
-
-  useEffect(() => {
-    updateScrollable();
-    const el = navRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateScrollable, { passive: true });
-    // Số lượng category / font load xong thay đổi scrollWidth — ResizeObserver bắt được cả hai
-    const observer = new ResizeObserver(updateScrollable);
-    observer.observe(el);
-    return () => {
-      el.removeEventListener("scroll", updateScrollable);
-      observer.disconnect();
-      if (scrollAnim.current !== null) cancelAnimationFrame(scrollAnim.current);
-    };
-  }, [updateScrollable]);
-
-  const items = [
-    {
-      key: "home",
-      name: "Trang chủ",
-      href: PATH.HOME,
-      active: pathname === PATH.HOME,
-    },
-    ...categories.map((category: ICategoryItem) => ({
-      key: category._id,
-      name: category.name,
-      href: categoryHref(category.slug),
-      active: !!category.slug && category.slug === activeSlug,
-    })),
-    { key: "contact", name: "Liên hệ", href: CONTACT_ANCHOR, active: false },
-  ];
-
+// Glyph mockup (stroke 1.6, currentColor) — sprite SvgIcon cứng màu nên không dùng
+function Glyph({ children }: { children: ReactNode }) {
   return (
-    <div className={cn("relative max-w-full", className)}>
-      <nav
-        ref={navRef}
-        aria-label="Danh mục"
-        className="flex gap-[clamp(8px,calc(2.6vw-12px),32px)] overflow-x-auto snap-x scrollbar-hide max-w-full text-sm font-semibold uppercase tracking-[.02em]"
-      >
-        {items.map((item) => (
-          <Link
-            key={item.key}
-            href={item.href}
-            aria-current={item.active ? "page" : undefined}
-            // Chrome không tự cuộn pill bị che một phần khi Tab tới — kéo vào khung nav
-            onFocus={(e) =>
-              e.currentTarget.scrollIntoView({
-                block: "nearest",
-                inline: "nearest",
-              })
-            }
-            // Mockup .nav a::after: gạch chân accent trượt ra khi hover / trang hiện tại
-            className={cn(
-              "relative min-h-11 px-1.5 flex items-center whitespace-nowrap snap-start text-dark-800 transition-colors hover:text-primary-700",
-              "after:absolute after:inset-x-1.5 after:bottom-2 after:h-[1.5px] after:bg-primary-700 after:origin-left after:scale-x-0 after:transition-transform after:content-[''] hover:after:scale-x-100",
-              // ring-inset: nav overflow-x-auto xén ring ngoài
-              FOCUS_RING,
-              "focus-visible:ring-inset",
-              item.active && "text-primary-700 after:scale-x-100"
-            )}
-          >
-            {item.name}
-          </Link>
-        ))}
-      </nav>
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
-        <div
-          data-testid="nav-fade-left"
-          className={cn(
-            SCROLL_FADE,
-            "left-0 bg-gradient-to-r from-page to-transparent",
-            scrollable.left ? "opacity-100" : "opacity-0"
-          )}
-        />
-        <div
-          data-testid="nav-fade-right"
-          className={cn(
-            SCROLL_FADE,
-            "right-0 bg-gradient-to-l from-page to-transparent",
-            scrollable.right ? "opacity-100" : "opacity-0"
-          )}
-        />
-        {/* Halo sau chevron: làm mờ + phai chữ pill chui qua bên dưới để nút không "đè" lên mục bên cạnh.
-            Đặt trong lớp clip để halo tròn không tràn ra nền trang ngoài mép pill */}
-        {scrollable.left && (
-          <div
-            aria-hidden
-            className="absolute -left-1 top-1/2 size-14 -translate-y-1/2 rounded-full backdrop-blur-[2px] bg-[radial-gradient(closest-side,rgb(var(--color-page)/0.9),transparent)]"
-          />
-        )}
-        {scrollable.right && (
-          <div
-            aria-hidden
-            className="absolute -right-1 top-1/2 size-14 -translate-y-1/2 rounded-full backdrop-blur-[2px] bg-[radial-gradient(closest-side,rgb(var(--color-page)/0.9),transparent)]"
-          />
-        )}
-      </div>
-      {/* Chevron đè lên fade: fade gợi ý còn mục, chevron là chỗ bấm để cuộn —
-          chỉ render khi phía đó còn mục ẩn để keyboard không gặp nút vô hình.
-          after:-inset-2 nới vùng bấm ra quanh nút (56px) để không bấm nhầm sang pill kế bên */}
-      {scrollable.left && (
-        <button
-          type="button"
-          aria-label="Cuộn danh mục sang trái"
-          onClick={() => scrollByStep(-1)}
-          className={cn(
-            "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center size-10 rounded-full bg-page text-dark-800 shadow-card transition-colors hover:text-primary-700",
-            "after:content-[''] after:absolute after:-inset-2 after:rounded-full",
-            FOCUS_RING
-          )}
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-      )}
-      {scrollable.right && (
-        <button
-          type="button"
-          aria-label="Cuộn danh mục sang phải"
-          onClick={() => scrollByStep(1)}
-          className={cn(
-            "absolute right-1 top-1/2 -translate-y-1/2 grid place-items-center size-10 rounded-full bg-page text-dark-800 shadow-card transition-colors hover:text-primary-700",
-            "after:content-[''] after:absolute after:-inset-2 after:rounded-full",
-            FOCUS_RING
-          )}
-        >
-          <ChevronLeft className="w-4 h-4 rotate-180" />
-        </button>
-      )}
-    </div>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      aria-hidden="true"
+      className="size-[22px]"
+    >
+      {children}
+    </svg>
   );
 }
 
-// Tách riêng + bọc Suspense (như SearchBox): useSearchParams ép CSR bail-out chỉ trong
-// boundary này, trang ISR chứa Header không bị kéo theo — fallback = nav không có pill active
-function CategoryNavFromUrl({
+type CategoryListProps = {
+  categories: ICategoryItem[];
+  linkClassName: string;
+  onNavigate: () => void;
+};
+
+function CategoryItems({
   categories,
-  className,
-}: ThemeHeaderProps & { className?: string }) {
+  linkClassName,
+  onNavigate,
+  activeKey,
+}: CategoryListProps & { activeKey: string | null }) {
+  const items = [
+    {
+      key: "all",
+      name: "Tất cả sản phẩm",
+      href: PATH.COLLECTION,
+      active: activeKey === "",
+    },
+    ...categories.map((category) => ({
+      key: category._id,
+      name: category.name,
+      href: categoryHref(category.slug),
+      active: !!category.slug && category.slug === activeKey,
+    })),
+  ];
+  return (
+    <>
+      {items.map((item) => (
+        <li key={item.key}>
+          <Link
+            href={item.href}
+            aria-current={item.active ? "page" : undefined}
+            onClick={onNavigate}
+            className={linkClassName}
+          >
+            {item.name}
+          </Link>
+        </li>
+      ))}
+    </>
+  );
+}
+
+function CategoryItemsFromUrl(props: CategoryListProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeSlug =
-    pathname === PATH.COLLECTION ? searchParams.get("category") : null;
   return (
-    <CategoryNav
-      categories={categories}
-      activeSlug={activeSlug}
-      className={className}
+    <CategoryItems
+      {...props}
+      activeKey={activeCollectionKey(pathname, searchParams.get("category"))}
     />
   );
 }
 
-function CategoryNavSlot({
-  categories,
-  className,
-}: ThemeHeaderProps & { className?: string }) {
+// Bọc Suspense (như SearchBox): useSearchParams ép CSR bail-out chỉ trong boundary này,
+// trang ISR chứa Header không bị kéo theo — fallback = danh sách không có mục active
+function CategoryList(props: CategoryListProps) {
   return (
-    <Suspense
-      fallback={
-        <CategoryNav
-          categories={categories}
-          activeSlug={null}
-          className={className}
-        />
-      }
-    >
-      <CategoryNavFromUrl categories={categories} className={className} />
+    <Suspense fallback={<CategoryItems {...props} activeKey={null} />}>
+      <CategoryItemsFromUrl {...props} />
     </Suspense>
+  );
+}
+
+// Disclosure (không phải menu ARIA): nút aria-expanded + danh sách link, Tab đi qua từng mục.
+// Chuột: hover mở ("hover"), click ghim ("pinned"); bàn phím/chạm: click bật/tắt.
+function CollectionMenu({ categories }: ThemeHeaderProps) {
+  const [open, setOpen] = useState<false | "hover" | "pinned">(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
+  const close = useCallback(() => setOpen(false), []);
+  useClickOutside(rootRef, close);
+
+  // Đổi route (kể cả back/forward) → đóng; set state lúc render thay vì effect
+  const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setOpen(false);
+  }
+
+  return (
+    <div
+      ref={rootRef}
+      className="relative"
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") setOpen((o) => o || "hover");
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === "mouse")
+          setOpen((o) => (o === "hover" ? false : o));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && open) {
+          setOpen(false);
+          buttonRef.current?.focus();
+        }
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
+      }}
+    >
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-expanded={!!open}
+        aria-controls={panelId}
+        onClick={() => setOpen((o) => (o === "pinned" ? false : "pinned"))}
+        className={cn(
+          NAV_LINK,
+          "gap-1 uppercase",
+          open && "text-primary-700 after:scale-x-100"
+        )}
+      >
+        Bộ sưu tập
+        <span
+          aria-hidden
+          className={cn("transition-transform", open && "rotate-180")}
+        >
+          ▾
+        </span>
+      </button>
+      {/* pt-1.5 trong suốt nối nút với panel: chuột đi xuống không rơi khỏi vùng hover */}
+      <div
+        id={panelId}
+        hidden={!open}
+        className="absolute left-1/2 top-full z-10 -translate-x-1/2 pt-1.5"
+      >
+        <ul className="min-w-56 max-h-[calc(100vh-88px)] overflow-y-auto rounded-md border border-white-200 bg-page py-2 shadow-card normal-case tracking-normal">
+          <CategoryList
+            categories={categories}
+            onNavigate={close}
+            linkClassName={cn(
+              "block whitespace-nowrap px-5 py-2.5 text-sm font-medium text-dark-800 transition-colors hover:bg-white-100 hover:text-primary-700 aria-[current=page]:text-primary-700",
+              FOCUS_RING,
+              "focus-visible:ring-inset"
+            )}
+          />
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function MobileDrawer({
+  id,
+  open,
+  onClose,
+  categories,
+}: ThemeHeaderProps & {
+  id: string;
+  open: boolean;
+  onClose: (restoreFocus: boolean) => void;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const subId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    // Xoay/kéo rộng qua nấc desktop: drawer ẩn bằng CSS nhưng khóa cuộn còn — đóng hẳn
+    const mq = window.matchMedia(DESKTOP_MQ);
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) onClose(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => {
+      document.body.style.overflow = "";
+      mq.removeEventListener("change", onChange);
+    };
+  }, [open, onClose]);
+
+  // Giữ Tab trong panel (aria-modal không tự chặn focus)
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape") {
+      onClose(true);
+      return;
+    }
+    if (e.key !== "Tab" || !panelRef.current) return;
+    const focusables = Array.from(
+      panelRef.current.querySelectorAll<HTMLElement>("a[href], button")
+    ).filter((el) => el.getClientRects().length > 0);
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last?.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first?.focus();
+    }
+  };
+
+  const navigate = () => onClose(false);
+
+  return (
+    <div
+      id={id}
+      hidden={!open}
+      className="fixed inset-0 z-[60] min-[1100px]:hidden"
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-dark-900/40"
+        onClick={() => onClose(true)}
+      />
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        onKeyDown={onKeyDown}
+        className="absolute inset-y-0 left-0 flex w-[min(360px,88vw)] flex-col overflow-y-auto overscroll-contain bg-page shadow-card-hover"
+      >
+        <div className="flex h-16 flex-none items-center justify-between border-b border-white-200 pl-[var(--container-px)] pr-2">
+          <Wordmark className="text-[24px] tracking-[.04em] text-dark-800" />
+          <button
+            ref={closeRef}
+            type="button"
+            aria-label="Đóng menu"
+            onClick={() => onClose(true)}
+            className={ICON_BUTTON}
+          >
+            <Glyph>
+              <path d="M6 6l12 12M18 6 6 18" />
+            </Glyph>
+          </button>
+        </div>
+        <nav
+          aria-label="Menu chính"
+          className="px-[var(--container-px)] pb-6 text-[15px] font-semibold uppercase tracking-[.02em]"
+        >
+          <ul>
+            {LINKS_BEFORE_COLLECTION.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={navigate}
+                  className={DRAWER_LINK}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <button
+                type="button"
+                aria-expanded={collectionOpen}
+                aria-controls={subId}
+                onClick={() => setCollectionOpen((o) => !o)}
+                className={cn(DRAWER_LINK, "w-full justify-between uppercase")}
+              >
+                Bộ sưu tập
+                <span
+                  aria-hidden
+                  className={cn(
+                    "transition-transform",
+                    collectionOpen && "rotate-180"
+                  )}
+                >
+                  ▾
+                </span>
+              </button>
+              <ul
+                id={subId}
+                hidden={!collectionOpen}
+                className="border-b border-white-200 py-1 normal-case tracking-normal"
+              >
+                <CategoryList
+                  categories={categories}
+                  onNavigate={navigate}
+                  linkClassName={cn(
+                    "flex min-h-11 items-center rounded-sm pl-4 text-[15px] font-medium text-dark-500 transition-colors hover:text-primary-700 aria-[current=page]:text-primary-700",
+                    FOCUS_RING,
+                    "focus-visible:ring-inset"
+                  )}
+                />
+              </ul>
+            </li>
+            {LINKS_AFTER_COLLECTION.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={navigate}
+                  className={DRAWER_LINK}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+// Thay UserAction: mockup cần thứ tự tài khoản · tìm kiếm · túi + badge, icon tài khoản bấm được bằng phím
+// (bản "badge" của UserAction là svg không focus được, bản "pill" là chữ "Giỏ (n)")
+function HeaderIcons({
+  isSearchOpen,
+  onToggleSearch,
+}: {
+  isSearchOpen: boolean;
+  onToggleSearch: () => void;
+}) {
+  const profileId = useAppStore((s) => s.profile._id);
+  const isLogin = !!profileId;
+  const totalQuantity = useCartStore((s) => s.cart?.totalQuantity ?? 0);
+  const fetchCart = useCartStore((s) => s.fetchCart);
+  const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  useClickOutside(rootRef, closeMenu);
+
+  // Như UserAction (lua không render nó): refetch giỏ theo danh tính — mount, login, logout
+  useEffect(() => {
+    fetchCart(true);
+  }, [profileId, fetchCart]);
+
+  return (
+    // -mr: glyph túi chạm mép container như mockup; vùng bấm + badge vẫn trong padding container
+    <div
+      ref={rootRef}
+      className="relative -mr-2.5 flex items-center justify-self-end min-[360px]:gap-0.5"
+    >
+      <button
+        type="button"
+        aria-label="Tài khoản"
+        onClick={
+          isLogin
+            ? () => setIsMenuOpen((open) => !open)
+            : () => router.push(PATH.LOGIN)
+        }
+        className={ICON_BUTTON}
+      >
+        <Glyph>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+        </Glyph>
+      </button>
+      <button
+        type="button"
+        aria-label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm kiếm"}
+        aria-expanded={isSearchOpen}
+        onClick={onToggleSearch}
+        className={cn(ICON_BUTTON, isSearchOpen && "text-primary-700")}
+      >
+        <Glyph>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </Glyph>
+      </button>
+      <Link
+        href={PATH.CART}
+        aria-label={
+          totalQuantity > 0 ? `Giỏ hàng, ${totalQuantity} sản phẩm` : "Giỏ hàng"
+        }
+        className={ICON_BUTTON}
+      >
+        <span className="relative">
+          <Glyph>
+            <path d="M5 8h14l-1 13H6z" />
+            <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+          </Glyph>
+          {/* Mockup .cart-count: 17px, chữ trắng 10/700 trên accent (7.76:1) */}
+          {totalQuantity > 0 && (
+            <span
+              data-testid="cart-badge"
+              className="absolute -right-1.5 -top-1 grid h-[17px] min-w-[17px] place-items-center rounded-full bg-primary-700 px-1 text-[10px] font-bold leading-none text-white"
+            >
+              {totalQuantity > 99 ? "99+" : totalQuantity}
+            </span>
+          )}
+        </span>
+      </Link>
+      {isLogin && (
+        <UserSidebar
+          isMenuOpen={isMenuOpen}
+          closeMenu={closeMenu}
+          isDropdown={true}
+        />
+      )}
+    </div>
   );
 }
 
 export default function Header({ categories }: ThemeHeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const closeSearch = () => setIsSearchOpen(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const burgerRef = useRef<HTMLButtonElement>(null);
+  const drawerId = useId();
+
+  const closeDrawer = useCallback((restoreFocus: boolean) => {
+    setIsDrawerOpen(false);
+    if (restoreFocus) burgerRef.current?.focus();
+  }, []);
+
+  const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsDrawerOpen(false);
+  }
 
   return (
     <>
-      {/* Mockup .header: nền page mờ nhẹ, hairline dưới, cao 64px */}
+      {/* Mockup .header: nền page mờ nhẹ, hairline dưới, cao 64px; grid 1fr auto 1fr (logo · nav · icon),
+          dưới nấc nav: burger · logo giữa · icon */}
       <header className="sticky top-0 z-50 bg-page/95 backdrop-blur-md border-b border-white-200">
-        <div className="container-base h-16 flex items-center justify-between gap-x-2 min-[360px]:gap-x-3 sm:gap-x-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto]">
+        <div className="container-base h-16 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 min-[1100px]:grid-cols-[1fr_auto_1fr] min-[1100px]:gap-x-8">
+          <button
+            ref={burgerRef}
+            type="button"
+            aria-label="Mở menu"
+            aria-expanded={isDrawerOpen}
+            aria-controls={drawerId}
+            onClick={() => setIsDrawerOpen(true)}
+            className={cn(ICON_BUTTON, "-ml-2.5 min-[1100px]:hidden")}
+          >
+            <Glyph>
+              <path d="M3 7h18M3 12h18M3 17h18" />
+            </Glyph>
+          </button>
+
           <Link
             href={PATH.HOME}
             aria-label="CLOTHES — về trang chủ"
-            className={cn("inline-flex rounded-md text-dark-800", FOCUS_RING)}
+            className={cn(
+              "inline-flex justify-self-center rounded-md text-dark-800 min-[1100px]:justify-self-start",
+              FOCUS_RING
+            )}
           >
-            {/* < 360px: wordmark nhỏ lại để pill "Giỏ (nn)" không tràn khỏi viewport 320px */}
-            <Wordmark className="text-[20px] min-[360px]:text-[26px] tracking-[.04em]" />
+            {/* < 360px: wordmark nhỏ lại để burger + 3 icon + badge không tràn viewport 320px */}
+            <Wordmark className="text-[22px] min-[360px]:text-[26px] tracking-[.04em]" />
           </Link>
 
-          <div className="hidden lg:flex justify-center min-w-0">
-            <CategoryNavSlot categories={categories} />
-          </div>
+          <nav
+            aria-label="Chính"
+            className="hidden min-[1100px]:block text-sm font-semibold uppercase tracking-[.02em]"
+          >
+            <ul className="flex items-center gap-[clamp(20px,2.6vw,44px)]">
+              {LINKS_BEFORE_COLLECTION.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className={NAV_LINK}>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <CollectionMenu categories={categories} />
+              </li>
+              {LINKS_AFTER_COLLECTION.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className={NAV_LINK}>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-          <div className="flex items-center min-[360px]:gap-1">
-            <button
-              type="button"
-              aria-label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm kiếm"}
-              aria-expanded={isSearchOpen}
-              onClick={() => setIsSearchOpen((open) => !open)}
-              className={cn(
-                "grid place-items-center size-11 rounded-full transition-colors hover:text-primary-700",
-                FOCUS_RING,
-                isSearchOpen ? "text-primary-700" : "text-dark-800"
-              )}
-            >
-              <Search />
-            </button>
-            <UserAction cartDisplay="pill" />
-          </div>
+          <HeaderIcons
+            isSearchOpen={isSearchOpen}
+            onToggleSearch={() => setIsSearchOpen((open) => !open)}
+          />
         </div>
 
         {/* Thanh search: overlay dưới header (mọi breakpoint), không đẩy nội dung trang */}
@@ -345,13 +573,12 @@ export default function Header({ categories }: ThemeHeaderProps) {
         )}
       </header>
 
-      {/* < lg: hàng pill nằm NGOÀI header sticky — cuộn đi cùng trang, chỉ hàng logo/icon bám lại.
-          Không margin âm kéo lên: header sticky z-50 nền page sẽ đè mất mép trên của pill */}
-      <div className="lg:hidden border-b border-white-200">
-        <div className="container-base flex justify-center">
-          <CategoryNavSlot categories={categories} />
-        </div>
-      </div>
+      <MobileDrawer
+        id={drawerId}
+        open={isDrawerOpen}
+        onClose={closeDrawer}
+        categories={categories}
+      />
     </>
   );
 }
