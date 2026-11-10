@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { IComboCard } from "@/@types/Combo.type";
 import { cn } from "@/config/utils";
-import { resolveImageUrl } from "@/utils/resolveImageUrl";
 import CenterHead from "./CenterHead";
 import { COMBO_SLOT_COPY } from "./content";
 import { pickComboBlocks } from "./comboBlock";
@@ -10,7 +9,7 @@ import { pickComboBlocks } from "./comboBlock";
 const PILL =
   "inline-flex items-center rounded-btn border-[1.5px] px-6 py-3 text-[13px] font-semibold uppercase tracking-[.08em] transition-colors";
 
-// Mockup .split: ảnh lớn + copy trang trí | panel tint với strip món, giá thật. Khối 2 lật ngược ở lg.
+// Mockup .split: ảnh lớn + copy trang trí | panel tint với lưới 3 ảnh, giá thật. Khối 2 lật ngược ở lg.
 const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
   const blocks = pickComboBlocks(combos);
   if (blocks.length === 0) return null;
@@ -37,16 +36,14 @@ const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
                   reversed ? "lg:order-2 lg:justify-start" : "lg:justify-end"
                 )}
               >
-                {view.image && (
-                  <Image
-                    src={resolveImageUrl(view.image)}
-                    alt=""
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    className="object-cover"
-                  />
-                )}
-                {/* Ảnh combo CMS thường nền sáng: scrim ≥ 55% dưới vùng chữ (từ 45% bề ngang ở lg) + text-shadow
+                <Image
+                  src={copy.heroImage}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+                {/* Ảnh có vùng sáng: scrim ≥ 55% dưới vùng chữ (từ 45% bề ngang ở lg) + text-shadow
                     như Hero → chữ trắng nhỏ đạt AA kể cả ảnh trắng; gradient mockup (5% → 55%) không đủ */}
                 <span
                   className={cn(
@@ -77,30 +74,23 @@ const ComboSplit = ({ combos }: { combos: IComboCard[] }) => {
               </div>
 
               <div className="flex flex-col gap-6 bg-primary-50 p-5 md:p-7">
-                {view.pieces.length > 0 && (
-                  // Số cột = số món (1–3): combo 2 món không để trống cột thứ 3
-                  <div
-                    className="grid gap-1.5"
-                    style={{
-                      gridTemplateColumns: `repeat(${view.pieces.length}, minmax(0, 1fr))`,
-                    }}
-                  >
-                    {view.pieces.map((src, i) => (
-                      <div
-                        key={`${src}-${i}`}
-                        className="relative aspect-[3/4] overflow-hidden rounded bg-white-200"
-                      >
-                        <Image
-                          src={resolveImageUrl(src)}
-                          alt=""
-                          fill
-                          sizes="(min-width: 1024px) 15vw, 33vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* Lưới 3 ảnh mockup .strip — ảnh cứng theo slot (showcase), không lấy từ combo */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  {copy.gridImages.map((src) => (
+                    <div
+                      key={src}
+                      className="relative aspect-[3/4] overflow-hidden rounded bg-white-200"
+                    >
+                      <Image
+                        src={src}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 15vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
                 {/* 1 cột (mockup để tên cột auto) — tên combo thật dài, cột auto sẽ ép mô tả */}
                 <div className="flex flex-col items-start gap-2">
                   <h3 className="font-display text-[clamp(28px,2.6vw,40px)] leading-[1.15] text-primary-700">

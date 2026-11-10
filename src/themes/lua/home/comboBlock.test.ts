@@ -46,21 +46,10 @@ describe("lua combo blocks", () => {
     }
   });
 
-  it("image falls back to first piece", () => {
-    expect(
-      toComboBlock(combo({ image: null, pieceImages: ["a.jpg", "b.jpg"] }))
-        .image
-    ).toBe("a.jpg");
-    expect(toComboBlock(combo({ image: null, pieceImages: [] })).image).toBe(
-      null
-    );
-  });
-
-  it("strip keeps at most 3 pieces", () => {
-    const view = toComboBlock(
-      combo({ pieceImages: ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"] })
-    );
-    expect(view.pieces).toEqual(["1.jpg", "2.jpg", "3.jpg"]);
+  it("carries no image fields — images are hard-coded per slot in content.ts", () => {
+    const view = toComboBlock(combo());
+    expect(view).not.toHaveProperty("image");
+    expect(view).not.toHaveProperty("pieces");
   });
 
   it("pickComboBlocks caps at 2 and handles short lists", () => {

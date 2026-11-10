@@ -1,6 +1,5 @@
 import type { ThemeHomeProps } from "@/themes/types";
 import ContentSlider from "@/components/ui/ContentSlider";
-import CardItemGrid from "@/components/ui/CardItemGrid";
 import CardItemSlider from "@/components/ui/CardItemSlider";
 import CustomerReview from "@/components/ui/CustomerReview";
 import UspStrip from "@/app/(main)/_component/UspStrip";
@@ -10,6 +9,7 @@ import BrandStory from "./BrandStory";
 import CategoryTiles from "./home/CategoryTiles";
 import ComboSplit from "./home/ComboSplit";
 import Lookbook from "./home/Lookbook";
+import SaleGrid from "./home/SaleGrid";
 
 // Thứ tự section theo mockup son-lua (spec §3) — data fetch sẵn ở page.tsx
 const Home = ({
@@ -29,17 +29,7 @@ const Home = ({
 
     <CategoryTiles />
 
-    {saleProducts.length > 0 && (
-      <div className="container-base">
-        <ContentSlider
-          title="Office style — your signature"
-          subtitle="Đang khuyến mãi: những thiết kế công sở được yêu thích nhất, giá tốt trong tuần này."
-          href={PATH.COLLECTION}
-        >
-          <CardItemGrid dataProduct={saleProducts} />
-        </ContentSlider>
-      </div>
-    )}
+    {saleProducts.length > 0 && <SaleGrid fallback={saleProducts} />}
 
     <ComboSplit combos={combos} />
 
