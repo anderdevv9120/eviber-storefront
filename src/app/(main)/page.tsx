@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import theme from "@active-theme";
+import type { ThemeModule } from "@/themes/types";
 import ContentSlider from "@/components/ui/ContentSlider";
 import CardItemGrid from "@/components/ui/CardItemGrid";
 import ComboCardList from "@/components/ui/ComboCardList";
@@ -94,59 +95,75 @@ export default async function Home() {
       fetchCombos(),
     ]);
 
+  // Cast: tsconfig map @active-theme → classic, type `satisfies` của classic không có Home
+  const ThemeHome = (theme as ThemeModule).Home;
+
   return (
     <main>
       {/* H1 cố định cho SEO (sr-only) — hero là carousel data CMS nên title slide giữ h2 */}
       <h1 className="sr-only">
         CLOTHES — Thời trang tối giản, mặc bền nhiều mùa
       </h1>
-      <theme.Hero banners={banners} />
+      {ThemeHome ? (
+        <ThemeHome
+          banners={banners}
+          saleProducts={saleProducts}
+          bestSellers={bestSellers}
+          reviews={reviews}
+          storeSettings={storeSettings}
+          combos={combos}
+        />
+      ) : (
+        <>
+          <theme.Hero banners={banners} />
 
-      <div className="container-base">
-        <Category />
+          <div className="container-base">
+            <Category />
 
-        {saleProducts.length > 0 && (
-          <ContentSlider title="Đang khuyến mãi" href={PATH.COLLECTION}>
-            <CardItemGrid dataProduct={saleProducts} />
-          </ContentSlider>
-        )}
+            {saleProducts.length > 0 && (
+              <ContentSlider title="Đang khuyến mãi" href={PATH.COLLECTION}>
+                <CardItemGrid dataProduct={saleProducts} />
+              </ContentSlider>
+            )}
 
-        {combos.length > 0 && (
-          <ContentSlider title="Combo">
-            <ComboCardList combos={combos} />
-          </ContentSlider>
-        )}
+            {combos.length > 0 && (
+              <ContentSlider title="Combo">
+                <ComboCardList combos={combos} />
+              </ContentSlider>
+            )}
 
-        <PromoSplitBanner tiles={storeSettings.promoTiles} />
+            <PromoSplitBanner tiles={storeSettings.promoTiles} />
 
-        {bestSellers.length > 0 && (
-          <ContentSlider
-            title="Bán chạy"
-            href={`${PATH.COLLECTION}?sort=bestseller`}
-          >
-            <CardItemSlider dataProduct={bestSellers} />
-          </ContentSlider>
-        )}
-      </div>
+            {bestSellers.length > 0 && (
+              <ContentSlider
+                title="Bán chạy"
+                href={`${PATH.COLLECTION}?sort=bestseller`}
+              >
+                <CardItemSlider dataProduct={bestSellers} />
+              </ContentSlider>
+            )}
+          </div>
 
-      {storeSettings.brandStory && (
-        <theme.BrandStory story={storeSettings.brandStory} />
+          {storeSettings.brandStory && (
+            <theme.BrandStory story={storeSettings.brandStory} />
+          )}
+
+          {reviews.length > 0 && (
+            <div className="container-base">
+              <ContentSlider
+                title="Phản hồi từ khách hàng"
+                subtitle="Từ những đơn hàng đã xác nhận mua"
+              >
+                <CustomerReview reviews={reviews} />
+              </ContentSlider>
+            </div>
+          )}
+
+          <div className="container-base mt-16 md:mt-24">
+            <UspStrip items={storeSettings.homePromises} />
+          </div>
+        </>
       )}
-
-      {reviews.length > 0 && (
-        <div className="container-base">
-          <ContentSlider
-            title="Phản hồi từ khách hàng"
-            subtitle="Từ những đơn hàng đã xác nhận mua"
-          >
-            <CustomerReview reviews={reviews} />
-          </ContentSlider>
-        </div>
-      )}
-
-      <div className="container-base mt-16 md:mt-24">
-        <UspStrip items={storeSettings.homePromises} />
-      </div>
     </main>
   );
 }
