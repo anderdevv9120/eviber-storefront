@@ -7,6 +7,7 @@ import useCustomSwipeable from "@/hooks/useCustomSwipeable";
 import { cn } from "@/config/utils";
 import type { ThemeHeroProps } from "@/themes/types";
 import { resolveImageUrl } from "@/utils/resolveImageUrl";
+import { heroCollageSides } from "./home/content";
 
 const AUTO_SLIDE_MS = 5000;
 
@@ -51,7 +52,8 @@ const Hero = ({ banners }: ThemeHeroProps) => {
   if (count === 0) return null;
 
   return (
-    // Mockup .hero: 1 ảnh full-bleed mỗi banner, gradient tối, chữ canh giữa, dot dạng vạch
+    // Mockup .hero: mỗi banner 1 collage 3 ảnh (.hero-imgs) nếu ảnh banner khớp map trong content.ts,
+    // không thì 1 ảnh full-bleed (banner CMS); gradient tối, chữ canh giữa, dot dạng vạch
     <section
       aria-label="Banner khuyến mãi"
       onFocus={() => setPaused(true)}
@@ -61,26 +63,59 @@ const Hero = ({ banners }: ThemeHeroProps) => {
       {...swipeHandlers}
       className="relative h-[min(86vh,820px)] min-h-[520px] overflow-hidden bg-dark-800 text-white"
     >
-      {banners.map((banner, index) => (
-        <Image
-          key={banner._id}
-          src={resolveImageUrl(banner.image)}
-          alt={banner.title}
-          fill
-          priority={index === 0}
-          // Kéo chuột trên <img> mở native drag, nuốt mousemove → swipe chuột không chạy
-          draggable={false}
-          sizes="100vw"
-          aria-hidden={index !== current}
-          className={cn(
-            "object-cover object-[center_25%] transition-opacity duration-700",
-            index === current ? "opacity-100" : "opacity-0"
-          )}
-        />
-      ))}
+      {banners.map((banner, index) => {
+        const sides = heroCollageSides(banner.image);
+        const imageClass = "object-cover object-[center_25%]";
+        return (
+          <div
+            key={banner._id}
+            aria-hidden={index !== current}
+            className={cn(
+              "absolute inset-0 transition-opacity duration-700",
+              index === current ? "opacity-100" : "opacity-0"
+            )}
+          >
+            {sides ? (
+              // ≤860px (media query mockup) chỉ còn ảnh giữa; ảnh hai bên display:none + lazy → mobile không tải
+              <div className="grid h-full grid-cols-1 gap-0.5 min-[861px]:grid-cols-3">
+                {[sides[0], banner.image, sides[1]].map((src, col) => (
+                  <div
+                    key={col}
+                    className={cn(
+                      "relative",
+                      col !== 1 && "hidden min-[861px]:block"
+                    )}
+                  >
+                    <Image
+                      src={resolveImageUrl(src)}
+                      alt={col === 1 ? banner.title : ""}
+                      fill
+                      priority={index === 0 && col === 1}
+                      draggable={false}
+                      sizes="(min-width: 861px) 34vw, 100vw"
+                      className={imageClass}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Kéo chuột trên <img> mở native drag, nuốt mousemove → swipe chuột không chạy (draggable={false})
+              <Image
+                src={resolveImageUrl(banner.image)}
+                alt={banner.title}
+                fill
+                priority={index === 0}
+                draggable={false}
+                sizes="100vw"
+                className={imageClass}
+              />
+            )}
+          </div>
+        );
+      })}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/50"
+        className="absolute inset-0 bg-gradient-to-b from-black/[.12] via-black/[.28] to-black/50"
       />
 
       {/* Các slide chữ chồng cùng ô grid → đổi slide không nhảy layout */}
@@ -99,7 +134,7 @@ const Hero = ({ banners }: ThemeHeroProps) => {
               inert={!active}
             >
               <p className="text-xs font-semibold uppercase tracking-[.28em]">
-                Bộ sưu tập mới
+                Bộ sưu tập Thu Đông 2026
               </p>
               <h2
                 className={cn(

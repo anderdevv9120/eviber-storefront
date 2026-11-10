@@ -1,7 +1,6 @@
 import type { ThemeHomeProps } from "@/themes/types";
 import ContentSlider from "@/components/ui/ContentSlider";
 import CardItemSlider from "@/components/ui/CardItemSlider";
-import CustomerReview from "@/components/ui/CustomerReview";
 import UspStrip from "@/app/(main)/_component/UspStrip";
 import { PATH } from "@/constants/paths";
 import Hero from "./Hero";
@@ -9,14 +8,15 @@ import BrandStory from "./BrandStory";
 import CategoryTiles from "./home/CategoryTiles";
 import ComboSplit from "./home/ComboSplit";
 import Lookbook from "./home/Lookbook";
+import Reviews from "./home/Reviews";
 import SaleGrid from "./home/SaleGrid";
 
-// Thứ tự section theo mockup son-lua (spec §3) — data fetch sẵn ở page.tsx
+// Thứ tự section theo mockup son-lua (spec §3) — data fetch sẵn ở page.tsx;
+// `reviews` (review DB) bỏ qua: "Nàng nói gì" là review cứng của mockup (home/Reviews)
 const Home = ({
   banners,
   saleProducts,
   bestSellers,
-  reviews,
   storeSettings,
   combos,
 }: ThemeHomeProps) => (
@@ -50,16 +50,7 @@ const Home = ({
       <BrandStory story={storeSettings.brandStory} />
     )}
 
-    {reviews.length > 0 && (
-      <div className="container-base">
-        <ContentSlider
-          title="Nàng nói gì"
-          subtitle="Phản hồi từ những đơn hàng đã xác nhận mua."
-        >
-          <CustomerReview reviews={reviews} />
-        </ContentSlider>
-      </div>
-    )}
+    <Reviews />
   </>
 );
 

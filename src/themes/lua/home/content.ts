@@ -136,3 +136,69 @@ export const BRAND_STORY = {
     alt: "Thợ may chỉnh đầm trắng trên ma-nơ-canh",
   },
 };
+
+/** Hero collage (mockup .hero-imgs: 3 ảnh dọc). Banner DB chỉ có 1 ảnh = ảnh GIỮA; khóa = photo id Unsplash
+ *  của ảnh giữa (so id, không so URL → query khác vẫn khớp) → [ảnh trái, ảnh phải].
+ *  Banner seed: backend scripts/seed-lua-showcase.cjs. Banner CMS không khớp → Hero hiện 1 ảnh full-bleed */
+const HERO_IMG = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=900&q=80&auto=format&fit=crop`;
+
+const HERO_COLLAGE_SIDES: Record<string, [string, string]> = {
+  // Slide 1 = đúng 3 ảnh hero mockup
+  "1678700266327-8959be9622fd": [
+    HERO_IMG("1676716105765-e19fe6a01851"),
+    HERO_IMG("1618333453296-9e35280fd6b1"),
+  ],
+  "1700942925598-2e86c7ee9fb8": [
+    HERO_IMG("1709145255324-481ceb7cdf42"),
+    HERO_IMG("1677444576987-397c8a5ad04e"),
+  ],
+  "1770644935626-f61d233f4827": [
+    HERO_IMG("1590873802674-55bb8f947bc5"),
+    HERO_IMG("1764179690266-40a6d783f338"),
+  ],
+};
+
+export const heroCollageSides = (
+  image: string
+): [string, string] | undefined => {
+  const id = /images\.unsplash\.com\/photo-(\d+-[0-9a-f]+)/.exec(image)?.[1];
+  return id ? HERO_COLLAGE_SIDES[id] : undefined;
+};
+
+/** Mockup "Nàng nói gì" (.reviews) — review cứng cho showcase, không lấy review DB */
+const REVIEW_THUMB = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=120&q=70&auto=format&fit=crop`;
+
+export const REVIEWS: {
+  rating: number;
+  quote: string;
+  name: string;
+  item: string;
+  image: string;
+}[] = [
+  {
+    rating: 5,
+    quote:
+      "Vải dày dặn, đường may kỹ. Mặc đi làm cả ngày không nhăn, đồng nghiệp hỏi mua ở đâu.",
+    name: "Ngọc Anh · Hà Nội",
+    item: "Blazer camel · Size M",
+    image: REVIEW_THUMB("1613915617430-8ab0fd7c6baf"),
+  },
+  {
+    rating: 5,
+    quote:
+      "Đầm lên dáng đẹp hơn ảnh. Shop tư vấn size rất kỹ, giao nhanh 2 ngày.",
+    name: "Thu Trang · TP.HCM",
+    item: "Đầm hai dây đen · Size S",
+    image: REVIEW_THUMB("1594019739447-6c8a1d744d61"),
+  },
+  {
+    rating: 4,
+    quote:
+      "Combo công sở rất tiện, phối sẵn khỏi nghĩ. Mong shop ra thêm màu be.",
+    name: "Minh Châu · Đà Nẵng",
+    item: "Combo Duyên · Size M",
+    image: REVIEW_THUMB("1592818628487-b273941a7849"),
+  },
+];
