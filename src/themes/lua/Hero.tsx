@@ -77,7 +77,8 @@ const Hero = ({ banners }: ThemeHeroProps) => {
           >
             {sides ? (
               // ≤860px (media query mockup) chỉ còn ảnh giữa; ảnh hai bên display:none + lazy → mobile không tải
-              <div className="grid h-full grid-cols-1 gap-0.5 min-[861px]:grid-cols-3">
+              // Không gap: user muốn collage liền mạch, bỏ vạch 2px của mockup
+              <div className="grid h-full grid-cols-1 min-[861px]:grid-cols-3">
                 {[sides[0], banner.image, sides[1]].map((src, col) => (
                   <div
                     key={col}
